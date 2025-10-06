@@ -11,7 +11,7 @@ using TcpListener;
 namespace TcpListener.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250930160628_First")]
+    [Migration("20251006123730_First")]
     partial class First
     {
         /// <inheritdoc />
