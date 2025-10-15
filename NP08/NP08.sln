@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPListener", "TCPListener\TCPListener.csproj", "{DB2BAE68-2275-41BE-BC98-296BA31A2A8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPClient", "TCPClient\TCPClient.csproj", "{5BB4D586-D9F4-4C3E-B2A8-3C26B1F0B486}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB2BAE68-2275-41BE-BC98-296BA31A2A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB2BAE68-2275-41BE-BC98-296BA31A2A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB2BAE68-2275-41BE-BC98-296BA31A2A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB2BAE68-2275-41BE-BC98-296BA31A2A8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BB4D586-D9F4-4C3E-B2A8-3C26B1F0B486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BB4D586-D9F4-4C3E-B2A8-3C26B1F0B486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BB4D586-D9F4-4C3E-B2A8-3C26B1F0B486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BB4D586-D9F4-4C3E-B2A8-3C26B1F0B486}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
