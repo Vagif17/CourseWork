@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>HW_1</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Pictures\photo_2026-01-18_01-05-26.jpg" />
+    <None Include="wwwroot\Pictures\photo_2026-01-18_01-15-40.jpg" />
+    <None Include="wwwroot\Pictures\WhatsApp Image 2026-01-18 at 1.019.54 AM.jpeg" />
+    <None Include="wwwroot\Pictures\WhatsApp Image 2026-01-18 at 1.09.54 AM.jpeg" />
+    <None Include="wwwroot\Pictures\WhatsApp Image 2026-01-18 at 1.09.55 AM.jpeg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
