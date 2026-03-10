@@ -9,7 +9,6 @@ namespace TextMe.Identities;
 
 public class AuthUserStore : IAuthUserStore
 {
-    public const string defaultAvatar = "https://res.cloudinary.com/diq4utz5c/image/upload/v1773148805/DefaultPFP_rykbyt.png";
 
     private readonly UserManager<AppUser> userManager;
     private readonly ICloudinaryService cloudinarySerice;
@@ -36,9 +35,7 @@ public class AuthUserStore : IAuthUserStore
 
     public async Task<string> CreateUserAsync(RegisterRequestDTO request)
     {
-        var avatarUrl = await cloudinarySerice.UploadAvatarAsync(request.AvatarUrl) is not null 
-            ? await cloudinarySerice.UploadAvatarAsync(request.AvatarUrl)
-            : defaultAvatar;
+        var avatarUrl = await cloudinarySerice.UploadAvatarAsync(request.AvatarUrl);
 
 
         var user = new AppUser
@@ -49,6 +46,7 @@ public class AuthUserStore : IAuthUserStore
             Email = request.Email,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null,
+            AvatarUrl = avatarUrl,
             
 
         };

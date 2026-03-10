@@ -7,6 +7,7 @@ namespace TextMe.Services.Classes;
 public class CloudinaryService : ICloudinaryService
 {
     private readonly ICloudinaryStorage cloudinaryStorage;
+    public const string defaultAvatar = "https://res.cloudinary.com/diq4utz5c/image/upload/v1773148805/DefaultPFP_rykbyt.png";
 
     public CloudinaryService(ICloudinaryStorage _cloudinaryStorage)
     {
@@ -16,7 +17,7 @@ public class CloudinaryService : ICloudinaryService
     public async Task<string> UploadAvatarAsync(IFormFile file)
     {
         if (file == null || file.Length == 0)
-            throw new ArgumentException("File not selected!");
+            return defaultAvatar;
 
         await using var stream = file.OpenReadStream();
 

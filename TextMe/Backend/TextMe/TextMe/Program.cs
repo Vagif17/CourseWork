@@ -92,7 +92,8 @@ builder.Services
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+          
         };
     }
     );
@@ -130,6 +131,7 @@ builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 
 var app = builder.Build();
+
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 

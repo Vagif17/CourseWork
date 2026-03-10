@@ -33,9 +33,11 @@ public class UserRegisterValidator : AbstractValidator<RegisterRequestDTO>
            .Equal(x => x.Password).WithMessage("Passwords do not match!");
 
         RuleFor(x => x.AvatarUrl)
-    .Must(file => file == null ||
-                 new[] { ".png", ".jpg", ".jpeg" }
-                 .Contains(Path.GetExtension(file.FileName).ToLower()))
-    .WithMessage("Можно загружать только PNG или JPEG файлы");
+        .Must(file => file == null || new[] { ".png", ".jpg", ".jpeg" }
+        .Contains(Path.GetExtension(file.FileName).ToLower()))
+        .WithMessage("Can upload only PNG or JPEG files");
+
+        RuleFor(x => x.PhoneNumber)
+                    .Matches(@"^\d+$").WithMessage("Phone number must contain only digits");
     }
 }

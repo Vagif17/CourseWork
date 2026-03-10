@@ -8,28 +8,30 @@ namespace TextMe.Identities;
 
 public class CloudinaryStorage : ICloudinaryStorage
 {
-    private readonly Cloudinary _cloudinary;
+    private readonly Cloudinary cloudinary;
 
     public CloudinaryStorage(IOptions<CloudConfig> options)
     {
         var config = options.Value;
 
-        _cloudinary = new Cloudinary(new Account(
+        cloudinary = new Cloudinary(new Account(
+            config.CloudName,
             config.ApiKey,
             config.ApiSecret
         ));
 
-        _cloudinary.Api.Secure = true;
+        cloudinary.Api.Secure = true;
     }
 
     public async Task<string> UploadAsync(Stream file, string fileName)
     {
         var uploadParams = new ImageUploadParams
         {
-            File = new FileDescription(fileName, file)
+            File = new FileDescription(fileName, file),
+            PublicId = $"avatars/{Guid.NewGuid}" 
         };
 
-        var result = await _cloudinary.UploadAsync(uploadParams);
+        var result = await cloudinary.UploadAsync(uploadParams);
 
         if (result.StatusCode != System.Net.HttpStatusCode.OK)
             throw new Exception($"Upload error in Cloudinary: {result.Error?.Message}");
