@@ -1,0 +1,11 @@
+﻿using TextMe.Models;
+
+namespace TextMe.Services.Interfaces;
+
+public interface IJwtTokenSerivce
+{
+    public Task<(string AccessToken, DateTimeOffset ExpiresAt)> GenerateAccessTokenAsync(string userId, string email, IList<string> roles);
+    public Task<(RefreshToken Entity, string Jwt)> CreateRefreshTokenAsync(string userId);
+    public (string UserId, string Jti) ValidateRefreshTokenAndGetJti(string refreshJwt, bool validateLifetime = true);
+    public string GetJtiFromRefreshToken(string refreshJwt);
+}
