@@ -90,6 +90,10 @@ public class AuthService : IAuthService
     private async Task<AuthResponseDTO> GenerateTokensAsync(string userId, string? email)
     {
         var roles = await authUserStore.GetRolesAsync(userId);
+
+        var userName = await authUserStore.GetUserNameAsync(userId);
+        var avatarUrl = await authUserStore.GetAvatarUrlAsync(userId);
+
         var (accessToken, expiresAt) = await jwtTokenSerivce.GenerateAccessTokenAsync(userId, email ?? "", roles);
         var (refreshEntity, refreshJwt) = await jwtTokenSerivce.CreateRefreshTokenAsync(userId);
 
@@ -100,7 +104,9 @@ public class AuthService : IAuthService
             RefreshToken = refreshJwt,
             RefreshTokenExpiresAt = refreshEntity.ExpiresAt,
             Email = email ?? "",
-            Roles = roles
+            Roles = roles,
+            UserName = userName,
+            AvatarUrl = avatarUrl
         };
     }
 }

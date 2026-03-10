@@ -27,11 +27,7 @@ public class AuthUserStore : IAuthUserStore
         return user?.Id;
     }
 
-    public async Task<string?> GetEmailAsync(string userId)
-    {
-        var user = await userManager.FindByIdAsync(userId);
-        return user?.Email;
-    }
+    
 
     public async Task<string> CreateUserAsync(RegisterRequestDTO request)
     {
@@ -74,5 +70,23 @@ public class AuthUserStore : IAuthUserStore
     {
         var user = await userManager.FindByIdAsync(userId);
         return user is null ? new List<string>() : await userManager.GetRolesAsync(user);
+    }
+
+    public async Task<string?> GetEmailAsync(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        return user?.Email;
+    }
+
+    public async Task<string?> GetUserNameAsync(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        return user?.UserName;
+    }
+
+    public async Task<string?> GetAvatarUrlAsync(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        return user?.AvatarUrl;
     }
 }
