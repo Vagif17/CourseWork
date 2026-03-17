@@ -15,9 +15,10 @@ public class RegisterRequestDTO
     public string Password { get; set; } = string.Empty;
     public string ConfirmPassword { get; set; } = string.Empty;
 
-    public IFormFile? AvatarUrl { get; set; }
+    public IFormFile? Avatar { get; set; }
+
 }
-        
+
 public class LoginRequestDTO
 {
     public string Email { get; set; } = string.Empty;

@@ -31,7 +31,7 @@ public class AuthUserStore : IAuthUserStore
 
     public async Task<string> CreateUserAsync(RegisterRequestDTO request)
     {
-        var avatarUrl = await cloudinarySerice.UploadAvatarAsync(request.AvatarUrl);
+        var avatarUrl = await cloudinarySerice.UploadAvatarAsync(request.Avatar);
 
 
         var user = new AppUser
@@ -40,10 +40,10 @@ public class AuthUserStore : IAuthUserStore
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null,
             AvatarUrl = avatarUrl,
-            
 
         };
 

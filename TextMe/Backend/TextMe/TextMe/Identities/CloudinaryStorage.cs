@@ -28,7 +28,7 @@ public class CloudinaryStorage : ICloudinaryStorage
         var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(fileName, file),
-            PublicId = $"avatars/{Guid.NewGuid}" 
+            PublicId = $"avatars/{Guid.NewGuid()}" 
         };
 
         var result = await cloudinary.UploadAsync(uploadParams);

@@ -130,10 +130,23 @@ builder.Services.AddScoped<ICloudinaryStorage, CloudinaryStorage>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseCors();
+
 
 if (app.Environment.IsDevelopment())
 {

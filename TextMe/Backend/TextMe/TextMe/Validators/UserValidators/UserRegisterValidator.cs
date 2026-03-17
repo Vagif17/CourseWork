@@ -32,12 +32,12 @@ public class UserRegisterValidator : AbstractValidator<RegisterRequestDTO>
            .NotEmpty().WithMessage("Confirmed Password required!")
            .Equal(x => x.Password).WithMessage("Passwords do not match!");
 
-        RuleFor(x => x.AvatarUrl)
+        RuleFor(x => x.Avatar)
         .Must(file => file == null || new[] { ".png", ".jpg", ".jpeg" }
         .Contains(Path.GetExtension(file.FileName).ToLower()))
         .WithMessage("Can upload only PNG or JPEG files");
 
         RuleFor(x => x.PhoneNumber)
-                    .Matches(@"^\d+$").WithMessage("Phone number must contain only digits");
+                    .MinimumLength(9);
     }
 }

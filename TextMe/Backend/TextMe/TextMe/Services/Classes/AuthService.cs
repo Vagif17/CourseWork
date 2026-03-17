@@ -94,7 +94,7 @@ public class AuthService : IAuthService
         var userName = await authUserStore.GetUserNameAsync(userId);
         var avatarUrl = await authUserStore.GetAvatarUrlAsync(userId);
 
-        var (accessToken, expiresAt) = await jwtTokenSerivce.GenerateAccessTokenAsync(userId, email ?? "", roles);
+        var (accessToken, expiresAt) = await jwtTokenSerivce.GenerateAccessTokenAsync(userId, userName, email, roles);
         var (refreshEntity, refreshJwt) = await jwtTokenSerivce.CreateRefreshTokenAsync(userId);
 
         return new AuthResponseDTO

@@ -17,9 +17,12 @@ public class UserController : ControllerBase
     }
 
 
+
     [HttpPost("register")]
+    [Consumes("multipart/form-data")]
     public async Task<ActionResult<AuthResponseDTO>> Register([FromForm] RegisterRequestDTO requestDTO)
     {
+
         var result = await authService.RegisterAsync(requestDTO);
 
         return result;
@@ -27,11 +30,11 @@ public class UserController : ControllerBase
 
     [HttpPost("login")]
 
-    public async Task<ActionResult<AuthResponseDTO>> Login([FromForm] LoginRequestDTO requestDTO)
+    public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginRequestDTO requestDTO)
     {
         var result = await authService.LoginAsync(requestDTO);
         
             return result;
     }
-
+    
 }
