@@ -1,4 +1,5 @@
-﻿using TextMe.DTO_S;
+﻿using AutoMapper;
+using TextMe.DTO_S;
 using TextMe.Identities.Interfaces;
 using TextMe.Models;
 using TextMe.Repositories.Interfaces;
@@ -10,11 +11,13 @@ public class ChatService : IChatService
 {
     private readonly IChatRepository chatRepository;
     private readonly IUserStore userStore;
+    private readonly IMapper mapper;
 
-    public ChatService(IChatRepository _chatRepository, IUserStore _userStore)
+    public ChatService(IChatRepository _chatRepository, IUserStore _userStore, IMapper _mapper)
     {
         chatRepository = _chatRepository;
         userStore = _userStore;
+        mapper = _mapper;
     }
 
 
@@ -40,6 +43,7 @@ public class ChatService : IChatService
 
     public async Task<IEnumerable<PrivateChatDTOResponse>> GetAllPrivateChatsAsync(string userId)
     {
-        return await chatRepository.GetAllPrivateChatsAsync(userId);
+
+        return mapper.Map<IEnumerable<PrivateChatDTOResponse>>(await chatRepository.GetAllPrivateChatsAsync(userId));
     }
 }

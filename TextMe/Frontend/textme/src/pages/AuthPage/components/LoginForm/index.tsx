@@ -1,9 +1,10 @@
 ﻿import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import "./LoginForm.css";
-import "../../styles/Global.css";
-import { authService } from "../../services/authService.ts";
-import type { AuthResponse } from "../../types/auth.ts";
-import {toast} from "react-toastify";
+import "../../../../styles/Global.css";
+import { authService } from "../../../../services/authService.ts";
+import type { AuthResponse } from "../../../../types/auth.ts";
+import { toast } from "react-toastify";
 
 type LoginFormProps = {
     goRegister: () => void;
@@ -15,6 +16,9 @@ type LoginFormData = {
 };
 
 function LoginForm({ goRegister }: LoginFormProps) {
+
+    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
@@ -29,7 +33,13 @@ function LoginForm({ goRegister }: LoginFormProps) {
             );
 
             console.log("Logged in:", response);
+
+            localStorage.setItem("token", response.accessToken);
+
             toast.success("Logged in successfully!", { position: "top-center" });
+
+            navigate("/homepage");
+
         } catch (err: any) {
             toast.error("Incorrect email or password", { position: "top-center" });
             console.log(err.response?.data?.message || err);
@@ -52,7 +62,10 @@ function LoginForm({ goRegister }: LoginFormProps) {
                 className={errors.email ? "input-error" : ""}
                 {...register("email", {
                     required: "Email is required",
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email format" }
+                    pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Invalid email format"
+                    }
                 })}
             />
 
@@ -62,7 +75,10 @@ function LoginForm({ goRegister }: LoginFormProps) {
                 className={errors.password ? "input-error" : ""}
                 {...register("password", {
                     required: "Password is required",
-                    minLength: { value: 6, message: "Password must be at least 6 characters" }
+                    minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters"
+                    }
                 })}
             />
 

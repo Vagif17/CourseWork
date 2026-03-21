@@ -1,7 +1,7 @@
 ﻿import './AuthPage.css'
 import '../../styles/Global.css'
-import RegisterForm from "../RegisterForm"
-import LoginForm from "../LoginForm"
+import RegisterForm from "./components/RegisterForm"
+import LoginForm from "./components/LoginForm"
 import { useState } from "react"
 
 function AuthPage() {

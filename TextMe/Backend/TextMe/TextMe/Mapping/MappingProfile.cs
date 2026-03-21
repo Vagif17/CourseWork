@@ -28,12 +28,14 @@ public class MappingProfile : Profile
         #region ChatMapping
 
         CreateMap<ChatParticipant, ParticipantDTO>()
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName)) 
+                .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl));
 
         CreateMap<Chat, PrivateChatDTOResponse>()
-           .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants));
-           
-           #endregion
+            .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants));
+
+
+        #endregion
     }
 }

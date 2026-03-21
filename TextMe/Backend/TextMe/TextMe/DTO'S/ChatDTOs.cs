@@ -5,7 +5,8 @@
 public class ParticipantDTO
 {
     public string UserId { get; set; } = null!;
-    public string? UserName { get; set; }   
+    public string? UserName { get; set; }
+    public string? AvatarUrl { get; set; }
 }
 
 public class PrivateChatDTOResponse
@@ -13,4 +14,7 @@ public class PrivateChatDTOResponse
     public int Id { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public IEnumerable<ParticipantDTO> Participants { get; set; } = new List<ParticipantDTO>();
+
+    public string? LastMessage { get; set; }
+    public DateTimeOffset? LastMessageAt { get; set; }
 }

@@ -11,11 +11,9 @@ namespace TextMe.Repositories.Classes;
 public class ChatRepository : IChatRepository
 {
     private readonly TextMeDbContext textMeDbContext;
-    private readonly IMapper mapper;
-    public ChatRepository(TextMeDbContext _textMeDbContext, IMapper _mapper)
+    public ChatRepository(TextMeDbContext _textMeDbContext)
     {
         textMeDbContext = _textMeDbContext;
-        mapper = _mapper;
     }
 
     public async Task<Chat> CreatePrivateChatAsync(string creatorId, string targetUserId)
@@ -46,12 +44,13 @@ public class ChatRepository : IChatRepository
             .FirstOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<PrivateChatDTOResponse>> GetAllPrivateChatsAsync(string userId)
+    public async Task<IEnumerable<Chat>> GetAllPrivateChatsAsync(string userId)
     {
         return await textMeDbContext.Chats
             .Where(c => !c.IsGroup)
             .Where(c => c.Participants.Any(p => p.UserId == userId))
-            .ProjectTo<PrivateChatDTOResponse>(mapper.ConfigurationProvider)
+            .Include(c => c.Participants)
+            .ThenInclude(p => p.User)
             .ToListAsync();
     }
 }
