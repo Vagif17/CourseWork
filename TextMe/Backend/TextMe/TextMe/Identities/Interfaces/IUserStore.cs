@@ -1,10 +1,11 @@
 ﻿using TextMe.DTOs;
 
-namespace TextMe.Interfaces;
+namespace TextMe.Identities.Interfaces;
 
-public interface IAuthUserStore
+public interface IUserStore
 {
     public Task<string?> FindUserIdByEmailOrIdAsync(string emailOrId);
+    public Task<string?> FindUserIdByEmailOrPhoneAsync(string emailOrPhone);
     public Task<string?> GetEmailAsync(string userId);
     public Task<string?> GetUserNameAsync(string userId);
     public Task<string?> GetAvatarUrlAsync(string userId);

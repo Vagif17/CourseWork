@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TextMe.Data;
 
@@ -11,9 +12,11 @@ using TextMe.Data;
 namespace TextMe.Migrations
 {
     [DbContext(typeof(TextMeDbContext))]
-    partial class TextMeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319121434_MessageClassUpdated")]
+    partial class MessageClassUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

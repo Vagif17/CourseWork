@@ -15,7 +15,11 @@ public class Message
     public string SenderId { get; set; } = null!;
     public AppUser Sender { get; set; } = null!;
 
-    public string? Data { get; set; } = string.Empty;
-    public bool IsMedia { get; set; }
+    public string? Text { get; set; }
+    public string? MediaUrl { get; set; }
+    public string? MediaType { get; set; } 
+
+    public MessageStatus Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
 }

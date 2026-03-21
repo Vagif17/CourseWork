@@ -2,9 +2,9 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 using TextMe.Config;
-using TextMe.Interfaces;
+using TextMe.Identities.Interfaces;
 
-namespace TextMe.Identities;
+namespace TextMe.Identities.Classes;
 
 public class CloudinaryStorage : ICloudinaryStorage
 {

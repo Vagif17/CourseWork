@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TextMe.DTOs;
-using TextMe.Interfaces;
+using TextMe.Identities.Interfaces;
 using TextMe.Models;
 using TextMe.Services.Interfaces;
 using static System.Net.WebRequestMethods;
 
-namespace TextMe.Identities;
+namespace TextMe.Identities.Classes;
 
-public class AuthUserStore : IAuthUserStore
+public class UserStore : IUserStore
 {
 
     private readonly UserManager<AppUser> userManager;
     private readonly ICloudinaryService cloudinarySerice;
 
-    public AuthUserStore(UserManager<AppUser> _userManager,ICloudinaryService _cloudinaryService)
+    public UserStore(UserManager<AppUser> _userManager,ICloudinaryService _cloudinaryService)
     {
         userManager = _userManager;
         cloudinarySerice = _cloudinaryService;
@@ -88,5 +89,15 @@ public class AuthUserStore : IAuthUserStore
     {
         var user = await userManager.FindByIdAsync(userId);
         return user?.AvatarUrl;
+    }
+
+    public async Task<string?> FindUserIdByEmailOrPhoneAsync(string emailOrPhone)
+    {
+        var user = emailOrPhone.Contains("@")
+            ? await userManager.FindByEmailAsync(emailOrPhone)
+            : await userManager.Users
+                .FirstOrDefaultAsync(u => u.PhoneNumber == emailOrPhone);
+
+        return user?.Id;
     }
 }

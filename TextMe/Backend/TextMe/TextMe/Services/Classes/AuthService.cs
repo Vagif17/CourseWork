@@ -1,6 +1,6 @@
 ﻿using TextMe.DTOs;
 using TextMe.Identities;
-using TextMe.Interfaces;
+using TextMe.Identities.Interfaces;
 using TextMe.Repositories.Classes;
 using TextMe.Repositories.Interfaces;
 using TextMe.Services.Interfaces;
@@ -9,13 +9,13 @@ namespace TextMe.Services.Classes;
 
 public class AuthService : IAuthService
 {
-    private readonly IAuthUserStore authUserStore;
+    private readonly IUserStore UserStore;
     private readonly IJwtTokenSerivce jwtTokenSerivce;
     private readonly IRefreshTokenRepository refreshTokenRepository;
-    public AuthService(IAuthUserStore _authUserStoe,IJwtTokenSerivce _jwtTokenSerivce,IRefreshTokenRepository _refreshTokenRepository)
+    public AuthService(IUserStore _userStore,IJwtTokenSerivce _jwtTokenSerivce,IRefreshTokenRepository _refreshTokenRepository)
 
     {
-        authUserStore = _authUserStoe;
+        UserStore = _userStore;
         jwtTokenSerivce = _jwtTokenSerivce;
         refreshTokenRepository = _refreshTokenRepository;
     }
@@ -23,24 +23,30 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDTO> RegisterAsync(RegisterRequestDTO registerRequest)
     {
-        if (await authUserStore.FindUserIdByEmailOrIdAsync(registerRequest.Email) is not null)
-            throw new ArgumentException("User with this email already exist");
+        if (await UserStore.FindUserIdByEmailOrIdAsync(registerRequest.Email) is not null)
+            throw new ArgumentException("User with this email  already exist");
 
-        var userId = await authUserStore.CreateUserAsync(registerRequest);
+        if (await UserStore.FindUserIdByEmailOrPhoneAsync(registerRequest.PhoneNumber) is not null)
+            throw new ArgumentException("User with this phone number already exist");
 
-        await authUserStore.AddToRoleAsync(userId, "User");
+
+            var userId = await UserStore.CreateUserAsync(registerRequest);
+
+        await UserStore.AddToRoleAsync(userId, "User");
 
         return await GenerateTokensAsync(userId, registerRequest.Email);
     }
 
     public async Task<AuthResponseDTO> LoginAsync(LoginRequestDTO loginRequest)
     {
-        var userId = await authUserStore.FindUserIdByEmailOrIdAsync(loginRequest.Email);
+        var userId = await UserStore.FindUserIdByEmailOrIdAsync(loginRequest.Email);
         if (userId is null)
             throw new UnauthorizedAccessException("Invalid email or password.");
 
-        if (!await authUserStore.CheckPasswordAsync(userId, loginRequest.Password))
+        if (!await UserStore.CheckPasswordAsync(userId, loginRequest.Password))
             throw new UnauthorizedAccessException("Invalid email or password.");
+
+        var roles = await UserStore.GetRolesAsync(userId);
 
         return await GenerateTokensAsync(userId, loginRequest.Email);
     }
@@ -57,7 +63,7 @@ public class AuthService : IAuthService
 
         storedToken.RevokedAt = DateTime.UtcNow;
 
-        var email = await authUserStore.GetEmailAsync(userId);
+        var email = await UserStore.GetEmailAsync(userId);
         var newTokens = await GenerateTokensAsync(userId, email);
         var newJti = jwtTokenSerivce.GetJtiFromRefreshToken(newTokens.RefreshToken);
         var newStoredToken = string.IsNullOrEmpty(newJti) ? null : await refreshTokenRepository.GetByJwtIdAsync(newJti);
@@ -89,10 +95,10 @@ public class AuthService : IAuthService
 
     private async Task<AuthResponseDTO> GenerateTokensAsync(string userId, string? email)
     {
-        var roles = await authUserStore.GetRolesAsync(userId);
+        var roles = await UserStore.GetRolesAsync(userId);
 
-        var userName = await authUserStore.GetUserNameAsync(userId);
-        var avatarUrl = await authUserStore.GetAvatarUrlAsync(userId);
+        var userName = await UserStore.GetUserNameAsync(userId);
+        var avatarUrl = await UserStore.GetAvatarUrlAsync(userId);
 
         var (accessToken, expiresAt) = await jwtTokenSerivce.GenerateAccessTokenAsync(userId, userName, email, roles);
         var (refreshEntity, refreshJwt) = await jwtTokenSerivce.CreateRefreshTokenAsync(userId);

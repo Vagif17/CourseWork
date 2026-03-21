@@ -29,7 +29,6 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
-
     public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginRequestDTO requestDTO)
     {
         var result = await authService.LoginAsync(requestDTO);

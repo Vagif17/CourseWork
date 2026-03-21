@@ -12,8 +12,8 @@ using System.Reflection;
 using System.Text;
 using TextMe.Config;
 using TextMe.Data;
-using TextMe.Identities;
-using TextMe.Interfaces;
+using TextMe.Identities.Classes;
+using TextMe.Identities.Interfaces;
 using TextMe.Mapping;
 using TextMe.Middlewares;
 using TextMe.Models;
@@ -55,13 +55,13 @@ builder.Services.AddSwaggerGen(options =>
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
+        Scheme = "Bearer",
         BearerFormat = "JWT"
     });
 
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 });
 
@@ -117,10 +117,11 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
+
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddScoped<IAuthUserStore, TextMe.Identities.AuthUserStore>();
+builder.Services.AddScoped<IUserStore, TextMe.Identities.Classes.UserStore>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -128,6 +129,10 @@ builder.Services.AddScoped<IJwtTokenSerivce,JwtTokenService>();
 
 builder.Services.AddScoped<ICloudinaryStorage, CloudinaryStorage>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
+builder.Services.AddScoped<IChatRepository, ChatRepository>();  
+builder.Services.AddScoped<IChatService, ChatService>();
+
 
 
 builder.Services.AddCors(options =>

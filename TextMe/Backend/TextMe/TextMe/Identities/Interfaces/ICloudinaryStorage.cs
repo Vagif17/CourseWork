@@ -1,4 +1,4 @@
-﻿namespace TextMe.Interfaces;
+﻿namespace TextMe.Identities.Interfaces;
 
 public interface ICloudinaryStorage
 {

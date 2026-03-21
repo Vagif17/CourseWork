@@ -1,5 +1,5 @@
 ﻿using TextMe.Identities;
-using TextMe.Interfaces;
+using TextMe.Identities.Interfaces;
 using TextMe.Services.Interfaces;
 
 namespace TextMe.Services.Classes;
