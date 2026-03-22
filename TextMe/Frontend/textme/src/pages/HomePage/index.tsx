@@ -54,8 +54,6 @@ function HomePage() {
                     const otherParticipant = chat.participants.find(
                         (p) => p.userId !== currentUserId
                     );
-                    console.log("currentUserId:", currentUserId);
-                    console.log(chat.participants);
                     return (
                         <div key={chat.id} className="chat-item">
                             <div className="participant">

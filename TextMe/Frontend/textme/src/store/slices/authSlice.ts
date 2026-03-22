@@ -1,4 +1,4 @@
-﻿import { createSlice } from "@reduxjs/toolkit";
+﻿import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 type AuthState = {
     token: string | null
@@ -15,16 +15,17 @@ const authSlice = createSlice({
     initialState,
     reducers: {
 
-        login: (state, action) => {
+        login: (state, action: PayloadAction<string>) => {
             state.token = action.payload
             state.isLoggedIn = true
-            localStorage.setItem("token", action.payload)
         },
 
         logout: (state) => {
             state.token = null
             state.isLoggedIn = false
+
             localStorage.removeItem("token")
+            localStorage.removeItem("refreshToken")
         }
 
     }

@@ -1,11 +1,11 @@
 ﻿import type { PrivateChatDTOResponse } from "../types/chats";
-import { API_URL } from "./API.ts";
+import { api } from "./API.ts";
 
 export const chatService = {
 
     getAllPrivateChats: async (): Promise<PrivateChatDTOResponse[]> => {
 
-        const response = await API_URL.get<PrivateChatDTOResponse[]>(
+        const response = await api.get<PrivateChatDTOResponse[]>(
             "/Chat/getallmyprivatechats"
         );
 
