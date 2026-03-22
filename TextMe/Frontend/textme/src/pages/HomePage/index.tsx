@@ -1,14 +1,18 @@
-﻿import './../../styles/Global.css'
-import "./HomePage.css"
+﻿import "./../../styles/Global.css";
+import "./HomePage.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { PrivateChatDTOResponse } from "../../types/chats.ts";
 import { chatService } from "../../services/chatService.ts";
 import { getUserId } from "../../utils/auth.ts";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/slices/authSlice";
+import type { AppDispatch } from "../../store";
 
 function HomePage() {
     const [chats, setChats] = useState<PrivateChatDTOResponse[]>([]);
     const navigate = useNavigate();
+    const dispatch: AppDispatch = useDispatch();
 
     const currentUserId = getUserId();
 
@@ -25,15 +29,14 @@ function HomePage() {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
+        // Теперь логаут через Redux
+        dispatch(logout());
         navigate("/auth");
-    }
+    };
 
     return (
         <div className="homepage fade-in">
-
             <div className="sidebar">
-
                 <div className="sidebar-icons">
                     <div className="sidebar-icon">💬</div>
                     <div className="sidebar-icon">⚙️</div>
@@ -44,18 +47,16 @@ function HomePage() {
                 <div className="sidebar-logout" onClick={handleLogout}>
                     Log out
                 </div>
-
             </div>
 
             <div className="chat-list">
-                {chats.map(chat => {
+                {chats.map((chat) => {
                     const otherParticipant = chat.participants.find(
-                        p => p.userId !== currentUserId
+                        (p) => p.userId !== currentUserId
                     );
-                    console.log("currentUserId:", currentUserId)
-                    console.log(chat.participants)// NEEEEEEEEEEEEEEEEEEEEEEEEEE
+                    console.log("currentUserId:", currentUserId);
+                    console.log(chat.participants);
                     return (
-
                         <div key={chat.id} className="chat-item">
                             <div className="participant">
                                 <img
@@ -81,7 +82,6 @@ function HomePage() {
                     <button>Send</button>
                 </div>
             </div>
-
         </div>
     );
 }

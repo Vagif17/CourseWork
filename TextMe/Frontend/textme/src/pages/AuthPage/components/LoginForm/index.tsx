@@ -5,6 +5,9 @@ import "../../../../styles/Global.css";
 import { authService } from "../../../../services/authService.ts";
 import type { AuthResponse } from "../../../../types/auth.ts";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { login } from "../../../../store/slices/authSlice";
+import type { AppDispatch } from "../../../../store";
 
 type LoginFormProps = {
     goRegister: () => void;
@@ -16,13 +19,13 @@ type LoginFormData = {
 };
 
 function LoginForm({ goRegister }: LoginFormProps) {
-
     const navigate = useNavigate();
+    const dispatch: AppDispatch = useDispatch();
 
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting },
     } = useForm<LoginFormData>();
 
     const onSubmit = async (data: LoginFormData) => {
@@ -34,12 +37,12 @@ function LoginForm({ goRegister }: LoginFormProps) {
 
             console.log("Logged in:", response);
 
-            localStorage.setItem("token", response.accessToken);
+            // Обновляем глобальный state через Redux
+            dispatch(login(response.accessToken));
 
             toast.success("Logged in successfully!", { position: "top-center" });
 
             navigate("/homepage");
-
         } catch (err: any) {
             toast.error("Incorrect email or password", { position: "top-center" });
             console.log(err.response?.data?.message || err);
@@ -47,10 +50,10 @@ function LoginForm({ goRegister }: LoginFormProps) {
     };
 
     const onError = (errors: any) => {
-        const firstErrorKey = Object.keys(errors)[0] as keyof LoginFormData
-        const message = errors[firstErrorKey]?.message || "Field is invalid"
-        toast.error(message, { position: "top-center" })
-    }
+        const firstErrorKey = Object.keys(errors)[0] as keyof LoginFormData;
+        const message = errors[firstErrorKey]?.message || "Field is invalid";
+        toast.error(message, { position: "top-center" });
+    };
 
     return (
         <form className="login-form" onSubmit={handleSubmit(onSubmit, onError)}>
@@ -64,8 +67,8 @@ function LoginForm({ goRegister }: LoginFormProps) {
                     required: "Email is required",
                     pattern: {
                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Invalid email format"
-                    }
+                        message: "Invalid email format",
+                    },
                 })}
             />
 
@@ -77,8 +80,8 @@ function LoginForm({ goRegister }: LoginFormProps) {
                     required: "Password is required",
                     minLength: {
                         value: 6,
-                        message: "Password must be at least 6 characters"
-                    }
+                        message: "Password must be at least 6 characters",
+                    },
                 })}
             />
 

@@ -1,55 +1,39 @@
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
-import {ToastContainer} from "react-toastify";
-import {Routes,Route,Navigate} from "react-router";
-import {useEffect, useState} from "react";
+import { ToastContainer } from "react-toastify";
+import { Routes, Route, Navigate } from "react-router";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Boolean(localStorage.getItem('token')));
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(Boolean(localStorage.getItem('token')));
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
   return (
-    <>
-      <Routes>
+      <Provider store={store}>
+        <Routes>
 
-        <Route
-            path="/"
-            element={isLoggedIn ? <Navigate to="/homepage" /> : <Navigate to="/auth" />}
+          <Route path="/" element={<Navigate to="/homepage" />} />
+
+          <Route path="/auth" element={<AuthPage />} />
+
+          <Route
+              path="/homepage"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+          />
+
+          <Route path="*" element={<Navigate to="/auth" />} />
+
+        </Routes>
+
+        <ToastContainer
+            position="bottom-center"
+            autoClose={3000}
         />
-
-        <Route path="/auth" element={<AuthPage />} />
-
-        <Route
-            path="/homepage"
-            element={isLoggedIn ? <HomePage /> : <Navigate to="/auth" />}
-        />
-
-        <Route path="*" element={<Navigate to="/auth" />} />
-      </Routes>
-
-
-      <ToastContainer
-          position="bottom-center"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-      />
-
-    </>
-  )
+      </Provider>
+  );
 }
 
-export default App
-
+export default App;

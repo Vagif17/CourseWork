@@ -1,28 +1,24 @@
-﻿import axios from "axios";
-import type { AuthResponse } from "../types/auth";
-const API_URL = "http://localhost:5160/api/User";
+﻿import type { AuthResponse } from "../types/auth";
+import { API_URL } from "./API.ts";
 
 export const authService = {
 
     login: async (email: string, password: string): Promise<AuthResponse> => {
+
         const payload = { Email: email, Password: password };
 
-        const response = await axios.post<AuthResponse>(
-            `${API_URL}/login`,
-            payload,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
+        const response = await API_URL.post<AuthResponse>(
+            "/User/login",
+            payload
         );
 
         return response.data;
     },
 
     register: async (formData: FormData): Promise<AuthResponse> => {
-        const response = await axios.post<AuthResponse>(
-            `${API_URL}/register`,
+
+        const response = await API_URL.post<AuthResponse>(
+            "/User/register",
             formData,
             {
                 headers: {
@@ -32,5 +28,5 @@ export const authService = {
         );
 
         return response.data;
-    }
+    },
 };
