@@ -53,24 +53,37 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDTO> RefreshTokenAsync(RefreshTokenRequestDTO refreshTokenRequest)
     {
-        var (userId, jti) = jwtTokenSerivce.ValidateRefreshTokenAndGetJti(refreshTokenRequest.RefreshToken);
+        if (refreshTokenRequest == null || string.IsNullOrEmpty(refreshTokenRequest.RefreshToken))
+            throw new UnauthorizedAccessException("Refresh token is missing");
+
+        string userId;
+        string jti;
+
+        try
+        {
+            (userId, jti) = jwtTokenSerivce.ValidateRefreshTokenAndGetJti(refreshTokenRequest.RefreshToken);
+        }
+        catch
+        {
+            throw new UnauthorizedAccessException("Invalid refresh token");
+        }
 
         var storedToken = await refreshTokenRepository.GetByJwtIdAsync(jti);
-        if (storedToken is null)
-            throw new UnauthorizedAccessException("Invalid refresh token");
-        if (!storedToken.IsActive)
+        if (storedToken is null || !storedToken.IsActive)
             throw new UnauthorizedAccessException("Refresh token has been revoked or expired");
 
         storedToken.RevokedAt = DateTime.UtcNow;
 
         var email = await UserStore.GetEmailAsync(userId);
         var newTokens = await GenerateTokensAsync(userId, email);
+
         var newJti = jwtTokenSerivce.GetJtiFromRefreshToken(newTokens.RefreshToken);
         var newStoredToken = string.IsNullOrEmpty(newJti) ? null : await refreshTokenRepository.GetByJwtIdAsync(newJti);
         if (newStoredToken is not null)
             storedToken.ReplacedByJwtId = newStoredToken.JwtId;
 
         await refreshTokenRepository.UpdateAsync(storedToken);
+
         return newTokens;
     }
 

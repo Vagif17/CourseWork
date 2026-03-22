@@ -35,5 +35,19 @@ public class UserController : ControllerBase
         
             return result;
     }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponseDTO>> Refresh(RefreshTokenRequestDTO request)
+    {
+        var result = await authService.RefreshTokenAsync(request);
+        return Ok(result);
+    }
+
+    [HttpPost("revoke")]
+    public async Task<IActionResult> Revoke(RefreshTokenRequestDTO request)
+    {
+        await authService.RevokeRefreshTokenAsync(request);
+        return NoContent();
+    }
     
 }
