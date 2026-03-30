@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using TextMe.Config;
 using TextMe.Data;
+using TextMe.Hubs;
 using TextMe.Identities.Classes;
 using TextMe.Identities.Interfaces;
 using TextMe.Mapping;
@@ -95,6 +96,23 @@ builder.Services
             ClockSkew = TimeSpan.Zero,
           
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                // Если путь /hubs/chat и есть токен — используем его
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     }
     );
 
@@ -133,24 +151,35 @@ builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();  
 builder.Services.AddScoped<IChatService, ChatService>();
 
-
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMessageRepository,MessageRepository>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("cors", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
+
+
+
+builder.Services.AddSignalR();
+
 
 var app = builder.Build();
 
 
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-app.UseCors();
+app.UseRouting();
+
+app.UseCors("cors");
 
 
 if (app.Environment.IsDevelopment())
@@ -168,12 +197,14 @@ if (app.Environment.IsDevelopment())
 
     });
 }
-    
+
+
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();
 

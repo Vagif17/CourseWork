@@ -37,5 +37,17 @@ public class MappingProfile : Profile
 
 
         #endregion
+
+
+        #region MessageMapping 
+
+        CreateMap<Message, MessageDTO>()
+            .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))
+            .ForMember(dest => dest.SenderUserName,
+                opt => opt.MapFrom(src => src.Sender.UserName))
+            .ForMember(dest => dest.SenderAvatarUrl,
+                opt => opt.MapFrom(src => src.Sender.AvatarUrl));
+
+        #endregion
     }
 }

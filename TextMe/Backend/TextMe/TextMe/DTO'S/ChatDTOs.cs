@@ -18,3 +18,25 @@ public class PrivateChatDTOResponse
     public string? LastMessage { get; set; }
     public DateTimeOffset? LastMessageAt { get; set; }
 }
+
+
+public class MessageDTO
+{
+    public int Id { get; set; }
+
+    public int ChatId { get; set; }
+
+    public string SenderId { get; set; } = null!;
+
+    public string SenderUserName { get; set; } = null!;
+
+    public string? SenderAvatarUrl { get; set; }
+
+    public string? Text { get; set; }
+
+    public string? MediaUrl { get; set; }
+
+    public string? MediaType { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; }
+}
