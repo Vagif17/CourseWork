@@ -156,10 +156,10 @@ builder.Services.AddScoped<IMessageRepository,MessageRepository>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("cors", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -179,7 +179,7 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseRouting();
 
-app.UseCors("cors");
+app.UseCors("AllowAll");
 
 
 if (app.Environment.IsDevelopment())
