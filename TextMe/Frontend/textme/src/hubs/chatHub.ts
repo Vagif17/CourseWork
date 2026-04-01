@@ -9,7 +9,7 @@ class ChatHub {
         if (this.connection) return
 
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5160/hubs/chat", {
+            .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
                 accessTokenFactory: () => localStorage.getItem("token") ?? ""
             })
             .withAutomaticReconnect()
