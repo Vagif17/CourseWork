@@ -103,7 +103,6 @@ builder.Services
             {
                 var accessToken = context.Request.Query["access_token"];
 
-                // Если путь /hubs/chat и есть токен — используем его
                 var path = context.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
                 {
