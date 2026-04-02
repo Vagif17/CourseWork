@@ -4,6 +4,6 @@ namespace TextMe.Services.Interfaces;
 
 public interface IMessageService
 {
-    Task<MessageDTO> CreateMessageAsync(int chatId, string senderId, string text);
-    Task<IEnumerable<MessageDTO>> GetChatMessagesAsync(int chatId);
+    public Task<MessageDTO> CreateMessageAsync(int chatId, string senderId, string? text, string? mediaUrl, string? mediaType);
+    public Task<IEnumerable<MessageDTO>> GetChatMessagesAsync(int chatId);
 }

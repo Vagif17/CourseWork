@@ -17,13 +17,15 @@ public class MessageService : IMessageService
         mapper = _mapper;
     }
 
-    public async Task<MessageDTO> CreateMessageAsync(int chatId, string senderId, string text)
+    public async Task<MessageDTO> CreateMessageAsync(int chatId, string senderId, string? text, string? mediaUrl, string? mediaType)
     {
         var message = new Message
         {
             ChatId = chatId,
             SenderId = senderId,
             Text = text,
+            MediaUrl = mediaUrl,
+            MediaType = mediaType,
             CreatedAt = DateTimeOffset.UtcNow,
             Status = MessageStatus.Sent
         };
@@ -32,11 +34,17 @@ public class MessageService : IMessageService
 
         return mapper.Map<MessageDTO>(created);
     }
-
     public async Task<IEnumerable<MessageDTO>> GetChatMessagesAsync(int chatId)
+{
+    try
     {
         var messages = await messageRepository.GetChatMessagesAsync(chatId);
-
         return mapper.Map<IEnumerable<MessageDTO>>(messages);
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error in GetChatMessagesAsync: {ex}");
+        throw;
+    }
+}
 }

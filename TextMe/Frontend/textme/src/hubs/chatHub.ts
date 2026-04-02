@@ -9,10 +9,10 @@ class ChatHub {
         if (this.connection) return
 
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5160/hubs/chat", {
+            .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
                 accessTokenFactory: () => localStorage.getItem("token") ?? ""
             })
-            .withAutomaticReconnect()
+            .withAutomaticReconnect() 
             .build()
 
         this.connection.onreconnected(() => {
@@ -36,8 +36,8 @@ class ChatHub {
         await this.connection?.invoke("LeaveChat", chatId)
     }
 
-    async sendMessage(chatId: number, text: string) {
-        await this.connection?.invoke("SendMessage", chatId, text)
+    async sendMessage(chatId: number, text?: string, mediaUrl?: string, mediaType?: string) {
+        await this.connection?.invoke("SendMessage", chatId, text, mediaUrl, mediaType)
     }
 
     onReceiveMessage(callback: (message: any) => void) {

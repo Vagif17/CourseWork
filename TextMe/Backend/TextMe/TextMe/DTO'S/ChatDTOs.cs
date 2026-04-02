@@ -1,4 +1,6 @@
-﻿namespace TextMe.DTO_S;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace TextMe.DTO_S;
 
 
 
@@ -39,4 +41,10 @@ public class MessageDTO
     public string? MediaType { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+}
+
+public class UploadFileRequest
+{
+    [FromForm(Name = "file")]
+    public IFormFile File { get; set; } = null!;
 }

@@ -29,16 +29,16 @@ public class ChatHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"chat-{chatId}");
     }
 
-    public async Task SendMessage(int chatId, string text)
-    {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+   public async Task SendMessage(int chatId, string? text, string? mediaUrl, string? mediaType)
+{
+    var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (userId == null)
-            throw new HubException("Unauthorized");
+    if (userId == null)
+        throw new HubException("Unauthorized");
 
-        var message = await messageService.CreateMessageAsync(chatId, userId, text);
+    var message = await messageService.CreateMessageAsync(chatId, userId, text, mediaUrl, mediaType);
 
-        await Clients.Group($"chat-{chatId}")
-            .SendAsync("ReceiveMessage", message);
-    }
+    await Clients.Group($"chat-{chatId}")
+        .SendAsync("ReceiveMessage", message);
+}
 }

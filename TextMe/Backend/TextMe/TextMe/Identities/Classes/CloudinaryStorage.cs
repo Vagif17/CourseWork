@@ -39,13 +39,6 @@ public class CloudinaryStorage : ICloudinaryStorage
         return result.SecureUrl.ToString();
     }
 
-    //public async Task DeleteAsync(string publicId)
-    //{
-    //    var deleteParams = new DeletionParams(publicId);
-    //    var result = await _cloudinary.DestroyAsync(deleteParams);
 
-    //    if (result.StatusCode != System.Net.HttpStatusCode.OK)
-    //        throw new Exception($"Delete error Cloudinary: {result.Error?.Message}");
-    //}
 }
 

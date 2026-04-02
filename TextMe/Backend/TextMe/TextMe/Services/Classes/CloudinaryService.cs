@@ -25,4 +25,16 @@ public class CloudinaryService : ICloudinaryService
 
         return url;
     }
+
+    public async Task<string> UploadMediaAsync(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return null;
+
+        await using var stream = file.OpenReadStream();
+
+        var url = await cloudinaryStorage.UploadAsync(stream, file.FileName);
+
+        return url;
+    }
 }

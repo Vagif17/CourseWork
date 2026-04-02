@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import type { PrivateChatDTOResponse } from "../../../../types/chats";
 import { chatService } from "../../../../services/chatService";
 import { getUserId } from "../../../../utils/auth.ts";
@@ -11,6 +11,7 @@ import type { RootState } from '../../../../store/index.ts';
 import "./ChatSection.css";
 import "../../../../styles/Global.css"
 import chatHub from "../../../../hubs/chatHub.ts";
+import { api } from "../../../../services/API.ts";
 
 type ModalProps = {
     children: ReactNode;
@@ -40,19 +41,37 @@ function ChatSection() {
     const [newContact, setNewContact] = useState("");
 
     const currentUserId = getUserId();
-
     const { messages, sendMessage } = useChat(selectedChatId);
-
     const token = useSelector((state: RootState) => state.auth.token);
 
-    // Сбрасываем selectedChatId при смене пользователя
+    const fileRef = useRef<HTMLInputElement>(null);
+
+    // Хранит все выбранные файлы
+    const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
+
+    // Добавление выбранных файлов
+    const handleFileChange = () => {
+        if (!fileRef.current?.files) return;
+
+        const filesArray = Array.from(fileRef.current.files).map((file) => ({
+            file,
+            url: URL.createObjectURL(file)
+        }));
+
+        setPreviewImages((prev) => [...prev, ...filesArray]);
+        fileRef.current.value = ""; // сброс input
+    };
+
+    const removePreviewImage = (index: number) => {
+        setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+    };
+
     useEffect(() => {
         setSelectedChatId(null);
     }, [currentUserId]);
 
     useEffect(() => {
         if (!token) return;
-
         chatHub.start();
     }, [token]);
 
@@ -65,7 +84,6 @@ function ChatSection() {
                 toast.error(err?.message || "Error fetching chats");
             }
         };
-
         fetchChats();
     }, [currentUserId]);
 
@@ -73,7 +91,6 @@ function ChatSection() {
         const otherParticipant = chat.participants.find(
             (p) => p.userId !== currentUserId
         );
-
         return otherParticipant?.userName
             ?.toLowerCase()
             .includes(search.toLowerCase());
@@ -82,46 +99,49 @@ function ChatSection() {
     const handleCreateChat = () => setIsModalOpen(true);
 
     const handleAddContact = async () => {
-
         if (!newContact.trim()) {
             toast.error("Enter email or phone");
             return;
         }
-
         try {
-
             const newChat = await chatService.createChat(newContact.trim());
-
             setChats((prev) => [newChat, ...prev]);
-
             setNewContact("");
             setIsModalOpen(false);
-
             toast.success("Chat successfully created!");
-
         } catch (err: any) {
-
             toast.error(
                 err?.response?.data?.message || err.message || "Chat create failed"
             );
-
         }
     };
 
     const handleSend = async () => {
+        // Отправка всех фото
+        for (const item of previewImages) {
+            const formData = new FormData();
+            formData.append("file", item.file);
 
-        if (!text.trim()) return;
+            try {
+                const res = await api.post("/Message/upload", formData);
+                await chatHub.sendMessage(selectedChatId!, "", res.data, item.file.type);
+            } catch (err: any) {
+                toast.error("Error uploading file: " + item.file.name);
+            }
+        }
 
-        await sendMessage(text);
+        // Отправка текста
+        if (text.trim()) {
+            await chatHub.sendMessage(selectedChatId!, text);
+        }
 
         setText("");
-
+        setPreviewImages([]);
     };
 
     return (
         <>
             <div className="chat-list">
-
                 <div className="chat-header">
                     <div className="search-wrapper">
                         <input
@@ -138,7 +158,6 @@ function ChatSection() {
                 </div>
 
                 {filteredChats.map((chat) => {
-
                     const otherParticipant = chat.participants.find(
                         (p) => p.userId !== currentUserId
                     );
@@ -149,28 +168,20 @@ function ChatSection() {
                             className={`chat-item ${selectedChatId === chat.id ? "active" : ""}`}
                             onClick={() => setSelectedChatId(chat.id)}
                         >
-
                             <div className="participant">
-
                                 <img
                                     src={otherParticipant?.avatarUrl}
                                     alt={otherParticipant?.userName}
                                     className="avatar"
                                 />
-
-                                <span>
-                                    {otherParticipant?.userName || "Unknown"}
-                                </span>
-
+                                <span>{otherParticipant?.userName || "Unknown"}</span>
                             </div>
-
                         </div>
                     );
                 })}
             </div>
 
             <div className="chat-window">
-
                 {!selectedChatId ? (
                     <div className="empty-chat">
                         <div className="empty-chat-content">
@@ -182,55 +193,61 @@ function ChatSection() {
                 ) : (
                     <>
                         <div className="messages">
-
                             {messages.map((msg) => {
                                 const isMyMessage = msg.senderId?.toLowerCase() === currentUserId?.toLowerCase();
                                 return (
                                     <div
                                         key={msg.id}
-                                        className={`message ${
-                                            isMyMessage
-                                                ? "my-message"
-                                                : "other-message"
-                                        }`}
+                                        className={`message ${isMyMessage ? "my-message" : "other-message"}`}
                                     >
-
-                                        {msg.text}
-
+                                        {msg.text && <div>{msg.text}</div>}
+                                        {msg.mediaUrl && msg.mediaType?.startsWith("image") && (
+                                            <img src={msg.mediaUrl} className="message-image" />
+                                        )}
                                     </div>
                                 );
                             })}
-
                         </div>
 
-                        <div className="input-container">
+                        <div className="input-wrapper">
+                            {previewImages.length > 0 && (
+                                <div className="preview-wrapper">
+                                    {previewImages.map((item, index) => (
+                                        <div key={index} className="single-preview">
+                                            <img src={item.url} className="preview-image" />
+                                            <button className="remove-btn" onClick={() => removePreviewImage(index)}>×</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <button onClick={() => fileRef.current?.click()} className="attach-btn">+</button>
+
+                            <input
+                                ref={fileRef}
+                                type="file"
+                                hidden
+                                multiple
+                                onChange={handleFileChange}
+                            />
 
                             <input
                                 type="text"
                                 placeholder="Type a message..."
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") handleSend();
-                                }}
+                                onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
                             />
 
-                            <button onClick={handleSend}>
-                                Send
-                            </button>
-
+                            <button className="send-btn" onClick={handleSend}>Send</button>
                         </div>
                     </>
                 )}
-
             </div>
 
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
-
-                    <h2 style={{ textAlign: "center" }}>
-                        Add Contact
-                    </h2>
+                    <h2 style={{ textAlign: "center" }}>Add Contact</h2>
 
                     <input
                         type="text"
@@ -240,23 +257,9 @@ function ChatSection() {
                     />
 
                     <div className="modal-buttons">
-
-                        <button
-                            className="cancel-btn"
-                            onClick={() => setIsModalOpen(false)}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            className="add-btn"
-                            onClick={handleAddContact}
-                        >
-                            Add
-                        </button>
-
+                        <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                        <button className="add-btn" onClick={handleAddContact}>Add</button>
                     </div>
-
                 </Modal>
             )}
         </>

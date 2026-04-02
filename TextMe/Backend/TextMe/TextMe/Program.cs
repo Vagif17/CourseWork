@@ -159,7 +159,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins("https://textmemessenger.netlify.app")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
