@@ -41,15 +41,13 @@ function ChatSection() {
     const [newContact, setNewContact] = useState("");
 
     const currentUserId = getUserId();
-    const { messages, sendMessage } = useChat(selectedChatId);
+    const { messages } = useChat(selectedChatId);
     const token = useSelector((state: RootState) => state.auth.token);
 
     const fileRef = useRef<HTMLInputElement>(null);
 
-    // Хранит все выбранные файлы
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
 
-    // Добавление выбранных файлов
     const handleFileChange = () => {
         if (!fileRef.current?.files) return;
 
