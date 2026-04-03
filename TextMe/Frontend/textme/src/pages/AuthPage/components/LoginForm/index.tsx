@@ -9,8 +9,11 @@ import { useDispatch } from "react-redux";
 import { login } from "../../../../store/slices/authSlice";
 import type { AppDispatch } from "../../../../store";
 
+
 type LoginFormProps = {
     goRegister: () => void;
+    goRecovery: () => void;
+
 };
 
 type LoginFormData = {
@@ -18,7 +21,7 @@ type LoginFormData = {
     password: string;
 };
 
-function LoginForm({ goRegister }: LoginFormProps) {
+function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
     const navigate = useNavigate();
     const dispatch: AppDispatch = useDispatch();
 
@@ -93,7 +96,7 @@ function LoginForm({ goRegister }: LoginFormProps) {
                 <a className="register" onClick={goRegister}>
                     Register
                 </a>
-                <a>Forgot password?</a>
+                <a onClick={goRecovery}>Forgot password?</a>
             </div>
         </form>
     );

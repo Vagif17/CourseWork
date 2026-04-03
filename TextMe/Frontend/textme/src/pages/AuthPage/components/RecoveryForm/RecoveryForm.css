@@ -1,0 +1,51 @@
+﻿.recovery-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+input:focus {
+    border-color: #4f46e5;
+}
+
+.input-error {
+    border-color: #ef4444;
+}
+
+button {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.nav-buttons, .step-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.back-btn {
+    background-color: #ef4444;
+}

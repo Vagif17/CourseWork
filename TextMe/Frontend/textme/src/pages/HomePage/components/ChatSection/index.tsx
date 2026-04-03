@@ -46,8 +46,10 @@ function ChatSection() {
 
     const fileRef = useRef<HTMLInputElement>(null);
 
+    // Хранит все выбранные файлы
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
 
+    // Добавление выбранных файлов
     const handleFileChange = () => {
         if (!fileRef.current?.files) return;
 
@@ -57,7 +59,7 @@ function ChatSection() {
         }));
 
         setPreviewImages((prev) => [...prev, ...filesArray]);
-        fileRef.current.value = ""; // сброс input
+        fileRef.current.value = "";
     };
 
     const removePreviewImage = (index: number) => {

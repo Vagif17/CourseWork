@@ -118,6 +118,7 @@ builder.Services
 
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection(JwtConfig.SectionName));
 builder.Services.Configure<CloudConfig>(builder.Configuration.GetSection(CloudConfig.SectionName));
+builder.Services.Configure<MailConfig>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddDbContext<TextMeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TextMeDbContext")));
@@ -133,7 +134,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<TextMeDbContext>()
     .AddDefaultTokenProviders();
 
-
+builder.Services.AddMemoryCache();
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
@@ -153,6 +154,8 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageRepository,MessageRepository>();
 
+builder.Services.AddScoped<IAccountRestoreService, AccountRecoveryService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -164,6 +167,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
+
 
 
 

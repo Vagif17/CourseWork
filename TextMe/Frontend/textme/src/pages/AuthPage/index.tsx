@@ -2,11 +2,12 @@
 import '../../styles/Global.css'
 import RegisterForm from "./components/RegisterForm"
 import LoginForm from "./components/LoginForm"
+import RecoveryForm from "./components/RecoveryForm"
 import { useState } from "react"
 
 function AuthPage() {
 
-    const [formType, setFormType] = useState("login")
+    const [formType, setFormType] = useState<"login" | "register" | "recovery">("login")
 
     return (
         <div className="grid-layout fade-in">
@@ -31,12 +32,9 @@ function AuthPage() {
             </main>
 
             <aside className="fade-in">
-
-                {formType === "login"
-                    ? <LoginForm goRegister={() => setFormType("register")} />
-                    : <RegisterForm goLogin={() => setFormType("login")} />
-                }
-
+                {formType === "login" && <LoginForm goRegister={() => setFormType("register")} goRecovery={() => setFormType("recovery")} />}
+                {formType === "register" && <RegisterForm goLogin={() => setFormType("login")} />}
+                {formType === "recovery" && <RecoveryForm onClose={() => setFormType("login")} goLogin={() => setFormType("login")} goRegister={() => setFormType("register")} />}
             </aside>
 
             <footer>© 2026 TextMe. All rights reserved.</footer>
