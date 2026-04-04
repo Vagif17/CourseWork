@@ -8,25 +8,6 @@ export type PrivateChatDTOResponse = {
     id: number;
     createdAt: string;
     participants: ParticipantDTO[];
+    lastMessage?: string | null;
+    lastMessageAt?: string | null;
 };
-
-export type MessageDTO = {
-
-    id: number
-
-    chatId: number
-
-    senderId: string
-
-    senderUserName: string
-
-    senderAvatarUrl?: string
-
-    text?: string
-
-    mediaUrl?: string
-
-    mediaType?: string
-
-    createdAt: string
-}

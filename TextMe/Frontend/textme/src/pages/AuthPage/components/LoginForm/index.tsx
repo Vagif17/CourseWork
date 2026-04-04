@@ -3,25 +3,19 @@ import { useNavigate } from "react-router";
 import "./LoginForm.css";
 import "../../../../styles/Global.css";
 import { authService } from "../../../../services/authService.ts";
-import type { AuthResponse } from "../../../../types/auth.ts";
+import type { AuthResponse, LoginRequest } from "../../../../types/auth.ts";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { login } from "../../../../store/slices/authSlice";
 import type { AppDispatch } from "../../../../store";
 
-
 type LoginFormProps = {
     goRegister: () => void;
     goRecovery: () => void;
-
-};
-
-type LoginFormData = {
-    email: string;
-    password: string;
 };
 
 function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
+
     const navigate = useNavigate();
     const dispatch: AppDispatch = useDispatch();
 
@@ -29,37 +23,38 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<LoginFormData>();
+    } = useForm<LoginRequest>();
 
-    const onSubmit = async (data: LoginFormData) => {
+    const onSubmit = async (data: LoginRequest) => {
         try {
-            const response: AuthResponse = await authService.login(
-                data.email,
-                data.password
-            );
+
+            const response: AuthResponse = await authService.login(data);
 
             console.log("Logged in:", response);
 
-            dispatch(login(response.accessToken))
-
+            dispatch(login(response.accessToken));
 
             toast.success("Logged in successfully!", { position: "top-center" });
 
             navigate("/homepage");
+
         } catch (err: any) {
+
             toast.error("Incorrect email or password", { position: "top-center" });
+
             console.log(err.response?.data?.message || err);
         }
     };
 
     const onError = (errors: any) => {
-        const firstErrorKey = Object.keys(errors)[0] as keyof LoginFormData;
+        const firstErrorKey = Object.keys(errors)[0] as keyof LoginRequest;
         const message = errors[firstErrorKey]?.message || "Field is invalid";
         toast.error(message, { position: "top-center" });
     };
 
     return (
         <form className="login-form" onSubmit={handleSubmit(onSubmit, onError)}>
+
             <h2 className="form-title">LOGIN</h2>
 
             <input
@@ -98,6 +93,7 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
                 </a>
                 <a onClick={goRecovery}>Forgot password?</a>
             </div>
+
         </form>
     );
 }

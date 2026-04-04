@@ -46,10 +46,8 @@ function ChatSection() {
 
     const fileRef = useRef<HTMLInputElement>(null);
 
-    // Хранит все выбранные файлы
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
 
-    // Добавление выбранных файлов
     const handleFileChange = () => {
         if (!fileRef.current?.files) return;
 
@@ -117,22 +115,30 @@ function ChatSection() {
     };
 
     const handleSend = async () => {
-        // Отправка всех фото
-        for (const item of previewImages) {
+        if (!selectedChatId) return;
+
+        if (previewImages.length > 0) {
             const formData = new FormData();
-            formData.append("file", item.file);
+
+            previewImages.forEach((item) => {
+                formData.append("files", item.file); // поле "files" совпадает с контроллером
+            });
 
             try {
-                const res = await api.post("/Message/upload", formData);
-                await chatHub.sendMessage(selectedChatId!, "", res.data, item.file.type);
+                const res = await api.post<string[]>("/Message/upload-media", formData);
+
+                for (let i = 0; i < res.data.length; i++) {
+                    const url = res.data[i];
+                    const file = previewImages[i].file;
+                    await chatHub.sendMessage(selectedChatId, "", url, file.type);
+                }
             } catch (err: any) {
-                toast.error("Error uploading file: " + item.file.name);
+                toast.error("Error uploading files: " + err.message);
             }
         }
 
-        // Отправка текста
         if (text.trim()) {
-            await chatHub.sendMessage(selectedChatId!, text);
+            await chatHub.sendMessage(selectedChatId, text);
         }
 
         setText("");

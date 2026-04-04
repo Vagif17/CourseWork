@@ -1,29 +1,25 @@
 ﻿import * as signalR from "@microsoft/signalr"
+import { tokenService } from "../services/tokenService"
 
 class ChatHub {
-
     private connection: signalR.HubConnection | null = null
 
     async start() {
-
         if (this.connection) return
+
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
-                accessTokenFactory: () => localStorage.getItem("token") ?? ""
+                accessTokenFactory: async () => {
+                    return (await tokenService.getValidToken()) || ""
+                },
             })
-            .withAutomaticReconnect() 
+            .withAutomaticReconnect()
             .build()
 
-        this.connection.onreconnected(() => {
-            console.log("SignalR Reconnected")
-        })
-
-        this.connection.onclose(() => {
-            console.log("SignalR Disconnected")
-        })
+        this.connection.onreconnected(() => console.log("SignalR Reconnected"))
+        this.connection.onclose(() => console.log("SignalR Disconnected"))
 
         await this.connection.start()
-
         console.log("SignalR Connected")
     }
 
@@ -46,7 +42,6 @@ class ChatHub {
     offReceiveMessage(callback: (message: any) => void) {
         this.connection?.off("ReceiveMessage", callback)
     }
-
 }
 
 export default new ChatHub()
