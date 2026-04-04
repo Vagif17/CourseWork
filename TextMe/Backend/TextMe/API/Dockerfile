@@ -1,15 +1,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["TextMe.slnx", "./"]
-COPY ["API/API.csproj", "API/"]
-COPY ["Application/Application.csproj", "Application/"]
-COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
-COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["../TextMe.slnx", "./"]
+COPY ["../API/API.csproj", "API/"]
+COPY ["../Application/Application.csproj", "Application/"]
+COPY ["../Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+COPY ["../Domain/Domain.csproj", "Domain/"]
 
 RUN dotnet restore "TextMe.slnx"
 
-COPY . .
+COPY ../.. .
 
 WORKDIR "/src/API"
 
