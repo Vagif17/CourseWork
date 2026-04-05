@@ -116,6 +116,20 @@ public class UserStore : IUserStore
             AvatarUrl = user.AvatarUrl
         };
     }
+
+    public async Task<IEnumerable<UserDTO>> GetUsersByIdsAsync(IEnumerable<string> ids)
+    {
+        return await userManager.Users
+            .Where(u => ids.Contains(u.Id))
+            .Select(u => new UserDTO
+            {
+                Id = u.Id,
+                UserName = u.UserName!,
+                AvatarUrl = u.AvatarUrl
+            })
+            .ToListAsync();
+    }
+    
 }
 
 
