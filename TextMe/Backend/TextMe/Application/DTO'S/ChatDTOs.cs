@@ -6,7 +6,7 @@ namespace Application.DTOs;
 
 public class ParticipantDTO
 {
-    public string Id { get; set; } = null!;
+    public string UserId { get; set; } = null!;
     public string? UserName { get; set; }
     public string? Email { get; set; }
     public string? AvatarUrl { get; set; }

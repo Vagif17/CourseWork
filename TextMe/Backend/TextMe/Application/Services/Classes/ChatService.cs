@@ -36,7 +36,7 @@ public class ChatService : IChatService
 
         foreach (var participant in chatDto.Participants)
         {
-            var user = await userStore.GetUserByIdAsync(participant.UserName);
+            var user = await userStore.GetUserByIdAsync(participant.UserId);
             participant.UserName = user.UserName;
             participant.AvatarUrl = user.AvatarUrl;
         }
@@ -47,15 +47,28 @@ public class ChatService : IChatService
     public async Task<IEnumerable<PrivateChatResponseDTO>> GetAllPrivateChatsAsync(string userId)
     {
         var chats = await chatRepository.GetAllPrivateChatsAsync(userId);
-        var chatDtos = mapper.Map<IEnumerable<PrivateChatResponseDTO>>(chats);
 
-        foreach (var chatDto in chatDtos)
+        var chatDtos = mapper.Map<List<PrivateChatResponseDTO>>(chats);
+
+        var allUserIds = chatDtos
+            .SelectMany(c => c.Participants)
+            .Select(p => p.UserId)
+            .Distinct()
+            .ToList();
+
+        var users = await userStore.GetUsersByIdsAsync(allUserIds);
+
+        var userDict = users.ToDictionary(u => u.Id);
+
+        foreach (var chat in chatDtos)
         {
-            foreach (var participant in chatDto.Participants)
+            foreach (var participant in chat.Participants)
             {
-                var user = await userStore.GetUserByIdAsync(participant.Id);
-                participant.UserName = user.UserName;
-                participant.AvatarUrl = user.AvatarUrl;
+                if (userDict.TryGetValue(participant.UserId, out var user))
+                {
+                    participant.UserName = user.UserName;
+                    participant.AvatarUrl = user.AvatarUrl;
+                }
             }
         }
 

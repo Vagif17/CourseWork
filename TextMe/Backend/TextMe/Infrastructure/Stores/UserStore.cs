@@ -110,7 +110,7 @@ public class UserStore : IUserStore
 
         return new ParticipantDTO
         {
-            Id = user.Id,
+            UserId = user.Id,
             UserName = user.UserName,
             Email = user.Email,
             AvatarUrl = user.AvatarUrl

@@ -12,7 +12,7 @@ public class MappingProfile : Profile
         #region ChatMapping
 
         CreateMap<ChatParticipant, ParticipantDTO>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId));
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
         CreateMap<Chat, PrivateChatResponseDTO>()
             .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants));
