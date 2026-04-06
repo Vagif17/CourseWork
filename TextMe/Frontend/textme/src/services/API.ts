@@ -3,7 +3,7 @@ import { store } from "../store"
 import { logout } from "../store/slices/authSlice"
 import { tokenService } from "./tokenService"
 
-export const API_URL = "http://localhost:5243/api"
+export const API_URL = "https://coursework-1-1mjp.onrender.com/api"
 
 export const api = axios.create({ baseURL: API_URL })
 

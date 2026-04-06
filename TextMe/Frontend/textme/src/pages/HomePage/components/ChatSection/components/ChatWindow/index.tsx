@@ -30,7 +30,7 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
             } catch (err) {
                 console.error("Error connecting to SignalR", err);
             }
-        };  
+        };
 
         initHub();
 
