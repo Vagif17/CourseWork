@@ -1,0 +1,48 @@
+﻿.chat-section {
+    display:contents;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.chat-list-wrapper {
+    flex: 0 0 300px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
+}
+
+.chat-window-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+
+
+
+.cancel-btn{
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    background:#2a2f37;
+    color:white;
+    cursor:pointer;
+}
+
+.cancel-btn:hover{
+    background:#3a414c;
+}
+
+.add-btn{
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    background:#00b6ff;
+    color:white;
+    cursor:pointer;
+}
+
+.add-btn:hover{
+    background:#00d4ff;
+}
