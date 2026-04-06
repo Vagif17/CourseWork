@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import chatHub from "../hubs/chatHub.ts";
 import { messageService } from "../services/messageService";
-import { getUserId } from "../utils/auth.ts";
+import { getUserId } from "../utils/getUserIdUtil.ts";
 
 export const useChat = (chatId: number | null) => {
     const [messages, setMessages] = useState<any[]>([]);

@@ -49,3 +49,18 @@ button[disabled] {
 .back-btn {
     background-color: #ef4444;
 }
+
+.nav-links {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.link-button {
+    color: #007BFF;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.link-button:hover {
+    color: #0056b3;
+}

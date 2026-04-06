@@ -2,16 +2,15 @@
 import { store } from "../store"
 import { logout } from "../store/slices/authSlice"
 import { tokenService } from "./tokenService"
-
-export const API_URL = "https://coursework-1-1mjp.onrender.com/api"
-
+export const API_URL = "https://coursework-1-1mjp.onrender.com"
+//http://localhost:5243/api
 export const api = axios.create({ baseURL: API_URL })
 
 api.interceptors.request.use(async (config) => {
     const token = await tokenService.getValidToken()
     if (token) {
-        config.headers = config.headers || {}
-        config.headers.Authorization = `Bearer ${token}`
+        config.headers = config.headers ?? {};
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config
 })

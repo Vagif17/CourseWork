@@ -4,34 +4,30 @@ using Application.Interfaces.Services;
 using Application.Interfaces.Stores;
 using Application.Services.Interfaces;
 
-
 namespace Application.Services.Classes;
 
 public class AuthService : IAuthService
 {
     private readonly IUserStore UserStore;
-    private readonly IJwtTokenSerivce jwtTokenSerivce;
+    private readonly IJwtTokenSerivce jwtTokenService;
     private readonly IRefreshTokenRepository refreshTokenRepository;
-    public AuthService(IUserStore _userStore,IJwtTokenSerivce _jwtTokenSerivce,IRefreshTokenRepository _refreshTokenRepository)
 
+    public AuthService(IUserStore _userStore, IJwtTokenSerivce _jwtTokenService, IRefreshTokenRepository _refreshTokenRepository)
     {
         UserStore = _userStore;
-        jwtTokenSerivce = _jwtTokenSerivce;
+        jwtTokenService = _jwtTokenService;
         refreshTokenRepository = _refreshTokenRepository;
     }
-
 
     public async Task<AuthResponseDTO> RegisterAsync(RegisterRequestDTO registerRequest)
     {
         if (await UserStore.FindUserIdByEmailOrIdAsync(registerRequest.Email) is not null)
-            throw new ArgumentException("User with this email  already exist");
+            throw new ArgumentException("User with this email already exists");
 
         if (await UserStore.FindUserIdByEmailOrPhoneAsync(registerRequest.PhoneNumber) is not null)
-            throw new ArgumentException("User with this phone number already exist");
+            throw new ArgumentException("User with this phone number already exists");
 
-
-            var userId = await UserStore.CreateUserAsync(registerRequest);
-
+        var userId = await UserStore.CreateUserAsync(registerRequest);
         await UserStore.AddToRoleAsync(userId, "User");
 
         return await GenerateTokensAsync(userId, registerRequest.Email);
@@ -40,51 +36,43 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDTO> LoginAsync(LoginRequestDTO loginRequest)
     {
         var userId = await UserStore.FindUserIdByEmailOrIdAsync(loginRequest.Email);
-        if (userId is null)
+        if (userId is null || !await UserStore.CheckPasswordAsync(userId, loginRequest.Password))
             throw new UnauthorizedAccessException("Invalid email or password.");
-
-        if (!await UserStore.CheckPasswordAsync(userId, loginRequest.Password))
-            throw new UnauthorizedAccessException("Invalid email or password.");
-
-        var roles = await UserStore.GetRolesAsync(userId);
 
         return await GenerateTokensAsync(userId, loginRequest.Email);
     }
 
-    public async Task<AuthResponseDTO> RefreshTokenAsync(RefreshTokenRequestDTO refreshTokenRequest)
+    public async Task<AuthResponseDTO> RefreshTokenAsync(RefreshTokenRequestDTO request)
     {
-        if (refreshTokenRequest == null || string.IsNullOrEmpty(refreshTokenRequest.RefreshToken))
-            throw new UnauthorizedAccessException("Refresh token is missing");
+        var (userId, oldJti) = jwtTokenService.ValidateRefreshTokenAndGetJti(request.RefreshToken);
 
-        string userId;
-        string jti;
+        var oldToken = await refreshTokenRepository.GetByJwtIdAsync(oldJti);
 
-        try
-        {
-            (userId, jti) = jwtTokenSerivce.ValidateRefreshTokenAndGetJti(refreshTokenRequest.RefreshToken);
-        }
-        catch
-        {
-            throw new UnauthorizedAccessException("Invalid refresh token");
-        }
-
-        var storedToken = await refreshTokenRepository.GetByJwtIdAsync(jti);
-        if (storedToken is null || !storedToken.IsActive)
+        if (oldToken == null || !oldToken.IsActive)
             throw new UnauthorizedAccessException("Refresh token has been revoked or expired");
 
-        storedToken.RevokedAt = DateTime.UtcNow;
+        oldToken.RevokedAt = DateTime.UtcNow;
 
-        var email = await UserStore.GetEmailAsync(userId);
-        var newTokens = await GenerateTokensAsync(userId, email);
+        var (newRefreshEntity, newRefreshJwt) = await jwtTokenService.CreateRefreshTokenAsync(userId);
 
-        var newJti = jwtTokenSerivce.GetJtiFromRefreshToken(newTokens.RefreshToken);
-        var newStoredToken = string.IsNullOrEmpty(newJti) ? null : await refreshTokenRepository.GetByJwtIdAsync(newJti);
-        if (newStoredToken is not null)
-            storedToken.ReplacedByJwtId = newStoredToken.JwtId;
+        await refreshTokenRepository.UpdateAsync(oldToken);
 
-        await refreshTokenRepository.UpdateAsync(storedToken);
+        var roles = await UserStore.GetRolesAsync(userId);
+        var userName = await UserStore.GetUserNameAsync(userId);
+        var userEmail = await UserStore.GetEmailAsync(userId);
 
-        return newTokens;
+        var (accessToken, expiresAt) = await jwtTokenService.GenerateAccessTokenAsync(userId, userName, userEmail, roles);
+
+        return new AuthResponseDTO
+        {
+            AccessToken = accessToken,
+            RefreshToken = newRefreshJwt,
+            RefreshTokenExpiresAt = newRefreshEntity.ExpiresAt,
+            ExpiresAt = expiresAt,
+            UserName = userName,
+            Email = userEmail,
+            Roles = roles
+        };
     }
 
     public async Task RevokeRefreshTokenAsync(RefreshTokenRequestDTO refreshTokenRequest)
@@ -92,7 +80,11 @@ public class AuthService : IAuthService
         string jti;
         try
         {
-            (_, jti) = jwtTokenSerivce.ValidateRefreshTokenAndGetJti(refreshTokenRequest.RefreshToken, validateLifetime: false);
+            var result =  jwtTokenService.ValidateRefreshTokenAndGetJti(
+                refreshTokenRequest.RefreshToken,
+                validateLifetime: false
+            );
+            jti = result.Item2; 
         }
         catch
         {
@@ -100,7 +92,7 @@ public class AuthService : IAuthService
         }
 
         var storedToken = await refreshTokenRepository.GetByJwtIdAsync(jti);
-        if (storedToken is null || !storedToken.IsActive) return;
+        if (storedToken == null || !storedToken.IsActive) return;
 
         storedToken.RevokedAt = DateTime.UtcNow;
         await refreshTokenRepository.UpdateAsync(storedToken);
@@ -108,13 +100,12 @@ public class AuthService : IAuthService
 
     private async Task<AuthResponseDTO> GenerateTokensAsync(string userId, string? email)
     {
+        var userName = await UserStore.GetUserNameAsync(userId) ?? "User";
+        var avatarUrl = await UserStore.GetAvatarUrlAsync(userId);
         var roles = await UserStore.GetRolesAsync(userId);
 
-        var userName = await UserStore.GetUserNameAsync(userId);
-        var avatarUrl = await UserStore.GetAvatarUrlAsync(userId);
-
-        var (accessToken, expiresAt) = await jwtTokenSerivce.GenerateAccessTokenAsync(userId, userName, email, roles);
-        var (refreshEntity, refreshJwt) = await jwtTokenSerivce.CreateRefreshTokenAsync(userId);
+        var (accessToken, expiresAt) = await jwtTokenService.GenerateAccessTokenAsync(userId, userName, email, roles);
+        var (refreshEntity, refreshJwt) = await jwtTokenService.CreateRefreshTokenAsync(userId);
 
         return new AuthResponseDTO
         {

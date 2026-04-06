@@ -1,4 +1,4 @@
-﻿import  { useState } from "react";
+﻿import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { recoveryService } from "../../../../services/recoveryService";
@@ -13,7 +13,6 @@ type RecoveryFormProps = {
 type Step1Data = { email: string };
 type Step2Data = { code: string };
 type Step3Data = { newPassword: string };
-
 
 function RecoveryForm({ onClose, goLogin, goRegister }: RecoveryFormProps) {
     const [step, setStep] = useState(1);
@@ -37,13 +36,12 @@ function RecoveryForm({ onClose, goLogin, goRegister }: RecoveryFormProps) {
         try {
             await recoveryService.verifyCode(email, data.code);
             toast.success("Code verified!", { position: "top-center" });
-            setCodeVerified(data.code);  // сохраняем код
+            setCodeVerified(data.code);
             setStep(3);
         } catch (err: any) {
             toast.error(err.message || "Invalid code", { position: "top-center" });
         }
     };
-
 
     const resetPassword = async (data: Step3Data) => {
         try {
@@ -68,10 +66,15 @@ function RecoveryForm({ onClose, goLogin, goRegister }: RecoveryFormProps) {
                         className={errors.email ? "input-error" : ""}
                         {...register("email", { required: "Email is required" })}
                     />
-                    <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Sending..." : "Send Code"}</button>
-                    <div className="nav-buttons">
-                        <button type="button" onClick={goLogin}>Login</button>
-                        <button type="button" onClick={goRegister}>Register</button>
+                    <p className="spam-note">
+                        ⚠️ Note: The verification code may sometimes go to your Spam or Promotions folder.
+                    </p>
+                    <button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? "Sending..." : "Send Code"}
+                    </button>
+                    <div className="nav-links">
+                        <a onClick={goLogin} className="link-button">Login</a>|
+                        <a onClick={goRegister} className="link-button">Register</a>
                     </div>
                 </form>
             )}

@@ -5,11 +5,17 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import type { AppDispatch } from "../../store";
 import ChatSection from "./components/ChatSection";
+import {initAuth} from "../../utils/initAuthUtil.ts";
+import {useEffect} from "react";
 
 
 function HomePage() {
     const navigate = useNavigate();
     const dispatch: AppDispatch = useDispatch();
+
+    useEffect(() => {
+        initAuth();
+    }, []);
 
     const handleLogout = () => {
         dispatch(logout());

@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { getUserId } from "../../../../utils/auth.ts";
+import { getUserId } from "../../../../utils/getUserIdUtil.ts";
 import "./ChatSection.css";
 import ChatList from "./components/ChatList";
 import ChatWindow from "./components/ChatWindow";

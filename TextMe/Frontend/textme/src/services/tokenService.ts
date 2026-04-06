@@ -29,14 +29,13 @@ export const tokenService = {
     },
 
     getValidToken: async (): Promise<string | null> => {
-
         let token = tokenService.getToken();
         const refreshToken = tokenService.getRefreshToken();
 
         if (token && !isTokenExpired(token)) {
+            return token;
         }
 
-        // если нет refreshToken → logout
         if (!refreshToken) {
             tokenService.clearTokens();
             store.dispatch(logout());
@@ -44,7 +43,6 @@ export const tokenService = {
         }
 
         try {
-
             const response = await axios.post<RefreshResponse>(
                 `${API_URL}/User/refresh`,
                 { refreshToken }
@@ -63,12 +61,9 @@ export const tokenService = {
             }
 
             return newToken;
-
         } catch {
-
             tokenService.clearTokens();
             store.dispatch(logout());
-
             return null;
         }
     }
