@@ -125,7 +125,7 @@ public static class ServiceCollectionExtensions
             options.AddPolicy("AllowAll", policy =>
             {
                 policy
-                    .WithOrigins("https://textmemessenger.netlify.app")
+                    .WithOrigins("http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -134,4 +134,4 @@ public static class ServiceCollectionExtensions
         return services;
     }
 }
-// 
+// https://textmemessenger.netlify.app

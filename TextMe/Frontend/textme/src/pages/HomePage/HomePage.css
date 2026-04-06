@@ -1,11 +1,9 @@
-﻿.homepage {
-    display: grid;
-    grid-template-columns: 90px 280px 1fr;
-    height: 100vh;
-    width: 100vw;
-    font-family: 'Verdana', sans-serif;
+﻿.homepage{
+    display:grid;
+    grid-template-columns:110px 300px 1fr;
+    height:100%;
+    overflow:hidden;
 }
-
 
 .sidebar {
     background: #0c1014;

@@ -21,7 +21,7 @@ public class UserStore : IUserStore
 
     public async Task<string?> FindUserIdByEmailOrIdAsync(string emailOrId)
     {
-        var user =emailOrId.Contains("@")
+        var user = emailOrId.Contains("@")
             ? await userManager.FindByEmailAsync(emailOrId)
             : await userManager.FindByIdAsync(emailOrId);
         return user?.Id;
@@ -115,6 +115,19 @@ public class UserStore : IUserStore
             Email = user.Email,
             AvatarUrl = user.AvatarUrl
         };
+    }
+
+    public async Task<IEnumerable<UserDTO>> GetUsersByIdsAsync(IEnumerable<string> ids)
+    {
+        return await userManager.Users
+            .Where(u => ids.Contains(u.Id))
+            .Select(u => new UserDTO
+            {
+                Id = u.Id,
+                UserName = u.UserName!,
+                AvatarUrl = u.AvatarUrl
+            })
+            .ToListAsync();
     }
 }
 

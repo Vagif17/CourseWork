@@ -35,4 +35,5 @@ public class AccountRestoreRepository : IAccountRestoreRepository
         var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
         return result.Succeeded;
     }
+
 }

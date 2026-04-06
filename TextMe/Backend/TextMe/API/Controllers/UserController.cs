@@ -10,10 +10,11 @@ namespace API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IAuthService authService;
-
-    public UserController(IAuthService _authService)
+    private readonly IAccountRestoreService restoreService;
+    public UserController(IAuthService _authService, IAccountRestoreService _restoreService)
     {
         authService = _authService;
+        restoreService = _restoreService;
     }
 
 
@@ -46,8 +47,8 @@ public class UserController : ControllerBase
     public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginRequestDTO requestDTO)
     {
         var result = await authService.LoginAsync(requestDTO);
-        
-            return result;
+
+        return result;
     }
 
     [HttpPost("refresh")]
@@ -63,5 +64,41 @@ public class UserController : ControllerBase
         await authService.RevokeRefreshTokenAsync(request);
         return NoContent();
     }
-    
+
+
+    [HttpPost("recovery/send-code")]
+    public async Task<IActionResult> SendRecoveryCode([FromBody] RecoveryRequestDTO request)
+    {
+        await restoreService.SendRecoveryEmail(request.Email);
+
+        return Ok(new { message = "Recovery code sent" });
+    }
+
+
+    [HttpPost("recovery/verify")]
+    public async Task<IActionResult> VerifyCode([FromBody] RecoveryVerifyDTO request)
+    {
+        var result = await restoreService.VerifyCode(request.Email, request.Code);
+
+        if (!result)
+            return BadRequest("Invalid code");
+
+        return Ok("Code verified");
+    }
+
+
+    [HttpPost("recovery/change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ResetPasswordDTO request)
+    {
+        var result = await restoreService.ResetPasswordAsync(
+            request.Email,
+            request.Code,
+            request.NewPassword
+        );
+
+        if (!result)
+            return BadRequest("Invalid code or email");
+
+        return Ok("Password changed");
+    }
 }

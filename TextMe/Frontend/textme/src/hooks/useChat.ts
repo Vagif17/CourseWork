@@ -1,57 +1,43 @@
-﻿import { useEffect, useState } from "react"
-import chatHub from "../hubs/chatHub.ts"
-import { messageService } from "../services/messageService"
-import { getUserId } from "../utils/auth.ts"
+﻿import { useEffect, useState } from "react";
+import chatHub from "../hubs/chatHub.ts";
+import { messageService } from "../services/messageService";
+import { getUserId } from "../utils/auth.ts";
 
 export const useChat = (chatId: number | null) => {
-
-    const [messages, setMessages] = useState<any[]>([])
-
-    const currentUserId = getUserId()
+    const [messages, setMessages] = useState<any[]>([]);
+    const currentUserId = getUserId();
 
     useEffect(() => {
-
-        if (!chatId) return
+        if (!chatId) return;
 
         const handler = (msg: any) => {
-            setMessages(prev => [...prev, msg])
-        }
+            setMessages(prev => [...prev, msg]);
+        };
 
         const load = async () => {
-
-            setMessages([])
-
+            setMessages([]);
             try {
-                const msgs = await messageService.getMessages(chatId)
-                setMessages(msgs)
+                const msgs = await messageService.getMessages(chatId);
+                setMessages(msgs);
             } catch (error) {
-                console.error('Error loading messages:', error)
+                console.error("Error loading messages:", error);
             }
 
-            await chatHub.joinChat(chatId)
+            await chatHub.joinChat(chatId);
+            chatHub.onReceiveMessage(handler);
+        };
 
-            chatHub.onReceiveMessage(handler)
-        }
-
-        load()
+        load();
 
         return () => {
-            chatHub.leaveChat(chatId)
-            chatHub.offReceiveMessage(handler)
-        }
+            chatHub.leaveChat(chatId);
+            chatHub.offReceiveMessage(handler);
+        };
+    }, [chatId, currentUserId]);
 
-    }, [chatId, currentUserId])
-
-    // Очищаем messages при смене пользователя
     useEffect(() => {
-        if (chatId) {
-            setMessages([])
-        }
-    }, [currentUserId])
+        if (chatId) setMessages([]);
+    }, [currentUserId]);
 
-    const sendMessage = async (text: string) => {
-        await chatHub.sendMessage(chatId!, text)
-    }
-
-    return { messages, sendMessage }
-}
+    return { messages };
+};
