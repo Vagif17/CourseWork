@@ -129,10 +129,7 @@ public class UserStore : IUserStore
             })
             .ToListAsync();
     }
-<<<<<<< HEAD
-=======
-    
->>>>>>> fbbf670c819fdf26415368347ed90557608ea50e
+
 }
 
 

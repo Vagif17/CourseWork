@@ -3,11 +3,12 @@ using Application.Interfaces.Repositories;
 using Application.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Net;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System.Net.Mail;
 using System.Security.Cryptography;
 
-namespace Application.Services.Classes;
+namespace Infrastructure.Services;
 
 public class AccountRecoveryService : IAccountRestoreService
 {
@@ -25,25 +26,23 @@ public class AccountRecoveryService : IAccountRestoreService
     public async Task SendRecoveryEmail(string email)
     {
         if (!await accountRestoreRepository.ExistsByEmailAsync(email))
-            return; 
+            return;
 
         string verifyCode = GenerateVerificationCode();
         cache.Set(email, verifyCode, TimeSpan.FromMinutes(5));
 
-        MailMessage mail = new MailMessage();
-        mail.From = new MailAddress(mailConfig.SenderEmail);
-        mail.To.Add(email);
-        mail.Subject = "Restore TextMe Account";
-        mail.Body = MailTemplates.VerificationCodeTemplate(verifyCode);
-        mail.IsBodyHtml = true;
+        var client = new SendGridClient(mailConfig.ApiKey);
+        var from = new EmailAddress(mailConfig.SenderEmail, "Text Me Messenger");
+        var to = new EmailAddress(email);
+        var subject = "Restore TextMe Account";
+        var htmlContent = MailTemplates.VerificationCodeTemplate(verifyCode);
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent: null, htmlContent);
 
-        using SmtpClient smtp = new SmtpClient(mailConfig.SmtpHost, mailConfig.Port)
+        var response = await client.SendEmailAsync(msg);
+        if (!response.IsSuccessStatusCode)
         {
-            EnableSsl = true,
-            Credentials = new NetworkCredential(mailConfig.SenderEmail, mailConfig.Password)
-        };
-
-        await smtp.SendMailAsync(mail);
+            throw new Exception($"Failed to send email: {response.StatusCode}");
+        }
     }
 
     public Task<bool> VerifyCode(string email, string code)

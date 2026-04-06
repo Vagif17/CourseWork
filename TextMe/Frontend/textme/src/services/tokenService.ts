@@ -1,36 +1,75 @@
-﻿import { store } from "../store"
-import { login, logout } from "../store/slices/authSlice"
-import axios from "axios"
-import { API_URL } from "./API"
+﻿import { store } from "../store";
+import { login, logout } from "../store/slices/authSlice";
+import axios from "axios";
+import { API_URL } from "./API";
+
+interface RefreshResponse {
+    accessToken?: string;
+    refreshToken?: string;
+}
+
+const isTokenExpired = (token: string): boolean => {
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const exp = payload.exp * 1000;
+        return Date.now() >= exp;
+    } catch {
+        return true;
+    }
+};
 
 export const tokenService = {
-    getToken: (): string | null => localStorage.getItem("token"),
-    getRefreshToken: (): string | null => localStorage.getItem("refreshToken"),
+    getToken: () => localStorage.getItem("token"),
+
+    getRefreshToken: () => localStorage.getItem("refreshToken"),
+
+    clearTokens: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+    },
 
     getValidToken: async (): Promise<string | null> => {
-        const token = localStorage.getItem("token")
-        const refreshToken = localStorage.getItem("refreshToken")
 
-        if (token) return token // токен есть, возвращаем его
+        let token = tokenService.getToken();
+        const refreshToken = tokenService.getRefreshToken();
 
+        if (token && !isTokenExpired(token)) {
+        }
+
+        // если нет refreshToken → logout
         if (!refreshToken) {
-            store.dispatch(logout())
-            return null
+            tokenService.clearTokens();
+            store.dispatch(logout());
+            return null;
         }
 
         try {
-            const response = await axios.post(`${API_URL}/User/refresh`, { refreshToken })
-            const newAccessToken = response.data.accessToken
-            const newRefreshToken = response.data.refreshToken
 
-            localStorage.setItem("token", newAccessToken)
-            localStorage.setItem("refreshToken", newRefreshToken)
-            store.dispatch(login(newAccessToken))
+            const response = await axios.post<RefreshResponse>(
+                `${API_URL}/User/refresh`,
+                { refreshToken }
+            );
 
-            return newAccessToken
-        } catch (err) {
-            store.dispatch(logout())
-            return null
+            const newToken = response.data.accessToken ?? null;
+            const newRefreshToken = response.data.refreshToken ?? null;
+
+            if (newToken) {
+                localStorage.setItem("token", newToken);
+                store.dispatch(login(newToken));
+            }
+
+            if (newRefreshToken) {
+                localStorage.setItem("refreshToken", newRefreshToken);
+            }
+
+            return newToken;
+
+        } catch {
+
+            tokenService.clearTokens();
+            store.dispatch(logout());
+
+            return null;
         }
-    },
-}
+    }
+};

@@ -4,6 +4,7 @@ using Application.Services.Classes;
 using Application.Services.Interfaces;
 using Application.Validators.UserValidators;
 using FluentValidation;
+using Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.Extensions;

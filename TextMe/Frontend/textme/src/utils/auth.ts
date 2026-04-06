@@ -19,3 +19,4 @@ export const getUserId = (): string | null => {
         return null
     }
 }
+
