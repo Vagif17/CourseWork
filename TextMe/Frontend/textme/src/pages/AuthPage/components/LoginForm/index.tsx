@@ -5,6 +5,7 @@ import "../../../../styles/Global.css";
 import { authService } from "../../../../services/authService.ts";
 import type { LoginRequest } from "../../../../types/auth.ts";
 import { toast } from "react-toastify";
+import Spinner from "../../../../components/Spinner";
 
 type LoginFormProps = {
     goRegister: () => void;
@@ -60,7 +61,7 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
             />
 
             <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Logging in..." : "Login"}
+                {isSubmitting ? <Spinner /> : "Login"}
             </button>
 
             <div className="login-links">

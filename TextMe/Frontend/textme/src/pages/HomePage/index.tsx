@@ -2,17 +2,19 @@
 import "./HomePage.css";
 import { useNavigate } from "react-router";
 import ChatSection from "./components/ChatSection";
-import {useEffect, useState} from "react";
-import {initAuth} from "../../utils/initAuthUtil.ts";
-import {authService} from "../../services/authService.ts";
+import { useEffect, useState } from "react";
+import { initAuth } from "../../utils/initAuthUtil.ts";
+import { authService } from "../../services/authService.ts";
+import AuthLoader from "./components/AuthLoader";
 
+type Tab = "chats" | "settings" | "profile" | "notifications";
 
 function HomePage() {
     const navigate = useNavigate();
-
     const [authInitialized, setAuthInitialized] = useState(false);
+    const [activeTab, setActiveTab] = useState<Tab>("chats");
 
-    useEffect(() => { // Чтобы при обновлении страницы если jwt просрочен не выкидывало 
+    useEffect(() => {
         const init = async () => {
             await initAuth();
             setAuthInitialized(true);
@@ -20,7 +22,7 @@ function HomePage() {
         init();
     }, []);
 
-    if (!authInitialized) return <div>Loading...</div>;
+    if (!authInitialized) return <AuthLoader />;
 
     const handleLogout = async () => {
         await authService.logout();
@@ -31,10 +33,33 @@ function HomePage() {
         <div className="homepage fade-in">
             <div className="sidebar">
                 <div className="sidebar-icons">
-                    <div className="sidebar-icon">💬</div>
-                    <div className="sidebar-icon">⚙️</div>
-                    <div className="sidebar-icon">👤</div>
-                    <div className="sidebar-icon">📢</div>
+                    <div
+                        className={`sidebar-icon ${activeTab === "chats" ? "active" : ""}`}
+                        onClick={() => setActiveTab("chats")}
+                    >
+                        💬
+                    </div>
+
+                    <div
+                        className={`sidebar-icon ${activeTab === "settings" ? "active" : ""}`}
+                        onClick={() => setActiveTab("settings")}
+                    >
+                        ⚙️
+                    </div>
+
+                    <div
+                        className={`sidebar-icon ${activeTab === "profile" ? "active" : ""}`}
+                        onClick={() => setActiveTab("profile")}
+                    >
+                        👤
+                    </div>
+
+                    <div
+                        className={`sidebar-icon ${activeTab === "notifications" ? "active" : ""}`}
+                        onClick={() => setActiveTab("notifications")}
+                    >
+                        📢
+                    </div>
                 </div>
 
                 <div className="sidebar-logout" onClick={handleLogout}>
@@ -42,8 +67,12 @@ function HomePage() {
                 </div>
             </div>
 
-            <ChatSection />
-
+            <div className="main-content">
+                {activeTab === "chats" && <ChatSection />}
+                {activeTab === "settings" && <div>Settings Content</div>}
+                {activeTab === "profile" && <div>Profile Content</div>}
+                {activeTab === "notifications" && <div>Notifications Content</div>}
+            </div>
         </div>
     );
 }

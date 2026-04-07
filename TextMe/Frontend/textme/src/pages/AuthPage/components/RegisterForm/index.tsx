@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css"
 import "./RegisterForm.css"
 import "../../../../styles/Global.css"
 import type { RegisterRequest } from "../../../../types/auth"
+import Spinner from "../../../../components/Spinner";
 
 type RegisterFormProps = {
     goLogin: () => void
@@ -179,7 +180,7 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
             </div>
 
             <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Registering..." : "Register"}
+                {isSubmitting ? <Spinner /> : "Register"}
             </button>
 
             <div className="register-links">

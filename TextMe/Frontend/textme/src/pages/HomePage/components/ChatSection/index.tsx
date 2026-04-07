@@ -9,17 +9,21 @@ export default function ChatSection() {
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
 
     return (
-        <>
-            <ChatList
-                currentUserId={currentUserId}
-                selectedChatId={selectedChatId}
-                onSelectChat={setSelectedChatId}
-            />
+        <div className="chat-section">
+            <div className="chat-list-wrapper">
+                <ChatList
+                    currentUserId={currentUserId}
+                    selectedChatId={selectedChatId}
+                    onSelectChat={setSelectedChatId}
+                />
+            </div>
 
-            <ChatWindow
-                currentUserId={currentUserId}
-                selectedChatId={selectedChatId}
-            />
-        </>
+            <div className="chat-window-wrapper">
+                <ChatWindow
+                    currentUserId={currentUserId}
+                    selectedChatId={selectedChatId}
+                />
+            </div>
+        </div>
     );
 }
