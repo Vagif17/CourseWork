@@ -1,9 +1,8 @@
 ﻿import axios from "axios"
 import { tokenService } from "./tokenService"
 
-export const API_URL = "http://localhost:5243/api"
-//https://coursework-1-1mjp.onrender.com
-
+export const API_URL = "https://coursework-1-1mjp.onrender.com/api"
+//http://localhost:5243
 export const api = axios.create({
     baseURL: API_URL
 })
