@@ -2,7 +2,7 @@
 import "./HomePage.css";
 import { useNavigate } from "react-router";
 import ChatSection from "./components/ChatSection";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {initAuth} from "../../utils/initAuthUtil.ts";
 import {authService} from "../../services/authService.ts";
 
@@ -10,9 +10,17 @@ import {authService} from "../../services/authService.ts";
 function HomePage() {
     const navigate = useNavigate();
 
-    useEffect(() => {
-        initAuth();
+    const [authInitialized, setAuthInitialized] = useState(false);
+
+    useEffect(() => { // Чтобы при обновлении страницы если jwt просрочен не выкидывало 
+        const init = async () => {
+            await initAuth();
+            setAuthInitialized(true);
+        };
+        init();
     }, []);
+
+    if (!authInitialized) return <div>Loading...</div>;
 
     const handleLogout = async () => {
         await authService.logout();

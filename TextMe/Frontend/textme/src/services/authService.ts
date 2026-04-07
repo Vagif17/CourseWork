@@ -14,7 +14,6 @@ export const authService = {
         tokenService.setTokens(accessToken, refreshToken);
 
         store.dispatch(login(accessToken));
-
         return response.data;
     },
 
