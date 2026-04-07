@@ -4,6 +4,7 @@ import { useChat } from "../../../../../../hooks/useChat";
 import chatHub from "../../../../../../hubs/chatHub";
 import { messageService } from "../../../../../../services/messageService";
 import "./ChatWindow.css";
+import "../../../../../../styles/Global.css"
 import {validateFiles} from "../../../../../../utils/fileValidatorUtil.ts";
 
 type Props = {
@@ -13,9 +14,16 @@ type Props = {
 
 export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
 
+    /* Idea by : Sahib */
+    const typingAudioRef = useRef<HTMLAudioElement>(new Audio("/sounds/typesound.mp3"));
+
     const [text, setText] = useState("");
+
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
+
     const fileRef = useRef<HTMLInputElement>(null);
+
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const { messages } = useChat(selectedChatId);
 
@@ -136,6 +144,7 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
                                 <img
                                     src={msg.mediaUrl}
                                     className="message-image"
+                                    onClick={() => setSelectedImage(msg.mediaUrl)}
                                 />
                             )}
 
@@ -219,7 +228,14 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
                         type="text"
                         placeholder="Type a message..."
                         value={text}
-                        onChange={e => setText(e.target.value)}
+                        onChange={e => {
+                            setText(e.target.value);
+
+                            if (typingAudioRef.current) {
+                                typingAudioRef.current.currentTime = 0;
+                                typingAudioRef.current.play().catch(() => {});
+                            }
+                        }}
                         onKeyDown={e => {
                             if (e.key === "Enter") handleSend();
                         }}
@@ -236,6 +252,24 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
 
             </div>
 
+
+            {selectedImage && (
+                <div
+                    className="image-modal"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <span className="close-modal">×</span>
+
+                    <img
+                        src={selectedImage}
+                        className="modal-image"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
+
         </div>
+
+
     );
 }
