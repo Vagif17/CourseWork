@@ -6,9 +6,9 @@ class ChatHub {
 
     async start() {
         if (this.connection) return
-//http://localhost:5243
+//https://coursework-1-1mjp.onrender.com
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
+            .withUrl("http://localhost:5243/hubs/chat", {
                 accessTokenFactory: async () => {
                     return (await tokenService.getValidToken()) || ""
                 },

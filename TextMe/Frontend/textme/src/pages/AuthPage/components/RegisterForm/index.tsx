@@ -47,27 +47,16 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
     }
 
     const onSubmit = async (data: RegisterFormData) => {
-
         try {
+            const request: RegisterRequest = { ...data, avatar: avatarFile ?? undefined };
+            await authService.register(request);
 
-            const request: RegisterRequest = {
-                ...data,
-                avatar: avatarFile ?? undefined
-            }
-
-            const response = await authService.register(request)
-
-            console.log("Registered:", response)
-
-            toast.success("Registration successful!", { position: "top-center" })
-
-        } catch (err) {
-
-            console.log("Register failed", err)
-
-            toast.error("Registration failed. Please try again.", { position: "top-center" })
+            toast.success("Registration successful!", { position: "top-center" });
+            goLogin();
+        } catch {
+            toast.error("Registration failed. Please try again.", { position: "top-center" });
         }
-    }
+    };
 
     const onError = (errors: any) => {
 

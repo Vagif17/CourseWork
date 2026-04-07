@@ -1,24 +1,21 @@
 ﻿import "./../../styles/Global.css";
 import "./HomePage.css";
 import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
-import { logout } from "../../store/slices/authSlice";
-import type { AppDispatch } from "../../store";
 import ChatSection from "./components/ChatSection";
-import {initAuth} from "../../utils/initAuthUtil.ts";
 import {useEffect} from "react";
+import {initAuth} from "../../utils/initAuthUtil.ts";
+import {authService} from "../../services/authService.ts";
 
 
 function HomePage() {
     const navigate = useNavigate();
-    const dispatch: AppDispatch = useDispatch();
 
     useEffect(() => {
         initAuth();
     }, []);
 
-    const handleLogout = () => {
-        dispatch(logout());
+    const handleLogout = async () => {
+        await authService.logout();
         navigate("/auth");
     };
 

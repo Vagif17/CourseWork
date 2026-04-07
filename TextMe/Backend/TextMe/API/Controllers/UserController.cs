@@ -83,7 +83,7 @@ public class UserController : ControllerBase
         if (!result)
             return BadRequest("Invalid code");
 
-        return Ok("Code verified");
+        return Ok("Code verified"); 
     }
 
 

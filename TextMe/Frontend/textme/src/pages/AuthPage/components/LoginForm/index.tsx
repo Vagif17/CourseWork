@@ -3,11 +3,8 @@ import { useNavigate } from "react-router";
 import "./LoginForm.css";
 import "../../../../styles/Global.css";
 import { authService } from "../../../../services/authService.ts";
-import type { AuthResponse, LoginRequest } from "../../../../types/auth.ts";
+import type { LoginRequest } from "../../../../types/auth.ts";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import { login } from "../../../../store/slices/authSlice";
-import type { AppDispatch } from "../../../../store";
 
 type LoginFormProps = {
     goRegister: () => void;
@@ -17,32 +14,18 @@ type LoginFormProps = {
 function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
 
     const navigate = useNavigate();
-    const dispatch: AppDispatch = useDispatch();
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<LoginRequest>();
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginRequest>();
 
     const onSubmit = async (data: LoginRequest) => {
         try {
-
-            const response: AuthResponse = await authService.login(data);
-
-            console.log("Logged in:", response);
-
-            dispatch(login(response.accessToken));
+            await authService.login(data); // сервис сам диспатчит
 
             toast.success("Logged in successfully!", { position: "top-center" });
-
             navigate("/homepage");
-
         } catch (err: any) {
-
-            toast.error("Incorrect email or password", { position: "top-center" });
-
-            console.log(err.response?.data?.message || err);
+            toast.error(err.response?.data?.message || "Incorrect email or password", { position: "top-center" });
+            console.log(err);
         }
     };
 
@@ -54,7 +37,6 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
 
     return (
         <form className="login-form" onSubmit={handleSubmit(onSubmit, onError)}>
-
             <h2 className="form-title">LOGIN</h2>
 
             <input
@@ -63,10 +45,7 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
                 className={errors.email ? "input-error" : ""}
                 {...register("email", {
                     required: "Email is required",
-                    pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Invalid email format",
-                    },
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email format" }
                 })}
             />
 
@@ -76,10 +55,7 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
                 className={errors.password ? "input-error" : ""}
                 {...register("password", {
                     required: "Password is required",
-                    minLength: {
-                        value: 6,
-                        message: "Password must be at least 6 characters",
-                    },
+                    minLength: { value: 6, message: "Password must be at least 6 characters" }
                 })}
             />
 
@@ -88,12 +64,9 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
             </button>
 
             <div className="login-links">
-                <a className="register" onClick={goRegister}>
-                    Register
-                </a>
+                <a className="register" onClick={goRegister}>Register</a>
                 <a onClick={goRecovery}>Forgot password?</a>
             </div>
-
         </form>
     );
 }

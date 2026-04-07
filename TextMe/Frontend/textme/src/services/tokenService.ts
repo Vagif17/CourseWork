@@ -19,16 +19,29 @@ const isTokenExpired = (token: string): boolean => {
 };
 
 export const tokenService = {
+
     getToken: () => localStorage.getItem("token"),
 
     getRefreshToken: () => localStorage.getItem("refreshToken"),
 
+    setTokens: (token: string, refreshToken: string) => {
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        store.dispatch(login(token));
+    },
+
     clearTokens: () => {
+
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
+
+        store.dispatch(logout());
     },
 
     getValidToken: async (): Promise<string | null> => {
+
         let token = tokenService.getToken();
         const refreshToken = tokenService.getRefreshToken();
 
@@ -38,11 +51,11 @@ export const tokenService = {
 
         if (!refreshToken) {
             tokenService.clearTokens();
-            store.dispatch(logout());
             return null;
         }
 
         try {
+
             const response = await axios.post<RefreshResponse>(
                 `${API_URL}/User/refresh`,
                 { refreshToken }
@@ -51,20 +64,23 @@ export const tokenService = {
             const newToken = response.data.accessToken ?? null;
             const newRefreshToken = response.data.refreshToken ?? null;
 
-            if (newToken) {
-                localStorage.setItem("token", newToken);
-                store.dispatch(login(newToken));
+            if (!newToken) {
+                tokenService.clearTokens();
+                return null;
             }
 
-            if (newRefreshToken) {
-                localStorage.setItem("refreshToken", newRefreshToken);
-            }
+            tokenService.setTokens(
+                newToken,
+                newRefreshToken ?? refreshToken
+            );
 
             return newToken;
+
         } catch {
+
             tokenService.clearTokens();
-            store.dispatch(logout());
             return null;
+
         }
     }
 };
