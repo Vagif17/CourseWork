@@ -4,6 +4,7 @@ import { useChat } from "../../../../../../hooks/useChat";
 import chatHub from "../../../../../../hubs/chatHub";
 import { messageService } from "../../../../../../services/messageService";
 import "./ChatWindow.css";
+import {validateFiles} from "../../../../../../utils/fileValidatorUtil.ts";
 
 type Props = {
     currentUserId: string | null;
@@ -48,11 +49,7 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
     const handleFileChange = () => {
         if (!fileRef.current?.files) return;
 
-        const filesArray = Array.from(fileRef.current.files).map(file => ({
-            file,
-            url: URL.createObjectURL(file)
-        }));
-
+        const filesArray = validateFiles(Array.from(fileRef.current.files));
         setPreviewImages(prev => [...prev, ...filesArray]);
 
         fileRef.current.value = "";
@@ -135,12 +132,20 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
 
                             {msg.text && <div>{msg.text}</div>}
 
-                            {msg.mediaUrl &&
+                            {msg.mediaUrl && msg.mediaType?.startsWith("image") && (
                                 <img
                                     src={msg.mediaUrl}
                                     className="message-image"
                                 />
-                            }
+                            )}
+
+                            {msg.mediaUrl && msg.mediaType?.startsWith("video") && (
+                                <video
+                                    src={msg.mediaUrl}
+                                    className="message-video"
+                                    controls
+                                />
+                            )}
 
                         </div>
                     );
@@ -162,10 +167,18 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
                             className="single-preview"
                         >
 
-                            <img
-                                src={item.url}
-                                className="preview-image"
-                            />
+                            {item.file.type.startsWith("image") ? (
+                                <img
+                                    src={item.url}
+                                    className="preview-image"
+                                />
+                            ) : (
+                                <video
+                                    src={item.url}
+                                    className="preview-image"
+                                    controls
+                                />
+                            )}
 
                             <button
                                 className="remove-btn"

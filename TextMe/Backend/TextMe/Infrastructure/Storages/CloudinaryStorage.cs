@@ -29,17 +29,40 @@ public class CloudinaryStorage : ICloudinaryStorage
         if (fileStream == null || fileStream.Length == 0)
             throw new ArgumentException("File stream is empty", nameof(fileStream));
 
-        var uploadParams = new ImageUploadParams
+        try
         {
-            File = new FileDescription(fileName, fileStream),
-            PublicId = $"avatars/{Guid.NewGuid()}"
-        };
-
-        var result = await _cloudinary.UploadAsync(uploadParams);
-
-        if (result.StatusCode != System.Net.HttpStatusCode.OK)
-            throw new Exception($"Upload error in Cloudinary: {result.Error?.Message}");
-
-        return result.SecureUrl.ToString();
+            if (contentType.StartsWith("image"))
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(fileName, fileStream),
+                    PublicId = $"media/{Guid.NewGuid()}"
+                };
+                var result = await _cloudinary.UploadAsync(uploadParams);
+                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                    throw new Exception(result.Error?.Message);
+                return result.SecureUrl.ToString();
+            }
+            else if (contentType.StartsWith("video"))
+            {
+                var uploadParams = new VideoUploadParams
+                {
+                    File = new FileDescription(fileName, fileStream),
+                    PublicId = $"media/{Guid.NewGuid()}"
+                };
+                var result = await _cloudinary.UploadAsync(uploadParams);
+                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                    throw new Exception(result.Error?.Message);
+                return result.SecureUrl.ToString();
+            }
+            else
+            {
+                throw new Exception("Unsupported file type");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Upload error in Cloudinary: " + ex.Message);
+        }
     }
 }

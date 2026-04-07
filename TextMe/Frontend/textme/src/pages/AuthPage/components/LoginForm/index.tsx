@@ -19,7 +19,7 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
 
     const onSubmit = async (data: LoginRequest) => {
         try {
-            await authService.login(data); // сервис сам диспатчит
+            await authService.login(data);
 
             toast.success("Logged in successfully!", { position: "top-center" });
             navigate("/homepage");

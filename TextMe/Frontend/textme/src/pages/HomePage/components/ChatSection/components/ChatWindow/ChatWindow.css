@@ -221,3 +221,9 @@
 .modal-buttons .add-btn:hover {
     background: #00d4ff;
 }
+
+.message-video {
+    max-width: 300px;
+    max-height: 200px;
+    border-radius: 8px;
+}
