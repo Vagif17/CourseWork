@@ -2,33 +2,38 @@
 import { tokenService } from "../services/tokenService"
 
 class ChatHub {
-    private connection: signalR.HubConnection | null = null
+    private connection: signalR.HubConnection | null = null;
 
     async start() {
-        if (this.connection) return
-//https://coursework-1-1mjp.onrender.com
+        if (this.connection) return;
+
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl("http://localhost:5243/hubs/chat", {
                 accessTokenFactory: async () => {
-                    return (await tokenService.getValidToken()) || ""
+                    return (await tokenService.getValidToken()) || "";
                 },
             })
             .withAutomaticReconnect()
-            .build()
+            .build();
 
-        this.connection.onreconnected(() => console.log("SignalR Reconnected"))
-        this.connection.onclose(() => console.log("SignalR Disconnected"))
+        this.connection.onreconnected(() => console.log("SignalR Reconnected"));
+        this.connection.onclose(() => console.log("SignalR Disconnected"));
 
-        await this.connection.start()
-        console.log("SignalR Connected")
+        await this.connection.start();
+        console.log("SignalR Connected");
+    }
+
+    isConnected(): boolean {
+        return this.connection?.state === signalR.HubConnectionState.Connected;
     }
 
     async joinChat(chatId: number) {
-        await this.connection?.invoke("JoinChat", chatId)
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("JoinChat", chatId);
     }
 
     async leaveChat(chatId: number) {
-        await this.connection?.invoke("LeaveChat", chatId)
+        await this.connection?.invoke("LeaveChat", chatId);
     }
 
     async sendMessage(
@@ -45,16 +50,16 @@ class ChatHub {
             mediaUrl,
             mediaType,
             audioDuration
-        )
+        );
     }
 
     onReceiveMessage(callback: (message: any) => void) {
-        this.connection?.on("ReceiveMessage", callback)
+        this.connection?.on("ReceiveMessage", callback);
     }
 
     offReceiveMessage(callback: (message: any) => void) {
-        this.connection?.off("ReceiveMessage", callback)
+        this.connection?.off("ReceiveMessage", callback);
     }
 }
 
-export default new ChatHub()
+export default new ChatHub();

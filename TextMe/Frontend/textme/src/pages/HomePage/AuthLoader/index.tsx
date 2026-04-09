@@ -1,5 +1,5 @@
 ﻿import "./AuthLoader.css";
-import Spinner from "../../../../components/Spinner";
+import Spinner from "../../../components/Spinner";
 
 //Когда jwt обновляется чтобы просто экран не зависал я решил добавить вот такой компонент загрузки
 

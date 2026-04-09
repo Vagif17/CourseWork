@@ -1,8 +1,8 @@
 ﻿import { useState } from "react";
-import { getUserId } from "../../../../utils/getUserIdUtil.ts";
+import { getUserId } from "../../../utils/getUserIdUtil.ts";
 import "./ChatSection.css";
-import ChatList from "./components/ChatList";
-import ChatWindow from "./components/ChatWindow";
+import ChatList from "./ChatList";
+import ChatWindow from "./ChatWindow";
 
 export default function ChatSection() {
     const currentUserId = getUserId();

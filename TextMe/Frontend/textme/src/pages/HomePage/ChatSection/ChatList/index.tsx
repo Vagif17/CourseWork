@@ -1,8 +1,8 @@
 ﻿import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import type { PrivateChatDTOResponse } from "../../../../../../types/chats.ts";
-import { chatService } from "../../../../../../services/chatService.ts";
-import Modal from "../../../../../../components/Modal";
+import type { PrivateChatDTOResponse } from "../../../../types/chats.ts";
+import { chatService } from "../../../../services/chatService.ts";
+import Modal from "../../../../components/Modal";
 import "./ChatList.css";
 
 type Props = {
@@ -88,16 +88,18 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId }
 
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
-                    <h2 style={{ textAlign: "center" }}>Add Contact</h2>
-                    <input
-                        type="text"
-                        placeholder="Phone or Email"
-                        value={newContact}
-                        onChange={(e) => setNewContact(e.target.value)}
-                    />
-                    <div className="modal-buttons">
-                        <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                        <button className="add-btn" onClick={handleAddContact}>Add</button>
+                    <div className="add-chat-modal">
+                        <h2>Add New Contact</h2>
+                        <input
+                            type="text"
+                            placeholder="Enter phone or email"
+                            value={newContact}
+                            onChange={(e) => setNewContact(e.target.value)}
+                        />
+                        <div className="modal-buttons">
+                            <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                            <button className="add-btn" onClick={handleAddContact}>Add Chat</button>
+                        </div>
                     </div>
                 </Modal>
             )}

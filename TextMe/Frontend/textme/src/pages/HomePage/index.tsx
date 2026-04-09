@@ -1,11 +1,12 @@
 ﻿import "./../../styles/Global.css";
 import "./HomePage.css";
 import { useNavigate } from "react-router";
-import ChatSection from "./components/ChatSection";
+import ChatSection from "./ChatSection";
 import { useEffect, useState } from "react";
 import { initAuth } from "../../utils/initAuthUtil.ts";
 import { authService } from "../../services/authService.ts";
-import AuthLoader from "./components/AuthLoader";
+import AuthLoader from "./AuthLoader";
+import PlaceholderPage from "../../components/PlacerHolder";
 
 type Tab = "chats" | "settings" | "profile" | "notifications";
 
@@ -69,9 +70,9 @@ function HomePage() {
 
             <div className="main-content">
                 {activeTab === "chats" && <ChatSection />}
-                {activeTab === "settings" && <div>Settings Content</div>}
-                {activeTab === "profile" && <div>Profile Content</div>}
-                {activeTab === "notifications" && <div>Notifications Content</div>}
+                {activeTab === "settings" && <PlaceholderPage/>}
+                {activeTab === "profile" && <PlaceholderPage/>}
+                {activeTab === "notifications" && <PlaceholderPage/>}
             </div>
         </div>
     );

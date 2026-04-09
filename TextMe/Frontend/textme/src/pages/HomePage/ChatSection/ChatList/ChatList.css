@@ -1,0 +1,157 @@
+﻿.chat-list{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+.chat-list-content{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+.chat-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: #ffffff;
+}
+
+.chat-item:hover {
+    background-color: #2c2c34;
+}
+
+.chat-item.active {
+    background-color: #00b6ff;
+}
+
+.participant {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.search-wrapper {
+    flex: 1;
+}
+
+.search-wrapper input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border-radius: 12px;
+    border: none;
+    background: #1a1f24;
+    color: white;
+    outline: none;
+}
+
+.add-chat-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #00b6ff;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.add-chat-btn:hover {
+    background: #00d4ff;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* мягкий затемнённый фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.add-chat-modal {
+    background-color: #1a1f24; /* темная карточка под стиль приложения */
+    padding: 24px;
+    border-radius: 16px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.add-chat-modal h2 {
+    margin: 0;
+    color: #ffffff;
+    text-align: center;
+    font-size: 20px;
+}
+
+.add-chat-modal input {
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: none;
+    background: #2c2c34;
+    color: #ffffff;
+    outline: none;
+    font-size: 14px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cancel-btn, .add-btn {
+    flex: 1;
+    padding: 10px 0;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancel-btn {
+    background: #44475a;
+    color: #ffffff;
+}
+
+.cancel-btn:hover {
+    background: #5a5f71;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #00b6ff, #00d4ff);
+    color: #ffffff;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #00d4ff, #00f0ff);
+}
