@@ -14,6 +14,8 @@
 
     public string? MediaUrl { get; set; }
 
+    public int? AudioDuration { get; set; }
+
     public string? MediaType { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }

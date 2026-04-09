@@ -27,7 +27,13 @@ public class CloudinaryStorage : ICloudinaryStorage
     public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType)
     {
         if (fileStream == null || fileStream.Length == 0)
-            throw new ArgumentException("File stream is empty", nameof(fileStream));
+            throw new ArgumentException("File stream is null or empty", nameof(fileStream));
+
+        if (string.IsNullOrEmpty(fileName))
+            throw new ArgumentException("File name is null or empty", nameof(fileName));
+
+        if (_cloudinary == null)
+            throw new Exception("Cloudinary client is not initialized");
 
         try
         {
@@ -46,6 +52,18 @@ public class CloudinaryStorage : ICloudinaryStorage
             else if (contentType.StartsWith("video"))
             {
                 var uploadParams = new VideoUploadParams
+                {
+                    File = new FileDescription(fileName, fileStream),
+                    PublicId = $"media/{Guid.NewGuid()}"
+                };
+                var result = await _cloudinary.UploadAsync(uploadParams);
+                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                    throw new Exception(result.Error?.Message);
+                return result.SecureUrl.ToString();
+            }
+            else if (contentType.StartsWith("audio"))
+            {
+                var uploadParams = new RawUploadParams
                 {
                     File = new FileDescription(fileName, fileStream),
                     PublicId = $"media/{Guid.NewGuid()}"

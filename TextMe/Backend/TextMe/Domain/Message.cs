@@ -16,7 +16,8 @@ public class Message
 
     public string? Text { get; set; }
     public string? MediaUrl { get; set; }
-    public string? MediaType { get; set; } 
+    public string? MediaType { get; set; }
+    public int? AudioDuration { get; set; } 
 
     public MessageStatus Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

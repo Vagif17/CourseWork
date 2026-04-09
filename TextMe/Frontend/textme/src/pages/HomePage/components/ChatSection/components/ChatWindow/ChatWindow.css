@@ -1,4 +1,5 @@
-﻿.chat-window {
+﻿
+.chat-window {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -19,7 +20,7 @@
 
 
 .my-message {
-    background: linear-gradient(135deg,#00b6ff,#00d4ff);
+    background: linear-gradient(135deg, #00b6ff, #00d4ff);
     align-self: flex-end;
     padding: 10px 16px;
     border-radius: 20px;
@@ -38,7 +39,8 @@
     word-wrap: break-word;
 }
 
-preview-wrapper {
+
+.preview-wrapper {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
@@ -115,6 +117,7 @@ preview-wrapper {
     background: #00b6ff;
     color: white;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
 .send-btn:hover {
@@ -143,7 +146,7 @@ preview-wrapper {
 .image-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -172,7 +175,6 @@ preview-wrapper {
     border-radius: 8px;
 }
 
-
 .message-image {
     max-width: 200px;
     border-radius: 10px;
@@ -182,4 +184,59 @@ preview-wrapper {
 
 .message-image:hover {
     transform: scale(1.03);
+}
+
+.record-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: #00b6ff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.record-btn:hover {
+    background: #00d4ff;
+}
+
+.recording {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.recording-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.progress-bar-wrapper {
+    display: flex;
+    align-items: center;
+    height: 6px;
+    background: #222;
+    border-radius: 3px;
+    width: 60px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #00b6ff;
+    border-radius: 3px;
+    transition: width 0.2s;
+}
+
+.voice-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

@@ -18,7 +18,13 @@ public class MessageService : IMessageService
         mapper = _mapper;
     }
 
-    public async Task<MessageDTO> CreateMessageAsync(int chatId, string senderId, string? text, string? mediaUrl, string? mediaType)
+    public async Task<MessageDTO> CreateMessageAsync(
+    int chatId,
+    string senderId,
+    string? text,
+    string? mediaUrl,
+    string? mediaType,
+    int? audioDuration = null)
     {
         var message = new Message
         {
@@ -27,6 +33,7 @@ public class MessageService : IMessageService
             Text = text,
             MediaUrl = mediaUrl,
             MediaType = mediaType,
+            AudioDuration = audioDuration,
             CreatedAt = DateTimeOffset.UtcNow,
             Status = MessageStatus.Sent
         };

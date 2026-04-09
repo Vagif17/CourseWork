@@ -35,8 +35,10 @@ public class TextMeDbContext : IdentityDbContext<AppUser>
             message.Property(m => m.Text);
             message.Property(m => m.MediaUrl);
             message.Property(m => m.MediaType);
+            message.Property(m => m.AudioDuration);
             message.Property(m => m.CreatedAt).IsRequired();
             message.HasIndex(m => new {m.ChatId, m.CreatedAt});
+
         });
 
         builder.Entity<ChatParticipant>(chatParticipant =>

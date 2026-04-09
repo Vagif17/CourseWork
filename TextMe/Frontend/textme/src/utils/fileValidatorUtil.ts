@@ -6,11 +6,11 @@ export function validateFiles(files: File[]): { file: File; url: string }[] {
     return Array.from(files)
         .filter(file => {
             if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-                toast.error(`Файл ${file.name} слишком большой (макс ${MAX_FILE_SIZE_MB} МБ)`);
+                toast.error(`File ${file.name} is too large (max ${MAX_FILE_SIZE_MB} MB))`);
                 return false;
             }
             if (!file.type.startsWith("image") && !file.type.startsWith("video")) {
-                toast.error(`Файл ${file.name} имеет неподдерживаемый формат`);
+                toast.error(`The file ${file.name} has an unsupported format`);
                 return false;
             }
             return true;

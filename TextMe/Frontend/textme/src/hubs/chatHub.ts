@@ -31,8 +31,21 @@ class ChatHub {
         await this.connection?.invoke("LeaveChat", chatId)
     }
 
-    async sendMessage(chatId: number, text?: string, mediaUrl?: string, mediaType?: string) {
-        await this.connection?.invoke("SendMessage", chatId, text, mediaUrl, mediaType)
+    async sendMessage(
+        chatId: number,
+        text?: string,
+        mediaUrl?: string,
+        mediaType?: string,
+        audioDuration?: number
+    ) {
+        await this.connection?.invoke(
+            "SendMessage",
+            chatId,
+            text,
+            mediaUrl,
+            mediaType,
+            audioDuration
+        )
     }
 
     onReceiveMessage(callback: (message: any) => void) {
