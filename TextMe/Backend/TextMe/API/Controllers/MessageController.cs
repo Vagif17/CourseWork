@@ -1,5 +1,7 @@
 ﻿using Application.DTOs;
+using Application.Features.Messages.Queries;
 using Application.Services.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -8,19 +10,19 @@ namespace API.Controllers
     [ApiController]
     public class MessageController : ControllerBase
     {
-        private readonly IMessageService _messageService;
-        private readonly ICloudinaryService _cloudinaryService;
+        private readonly IMediator mediator;
+        private readonly ICloudinaryService cloudinaryService;
 
-        public MessageController(IMessageService messageService, ICloudinaryService cloudinaryService)
+        public MessageController(IMediator _mediator, ICloudinaryService _cloudinaryService)
         {
-            _messageService = messageService;
-            _cloudinaryService = cloudinaryService;
+            mediator = _mediator;
+            cloudinaryService = _cloudinaryService;
         }
 
         [HttpGet("{chatId}")]
         public async Task<IActionResult> GetChatMessages(int chatId)
         {
-            var messages = await _messageService.GetChatMessagesAsync(chatId);
+            var messages = await mediator.Send(new GetMessagesQuery(chatId));
             return Ok(messages);
         }
 
@@ -44,7 +46,7 @@ namespace API.Controllers
                     FileStream = stream
                 };
 
-                var url = await _cloudinaryService.UploadMediaAsync(dto);
+                var url = await cloudinaryService.UploadMediaAsync(dto);
                 urls.Add(url);
             }
 

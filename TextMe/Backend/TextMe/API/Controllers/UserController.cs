@@ -18,7 +18,6 @@ public class UserController : ControllerBase
     }
 
 
-
     [HttpPost("register")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<AuthResponseDTO>> Register(

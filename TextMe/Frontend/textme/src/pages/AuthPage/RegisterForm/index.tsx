@@ -1,12 +1,12 @@
 ﻿import { useState } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { authService } from "../../../services/authService.ts"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import "./RegisterForm.css"
 import "../../../styles/Global.css"
 import type { RegisterRequest } from "../../../types/auth.ts"
-import Spinner from "../../../components/Spinner";
+import Spinner from "../../../components/Spinner"
 
 type RegisterFormProps = {
     goLogin: () => void
@@ -30,7 +30,6 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
     const {
         register,
         handleSubmit,
-        control,
         formState: { errors, isSubmitting },
         watch
     } = useForm<RegisterFormData>()
@@ -49,15 +48,24 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            const request: RegisterRequest = { ...data, avatar: avatarFile ?? undefined };
-            await authService.register(request);
 
-            toast.success("Registration successful!", { position: "top-center" });
-            goLogin();
+            const request: RegisterRequest = {
+                ...data,
+                avatar: avatarFile ?? undefined
+            }
+
+            await authService.register(request)
+
+            toast.success("Registration successful!", { position: "top-center" })
+
+            goLogin()
+
         } catch {
-            toast.error("Registration failed. Please try again.", { position: "top-center" });
+
+            toast.error("Registration failed. Please try again.", { position: "top-center" })
+
         }
-    };
+    }
 
     const onError = (errors: any) => {
 
@@ -66,6 +74,7 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
         const message = errors[firstErrorKey]?.message || "Field is invalid"
 
         toast.error(message, { position: "top-center" })
+
     }
 
     return (
@@ -110,7 +119,7 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
                 />
 
                 <input
-                    placeholder="Last Name"
+                    placeholder="Last name"
                     className={errors.lastName ? "input-error" : ""}
                     {...register("lastName", { required: "Last name is required" })}
                 />
@@ -128,11 +137,12 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
                     })}
                 />
 
-                <Controller
-                    control={control}
-                    name="phoneNumber"
+                <input
+                    placeholder="Phone number"
+                    type="tel"
                     defaultValue="+"
-                    rules={{
+                    className={errors.phoneNumber ? "input-error" : ""}
+                    {...register("phoneNumber", {
                         required: "Phone number is required",
                         pattern: {
                             value: /^\+\d+$/,
@@ -142,15 +152,7 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
                             value: 9,
                             message: "Phone number must contain at least 9 digits"
                         }
-                    }}
-                    render={({ field }) => (
-                        <input
-                            placeholder="Phone number"
-                            type="tel"
-                            className={errors.phoneNumber ? "input-error" : ""}
-                            {...field}
-                        />
-                    )}
+                    })}
                 />
 
                 <input

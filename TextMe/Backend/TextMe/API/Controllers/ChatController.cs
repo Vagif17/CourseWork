@@ -1,8 +1,9 @@
 ﻿using Application.DTOs;
-using Application.Services.Interfaces;
+using Application.Features.Chats.Commands;
+using Application.Features.Chats.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -14,11 +15,11 @@ namespace API.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ChatController : ControllerBase
 {
-    private readonly IChatService chatService;
+    private readonly IMediator mediator;
 
-    public ChatController(IChatService _chatService)
+    public ChatController(IMediator _mediator)
     {
-        chatService = _chatService;
+        mediator = _mediator;
     }
 
 
@@ -26,7 +27,7 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<PrivateChatResponseDTO>> CreateChat(string emailOrNumber)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var chat = await chatService.CreateChatAsync(userId!, emailOrNumber);
+        var chat = await mediator.Send(new CreateChatCommand(userId,emailOrNumber));
         return Ok(chat);
     }
 
@@ -36,7 +37,7 @@ public class ChatController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return Ok(await chatService.GetAllPrivateChatsAsync(userId));
+        return Ok(await mediator.Send(new GetPrivateChatsQuery(userId)));
     }
 
 }
