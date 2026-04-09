@@ -1,8 +1,12 @@
 ﻿import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import type { PrivateChatDTOResponse } from "../../../../types/chats.ts";
-import { chatService } from "../../../../services/chatService.ts";
-import Modal from "../../../../components/Modal";
+import type { PrivateChatDTOResponse } from "../../../../types/chats";
+import { chatService } from "../../../../services/chatService";
+
+import ChatListHeader from "./ChatListHeader";
+import ChatItem from "./ChatItem";
+import AddChatModal from "./AddChatModal";
+
 import "./ChatList.css";
 
 type Props = {
@@ -12,10 +16,10 @@ type Props = {
 };
 
 export default function ChatList({ currentUserId, onSelectChat, selectedChatId }: Props) {
+
     const [chats, setChats] = useState<PrivateChatDTOResponse[]>([]);
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newContact, setNewContact] = useState("");
 
     useEffect(() => {
         const fetchChats = async () => {
@@ -26,83 +30,47 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId }
                 toast.error(err?.message || "Error fetching chats");
             }
         };
+
         fetchChats();
     }, [currentUserId]);
 
     const filteredChats = chats.filter(chat => {
-        const otherParticipant = chat.participants.find(p => p.userId !== currentUserId);
-        return otherParticipant?.userName?.toLowerCase().includes(search.toLowerCase());
+        const other = chat.participants.find(p => p.userId !== currentUserId);
+        return other?.userName?.toLowerCase().includes(search.toLowerCase());
     });
 
-    const handleAddContact = async () => {
-        if (!newContact.trim()) {
-            toast.error("Enter email or phone");
-            return;
-        }
-        try {
-            const newChat = await chatService.createChat(newContact.trim());
-            setChats(prev => [newChat, ...prev]);
-            setNewContact("");
-            setIsModalOpen(false);
-            toast.success("Chat successfully created!");
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message || err.message || "Chat create failed");
-        }
+    const handleChatCreated = (chat: PrivateChatDTOResponse) => {
+        setChats(prev => [chat, ...prev]);
     };
 
     return (
         <div className="chat-list">
-            <div className="chat-header">
-                <div className="search-wrapper">
-                    <input
-                        type="text"
-                        placeholder="🔍 Search chats..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
 
-                <button className="add-chat-btn" onClick={() => setIsModalOpen(true)}>+</button>
+            <ChatListHeader
+                search={search}
+                setSearch={setSearch}
+                onAddClick={() => setIsModalOpen(true)}
+            />
+
+            <div className="chat-list-content">
+                {filteredChats.map(chat => (
+                    <ChatItem
+                        key={chat.id}
+                        chat={chat}
+                        currentUserId={currentUserId}
+                        selectedChatId={selectedChatId}
+                        onSelectChat={onSelectChat}
+                    />
+                ))}
             </div>
 
-            {filteredChats.map(chat => {
-                const otherParticipant = chat.participants.find(p => p.userId !== currentUserId);
-
-                return (
-                    <div
-                        key={chat.id}
-                        className={`chat-item ${selectedChatId === chat.id ? "active" : ""}`}
-                        onClick={() => onSelectChat(chat.id)}
-                    >
-                        <div className="participant">
-                            <img
-                                src={otherParticipant?.avatarUrl}
-                                alt={otherParticipant?.userName}
-                                className="avatar"
-                            />
-                            <span>{otherParticipant?.userName || "Unknown"}</span>
-                        </div>
-                    </div>
-                );
-            })}
-
             {isModalOpen && (
-                <Modal onClose={() => setIsModalOpen(false)}>
-                    <div className="add-chat-modal">
-                        <h2>Add New Contact</h2>
-                        <input
-                            type="text"
-                            placeholder="Enter phone or email"
-                            value={newContact}
-                            onChange={(e) => setNewContact(e.target.value)}
-                        />
-                        <div className="modal-buttons">
-                            <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                            <button className="add-btn" onClick={handleAddContact}>Add Chat</button>
-                        </div>
-                    </div>
-                </Modal>
+                <AddChatModal
+                    onClose={() => setIsModalOpen(false)}
+                    onCreated={handleChatCreated}
+                />
             )}
+
         </div>
     );
 }

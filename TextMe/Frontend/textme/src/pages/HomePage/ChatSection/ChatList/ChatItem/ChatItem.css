@@ -1,0 +1,29 @@
+﻿.chat-item{
+    padding:10px 14px;
+    border-radius:8px;
+    margin-bottom:6px;
+    cursor:pointer;
+    transition:background-color 0.2s;
+    color:#ffffff;
+}
+
+.chat-item:hover{
+    background-color:#2c2c34;
+}
+
+.chat-item.active{
+    background-color:#00b6ff;
+}
+
+.participant{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+}

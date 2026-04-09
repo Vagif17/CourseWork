@@ -1,11 +1,11 @@
 ﻿import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import "./LoginForm.css";
-import "../../../../styles/Global.css";
-import { authService } from "../../../../services/authService.ts";
-import type { LoginRequest } from "../../../../types/auth.ts";
+import "../../../styles/Global.css";
+import { authService } from "../../../services/authService.ts";
+import type { LoginRequest } from "../../../types/auth.ts";
 import { toast } from "react-toastify";
-import Spinner from "../../../../components/Spinner";
+import Spinner from "../../../components/Spinner";
 
 type LoginFormProps = {
     goRegister: () => void;

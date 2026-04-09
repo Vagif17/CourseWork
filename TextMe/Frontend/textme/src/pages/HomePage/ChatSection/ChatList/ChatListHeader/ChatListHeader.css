@@ -1,0 +1,38 @@
+﻿.chat-header{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.search-wrapper{
+    flex:1;
+}
+
+.search-wrapper input{
+    width:100%;
+    padding:10px 12px 10px 36px;
+    border-radius:12px;
+    border:none;
+    background:#1a1f24;
+    color:white;
+    outline:none;
+}
+
+.add-chat-btn{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:none;
+    background:#00b6ff;
+    color:white;
+    font-size:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+}
+
+.add-chat-btn:hover{
+    background:#00d4ff;
+}

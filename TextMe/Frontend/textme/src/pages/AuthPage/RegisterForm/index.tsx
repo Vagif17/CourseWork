@@ -1,12 +1,12 @@
 ﻿import { useState } from "react"
 import { useForm, Controller } from "react-hook-form"
-import { authService } from "../../../../services/authService.ts"
+import { authService } from "../../../services/authService.ts"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import "./RegisterForm.css"
-import "../../../../styles/Global.css"
-import type { RegisterRequest } from "../../../../types/auth"
-import Spinner from "../../../../components/Spinner";
+import "../../../styles/Global.css"
+import type { RegisterRequest } from "../../../types/auth.ts"
+import Spinner from "../../../components/Spinner";
 
 type RegisterFormProps = {
     goLogin: () => void

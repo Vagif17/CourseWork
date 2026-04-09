@@ -1,0 +1,58 @@
+﻿.add-chat-modal{
+    background-color:#1a1f24;
+    padding:24px;
+    border-radius:16px;
+    width:320px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.4);
+}
+
+.add-chat-modal h2{
+    margin:0;
+    color:#ffffff;
+    text-align:center;
+    font-size:20px;
+}
+
+.add-chat-modal input{
+    padding:10px 12px;
+    border-radius:12px;
+    border:none;
+    background:#2c2c34;
+    color:#ffffff;
+    outline:none;
+}
+
+.modal-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.cancel-btn,.add-btn{
+    flex:1;
+    padding:10px 0;
+    border-radius:12px;
+    border:none;
+    font-size:14px;
+    cursor:pointer;
+}
+
+.cancel-btn{
+    background:#44475a;
+    color:white;
+}
+
+.cancel-btn:hover{
+    background:#5a5f71;
+}
+
+.add-btn{
+    background:linear-gradient(135deg,#00b6ff,#00d4ff);
+    color:white;
+}
+
+.add-btn:hover{
+    background:linear-gradient(135deg,#00d4ff,#00f0ff);
+}

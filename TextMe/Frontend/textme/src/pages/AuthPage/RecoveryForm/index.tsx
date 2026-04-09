@@ -1,8 +1,8 @@
 ﻿import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { recoveryService } from "../../../../services/recoveryService";
-import Spinner from "../../../../components/Spinner";
+import { recoveryService } from "../../../services/recoveryService.ts";
+import Spinner from "../../../components/Spinner";
 import "./RecoveryForm.css";
 
 type RecoveryFormProps = {
