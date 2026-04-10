@@ -13,7 +13,6 @@ class ChatHub {
             await this.connection.start();
             return;
         }
-//
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
                 accessTokenFactory: async () => {
