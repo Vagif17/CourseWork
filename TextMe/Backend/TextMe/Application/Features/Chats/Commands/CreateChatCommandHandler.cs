@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Features.Chats.Commands;
+using Application.Interfaces.Notifications;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Stores;
 using AutoMapper;
@@ -11,15 +12,18 @@ public class CreateChatCommandHandler
     private readonly IChatRepository chatRepository;
     private readonly IUserStore userStore;
     private readonly IMapper mapper;
+    private readonly IChatNotification chatNotificationr;
 
     public CreateChatCommandHandler(
         IChatRepository _chatRepository,
         IUserStore _userStore,
-        IMapper _mapper)
+        IMapper _mapper,
+        IChatNotification _chatNotification)
     {
         chatRepository = _chatRepository;
         userStore = _userStore;
         mapper = _mapper;
+        chatNotificationr = _chatNotification;
     }
 
     public async Task<PrivateChatResponseDTO> Handle(
@@ -50,6 +54,8 @@ public class CreateChatCommandHandler
             participant.UserName = user.UserName;
             participant.AvatarUrl = user.AvatarUrl;
         }
+
+        await chatNotificationr.NotifyNewChatAsync(request.creatorId, targetUserId, chatDto);
 
         return chatDto;
     }

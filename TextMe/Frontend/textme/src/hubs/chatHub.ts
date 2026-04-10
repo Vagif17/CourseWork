@@ -5,10 +5,17 @@ class ChatHub {
     private connection: signalR.HubConnection | null = null;
 
     async start() {
-        if (this.connection) return;
 
+        if (this.connection) {
+            if (this.connection.state === signalR.HubConnectionState.Connected)
+                return;
+
+            await this.connection.start();
+            return;
+        }
+//
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5243/hubs/chat", {
+            .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
                 accessTokenFactory: async () => {
                     return (await tokenService.getValidToken()) || "";
                 },
@@ -28,7 +35,10 @@ class ChatHub {
     }
 
     async joinChat(chatId: number) {
-        if (!this.isConnected()) await this.start();
+
+        if (!this.isConnected())
+            await this.start();
+
         await this.connection?.invoke("JoinChat", chatId);
     }
 
@@ -59,6 +69,14 @@ class ChatHub {
 
     offReceiveMessage(callback: (message: any) => void) {
         this.connection?.off("ReceiveMessage", callback);
+    }
+
+    onReceiveNewChat(callback: (chat: any) => void) {
+        this.connection?.on("ReceiveNewChat", callback);
+    }
+
+    offReceiveNewChat(callback: (chat: any) => void) {
+        this.connection?.off("ReceiveNewChat", callback);
     }
 }
 

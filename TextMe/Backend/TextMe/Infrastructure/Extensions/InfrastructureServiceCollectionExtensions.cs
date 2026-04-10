@@ -1,10 +1,12 @@
 ﻿using Application.Config;
+using Application.Interfaces.Notifications;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Interfaces.Storages;
 using Application.Interfaces.Stores;
 using Infrastructure.Data;
 using Infrastructure.Jwt;
+using Infrastructure.Notifications;
 using Infrastructure.Repositories;
 using Infrastructure.Storages;
 using Infrastructure.Stores;
@@ -31,6 +33,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAccountRestoreRepository, AccountRestoreRepository>();
 
+        services.AddScoped<IChatNotification, ChatNotification>();
         services.AddScoped<IJwtTokenSerivce, JwtTokenService>();
         services.AddScoped<IUserStore, UserStore>();
         services.AddScoped<ICloudinaryStorage, CloudinaryStorage>();

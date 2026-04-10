@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { recoveryService } from "../../../services/recoveryService.ts";
 import Spinner from "../../../components/Spinner";
 import "./RecoveryForm.css";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 
 type RecoveryFormProps = {
     onClose: () => void;
@@ -55,7 +56,7 @@ function RecoveryForm({ onClose, goLogin, goRegister }: RecoveryFormProps) {
             setEmail(email);
             setStep(2);
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Failed to send code", {
+            toast.error(getErrorMessage(err), {
                 position: "top-center"
             });
         }
@@ -70,7 +71,7 @@ function RecoveryForm({ onClose, goLogin, goRegister }: RecoveryFormProps) {
             setVerifiedCode(code);
             setStep(3);
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Invalid code", {
+            toast.error(getErrorMessage(err), {
                 position: "top-center"
             });
         }
@@ -87,7 +88,7 @@ function RecoveryForm({ onClose, goLogin, goRegister }: RecoveryFormProps) {
             reset();
             onClose();
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Failed to reset password", {
+            toast.error(getErrorMessage(err), {
                 position: "top-center"
             });
         }

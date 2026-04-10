@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import Modal from "../../../../../components/Modal";
 import { chatService } from "../../../../../services/chatService";
 import type { PrivateChatDTOResponse } from "../../../../../types/chats";
+import { getErrorMessage } from "../../../../../utils/getErrorMessage";
 
 import "./AddChatModal.css";
 
@@ -33,13 +34,7 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
             toast.success("Chat successfully created!");
 
         } catch (err: any) {
-
-            toast.error(
-                err?.response?.data?.message ||
-                err.message ||
-                "Chat create failed"
-            );
-
+            toast.error(getErrorMessage(err));
         }
     };
 

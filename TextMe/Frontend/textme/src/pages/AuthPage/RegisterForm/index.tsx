@@ -7,6 +7,8 @@ import "./RegisterForm.css"
 import "../../../styles/Global.css"
 import type { RegisterRequest } from "../../../types/auth.ts"
 import Spinner from "../../../components/Spinner"
+import { getErrorMessage } from "../../../utils/getErrorMessage";
+
 
 type RegisterFormProps = {
     goLogin: () => void
@@ -60,10 +62,8 @@ function RegisterForm({ goLogin }: RegisterFormProps) {
 
             goLogin()
 
-        } catch {
-
-            toast.error("Registration failed. Please try again.", { position: "top-center" })
-
+        } catch (err: any) {
+            toast.error(getErrorMessage(err), { position: "top-center" });
         }
     }
 

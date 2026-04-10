@@ -30,7 +30,7 @@ public class GlobalExceptionMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        _logger.LogError(ex, "Unhandled exception occured while processing request");
+        _logger.LogError(ex, "Unhandled exception occurred while processing request");
 
         ProblemDetails problem;
         int statusCode;
@@ -41,21 +41,51 @@ public class GlobalExceptionMiddleware
                 statusCode = (int)HttpStatusCode.BadRequest;
                 problem = CreateValidationProblemDetails(context, validationException, statusCode);
                 break;
+
             case KeyNotFoundException:
                 statusCode = (int)HttpStatusCode.NotFound;
-                problem = CreateProblemDetails(context, statusCode, "Resource not found", ex.Message);
+                problem = CreateProblemDetails(
+                    context,
+                    statusCode,
+                    "Not Found",
+                    ex.Message
+                );
                 break;
+
             case ArgumentException:
                 statusCode = (int)HttpStatusCode.BadRequest;
-                problem = CreateProblemDetails(context, statusCode, "Invalid Request", ex.Message);
+                problem = CreateProblemDetails(
+                    context,
+                    statusCode,
+                    "Bad Request",
+                    ex.Message
+                );
                 break;
+
+            case UnauthorizedAccessException:
+                statusCode = (int)HttpStatusCode.Unauthorized;
+                problem = CreateProblemDetails(
+                    context,
+                    statusCode,
+                    "Unauthorized",
+                    ex.Message
+                );
+                break;
+
             default:
                 statusCode = (int)HttpStatusCode.InternalServerError;
-                problem = CreateProblemDetails(context, statusCode, "An unxpected error occured", "An unxpected error occured while processing request");
+
+                problem = CreateProblemDetails(
+                    context,
+                    statusCode,
+                    "Internal Server Error",
+                    ex.Message 
+                );
                 break;
         }
 
         context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
 
         var json = JsonSerializer.Serialize(problem, new JsonSerializerOptions
         {
@@ -65,7 +95,11 @@ public class GlobalExceptionMiddleware
         await context.Response.WriteAsync(json);
     }
 
-    private ProblemDetails CreateProblemDetails(HttpContext context, int statusCode, string title, string detail)
+    private ProblemDetails CreateProblemDetails(
+        HttpContext context,
+        int statusCode,
+        string title,
+        string detail)
     {
         return new ProblemDetails
         {
@@ -77,24 +111,29 @@ public class GlobalExceptionMiddleware
         };
     }
 
-    private ProblemDetails CreateValidationProblemDetails(HttpContext context, ValidationException validationException, int statusCode)
+    private ProblemDetails CreateValidationProblemDetails(
+        HttpContext context,
+        ValidationException validationException,
+        int statusCode)
     {
         var errors = validationException.Errors
-                                            .GroupBy(e => e.PropertyName)
-                                            .ToDictionary(
-                                                    g => g.Key,
-                                                    g => g.Select(e => e.ErrorMessage)
-                                                    .ToArray()
-                                                    );
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).ToArray()
+            );
+
         var problem = new ProblemDetails
         {
-            Type = "https://tools.ietf.org/html/rfc7807#section-3.1",
-            Title = "One or more validation error occured",
+            Type = "https://tools.ietf.org/html/rfc7807",
+            Title = "Validation Error",
             Status = statusCode,
-            Detail = "See the 'errors' property for more details",
+            Detail = "See errors for more details",
             Instance = context.Request.Path
         };
+
         problem.Extensions["errors"] = errors;
+
         return problem;
     }
 }

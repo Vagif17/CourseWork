@@ -6,6 +6,7 @@ import { authService } from "../../../services/authService.ts";
 import type { LoginRequest } from "../../../types/auth.ts";
 import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 
 type LoginFormProps = {
     goRegister: () => void;
@@ -25,8 +26,7 @@ function LoginForm({ goRegister, goRecovery }: LoginFormProps) {
             toast.success("Logged in successfully!", { position: "top-center" });
             navigate("/homepage");
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Incorrect email or password", { position: "top-center" });
-            console.log(err);
+            toast.error(getErrorMessage(err), { position: "top-center" });
         }
     };
 
