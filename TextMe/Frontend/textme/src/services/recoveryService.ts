@@ -8,7 +8,8 @@ interface ApiResponse<T = any> {
 export const recoveryService = {
     sendCode: async (email: string): Promise<ApiResponse> => {
         try {
-            const response = await api.post<ApiResponse>("/User/recovery/send-code", { email });            return response.data;
+            const response = await api.post("/User/recovery/send-code", { Email: email }); 
+            return response.data;
         } catch (error: any) {
             throw error.response?.data || { message: "Failed to send code" };
         }
