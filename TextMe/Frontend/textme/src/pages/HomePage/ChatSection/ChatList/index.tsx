@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import type { PrivateChatDTOResponse } from "../../../../types/chats";
 import { chatService } from "../../../../services/chatService";
@@ -13,22 +13,31 @@ import "./ChatList.css";
 
 type Props = {
     currentUserId: string | null;
-    onSelectChat: (chatId: number) => void;
+    onSelectChat: (chat: PrivateChatDTOResponse) => void;
     selectedChatId: number | null;
+    onChatsChange: (chats: PrivateChatDTOResponse[]) => void;
 };
 
-export default function ChatList({ currentUserId, onSelectChat, selectedChatId }: Props) {
+function chatSortKey(c: PrivateChatDTOResponse): number {
+    if (c.lastMessageAt) return new Date(c.lastMessageAt).getTime();
+    return new Date(c.createdAt).getTime();
+}
 
+export default function ChatList({ currentUserId, onSelectChat, selectedChatId, onChatsChange }: Props) {
     const [chats, setChats] = useState<PrivateChatDTOResponse[]>([]);
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        onChatsChange(chats);
+    }, [chats, onChatsChange]);
 
     useEffect(() => {
         const fetchChats = async () => {
             try {
                 const data = await chatService.getAllPrivateChats();
                 setChats(data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 toast.error(getErrorMessage(err));
             }
         };
@@ -37,55 +46,87 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId }
     }, [currentUserId]);
 
     useEffect(() => {
-
         const handler = (chat: PrivateChatDTOResponse) => {
-
             setChats(prev => {
-
                 const exists = prev.some(c => c.id === chat.id);
-
                 if (exists) return prev;
-
                 return [chat, ...prev];
-
             });
+        };
 
+        const onList = (payload: { chatId: number; lastMessage?: string | null; lastMessageAt?: string | null }) => {
+            setChats(prev => {
+                const i = prev.findIndex(c => c.id === payload.chatId);
+                if (i === -1) return prev;
+                const next = [...prev];
+                const cur = next[i]!;
+                next[i] = {
+                    ...cur,
+                    lastMessage: payload.lastMessage ?? cur.lastMessage,
+                    lastMessageAt: payload.lastMessageAt ?? cur.lastMessageAt,
+                };
+                next.sort((a, b) => chatSortKey(b) - chatSortKey(a));
+                return next;
+            });
+        };
+
+        const onPresence = (payload: {
+            userId: string;
+            presenceHidden: boolean;
+            isOnline?: boolean | null;
+            lastSeenAt?: string | null;
+        }) => {
+            setChats(prev =>
+                prev.map(chat => ({
+                    ...chat,
+                    participants: chat.participants.map(p =>
+                        p.userId === payload.userId
+                            ? {
+                                  ...p,
+                                  presenceHidden: payload.presenceHidden,
+                                  isOnline: payload.isOnline ?? null,
+                                  lastSeenAt: payload.lastSeenAt ?? null,
+                              }
+                            : p
+                    ),
+                }))
+            );
         };
 
         const connect = async () => {
-
-            if (!chatHub.isConnected())
-                await chatHub.start();
-
+            if (!chatHub.isConnected()) await chatHub.start();
             chatHub.onReceiveNewChat(handler);
-
+            chatHub.onChatListUpdated(onList);
+            chatHub.onUserPresenceUpdated(onPresence);
         };
 
         connect();
 
         return () => {
             chatHub.offReceiveNewChat(handler);
+            chatHub.offChatListUpdated(onList);
+            chatHub.offUserPresenceUpdated(onPresence);
         };
-
     }, []);
 
-    const filteredChats = chats.filter(chat => {
-        const other = chat.participants.find(p => p.userId !== currentUserId);
-        return other?.userName?.toLowerCase().includes(search.toLowerCase());
-    });
+    const filteredChats = useMemo(() => {
+        const filtered = chats.filter(chat => {
+            const other = chat.participants.find(p => p.userId !== currentUserId);
+            return other?.userName?.toLowerCase().includes(search.toLowerCase());
+        });
+        return [...filtered].sort((a, b) => chatSortKey(b) - chatSortKey(a));
+    }, [chats, currentUserId, search]);
 
     const handleChatCreated = (chat: PrivateChatDTOResponse) => {
-        setChats(prev => [chat, ...prev]);
+        setChats(prev => {
+            if (prev.some(c => c.id === chat.id)) return prev;
+            return [chat, ...prev];
+        });
     };
 
     return (
         <div className="chat-list">
-
-            <ChatListHeader
-                search={search}
-                setSearch={setSearch}
-                onAddClick={() => setIsModalOpen(true)}
-            />
+            <ChatListHeader search={search} setSearch={setSearch} onAddClick={() => setIsModalOpen(true)} />
 
             <div className="chat-list-content">
                 {filteredChats.map(chat => (
@@ -100,12 +141,8 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId }
             </div>
 
             {isModalOpen && (
-                <AddChatModal
-                    onClose={() => setIsModalOpen(false)}
-                    onCreated={handleChatCreated}
-                />
+                <AddChatModal onClose={() => setIsModalOpen(false)} onCreated={handleChatCreated} />
             )}
-
         </div>
     );
 }

@@ -1,10 +1,10 @@
-﻿.input-wrapper { padding: 15px; }
+.input-wrapper { padding: 15px; }
 
 .input-container {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #11161d;
+    background: var(--surface-raised, #11161d);
     border-radius: 30px;
     padding: 6px 10px;
 }
@@ -14,8 +14,8 @@
     height: 36px;
     border-radius: 50%;
     border: none;
-    background: #1e2630;
-    color: white;
+    background: var(--surface-muted, #1e2630);
+    color: var(--text-primary, #fff);
     cursor: pointer;
     font-size: 18px;
 }
@@ -25,7 +25,7 @@
     border: none;
     outline: none;
     background: transparent;
-    color: white;
+    color: var(--text-primary, #fff);
     font-size: 14px;
     padding: 8px;
 }

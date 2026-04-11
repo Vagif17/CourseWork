@@ -1,7 +1,35 @@
-﻿    html, body, #root {
+    :root {
+        --page-bg: #0c1014;
+        --text-primary: #ffffff;
+        --chat-item-hover: #2c2c34;
+        --surface-raised: #11161d;
+        --surface-muted: #2a2f37;
+        --border-chat: rgba(255, 255, 255, 0.1);
+        --sidebar-bg: #0c1014;
+        --empty-text: #aaaaaa;
+        --date-sep-color: rgba(255, 255, 255, 0.6);
+        --date-sep-line: rgba(255, 255, 255, 0.1);
+    }
+
+    html[data-theme="light"] {
+        --page-bg: #e8eef3;
+        --text-primary: #0c1014;
+        --chat-item-hover: #cfd9e6;
+        --surface-raised: #f4f7fb;
+        --surface-muted: #dce6f2;
+        --border-chat: rgba(0, 0, 0, 0.1);
+        --sidebar-bg: #dbe4ee;
+        --empty-text: #555555;
+        --date-sep-color: rgba(0, 0, 0, 0.55);
+        --date-sep-line: rgba(0, 0, 0, 0.08);
+    }
+
+    html, body, #root {
         height: 100%;
         margin: 0;
         padding: 0;
+        background: var(--page-bg);
+        color: var(--text-primary);
     }
     h1 {
         cursor: default;

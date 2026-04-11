@@ -1,3 +1,13 @@
+/**
+ * Example: 2D infinite image carousel (also used on Home → News with API data):
+ *
+ * import ImageCarousel from "./components/ImageCarousel";
+ * const images = ["/images/img1.jpg", ...];
+ * <ImageCarousel
+ *   items={images.map((src, i) => ({ id: String(i), imageUrl: src, label: `Slide ${i + 1}` }))}
+ *   cycleMs={26000}
+ * />
+ */
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import { Routes, Route, Navigate } from "react-router";

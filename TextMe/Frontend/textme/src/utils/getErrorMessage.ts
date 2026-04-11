@@ -1,6 +1,6 @@
-﻿import axios from "axios";
+import axios from "axios";
 
-export const getErrorMessage = (error: unknown): string => {
+export const getErrorMessage = (error: unknown, fallback = "Unknown error"): string => {
 
     if (axios.isAxiosError(error)) {
 
@@ -30,5 +30,5 @@ export const getErrorMessage = (error: unknown): string => {
         return error.message;
     }
 
-    return "Unknown error";
+    return fallback;
 };

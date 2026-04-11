@@ -1,5 +1,8 @@
-﻿import { useRef, useState, useLayoutEffect } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
+import { useAppSettings } from "../../../../context/AppSettingsContext";
 import { useChatWindow } from "../../../../hooks/useChatWindow";
+import type { PrivateChatDTOResponse } from "../../../../types/chats";
+import { formatParticipantPresence } from "../../../../utils/presenceFormat";
 import MessagesList from "./MessagesList";
 import MessageInput from "./MessageInput";
 import PreviewImages from "./PreviewImages";
@@ -10,9 +13,11 @@ import "./ChatWindow.css";
 type Props = {
     currentUserId: string | null;
     selectedChatId: number | null;
+    activeChat: PrivateChatDTOResponse | null;
 };
 
-export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
+export default function ChatWindow({ currentUserId, selectedChatId, activeChat }: Props) {
+    const { typingSoundEnabled } = useAppSettings();
     const typingAudioRef = useRef<HTMLAudioElement>(new Audio("/sounds/typesound.mp3"));
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileRef = useRef<HTMLInputElement>(null);
@@ -31,7 +36,7 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
         sendMessage,
         startRecording,
         stopRecording,
-    } = useChatWindow(selectedChatId);
+    } = useChatWindow(selectedChatId, currentUserId);
 
     useLayoutEffect(() => {
         const list = messagesListRef.current;
@@ -54,8 +59,22 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
             </div>
         );
 
+    const other = activeChat?.participants.find(p => p.userId !== currentUserId);
+
     return (
         <div className="chat-window">
+            <header className="chat-window-header">
+                {other?.avatarUrl ? (
+                    <img src={other.avatarUrl} alt="" className="chat-window-header-avatar" />
+                ) : (
+                    <div className="chat-window-header-avatar chat-window-header-avatar--ph" aria-hidden />
+                )}
+                <div className="chat-window-header-text">
+                    <div className="chat-window-header-name">{other?.userName ?? "Chat"}</div>
+                    <div className="chat-window-header-status">{formatParticipantPresence(other)}</div>
+                </div>
+            </header>
+
             <MessagesList
                 messages={messages}
                 currentUserId={currentUserId}
@@ -77,11 +96,10 @@ export default function ChatWindow({ currentUserId, selectedChatId }: Props) {
                 startRecording={startRecording}
                 stopRecording={stopRecording}
                 typingAudioRef={typingAudioRef}
+                typingSoundEnabled={typingSoundEnabled}
             />
 
-            {selectedImage && (
-                <ImageModal src={selectedImage} onClose={() => setSelectedImage(null)} />
-            )}
+            {selectedImage && <ImageModal src={selectedImage} onClose={() => setSelectedImage(null)} />}
         </div>
     );
 }

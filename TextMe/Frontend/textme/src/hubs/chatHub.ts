@@ -1,4 +1,4 @@
-﻿import * as signalR from "@microsoft/signalr"
+import * as signalR from "@microsoft/signalr"
 import { tokenService } from "../services/tokenService"
 
 class ChatHub {
@@ -13,8 +13,10 @@ class ChatHub {
             await this.connection.start();
             return;
         }
+
+
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
+                .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
                 accessTokenFactory: async () => {
                     return (await tokenService.getValidToken()) || "";
                 },
@@ -76,6 +78,58 @@ class ChatHub {
 
     offReceiveNewChat(callback: (chat: any) => void) {
         this.connection?.off("ReceiveNewChat", callback);
+    }
+
+    async markChatAsRead(chatId: number) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("MarkChatAsRead", chatId);
+    }
+
+    async ackMessageDelivered(messageId: number) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("AckMessageDelivered", messageId);
+    }
+
+    onMessageStatusUpdated(callback: (payload: { messageId: number; chatId: number; status: string }) => void) {
+        this.connection?.on("MessageStatusUpdated", callback);
+    }
+
+    offMessageStatusUpdated(callback: (payload: { messageId: number; chatId: number; status: string }) => void) {
+        this.connection?.off("MessageStatusUpdated", callback);
+    }
+
+    onChatListUpdated(
+        callback: (payload: { chatId: number; lastMessage?: string | null; lastMessageAt?: string | null }) => void
+    ) {
+        this.connection?.on("ChatListUpdated", callback);
+    }
+
+    offChatListUpdated(
+        callback: (payload: { chatId: number; lastMessage?: string | null; lastMessageAt?: string | null }) => void
+    ) {
+        this.connection?.off("ChatListUpdated", callback);
+    }
+
+    onUserPresenceUpdated(
+        callback: (payload: {
+            userId: string;
+            presenceHidden: boolean;
+            isOnline?: boolean | null;
+            lastSeenAt?: string | null;
+        }) => void
+    ) {
+        this.connection?.on("UserPresenceUpdated", callback);
+    }
+
+    offUserPresenceUpdated(
+        callback: (payload: {
+            userId: string;
+            presenceHidden: boolean;
+            isOnline?: boolean | null;
+            lastSeenAt?: string | null;
+        }) => void
+    ) {
+        this.connection?.off("UserPresenceUpdated", callback);
     }
 }
 

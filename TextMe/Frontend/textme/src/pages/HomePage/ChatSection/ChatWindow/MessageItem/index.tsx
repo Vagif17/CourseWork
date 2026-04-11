@@ -1,4 +1,6 @@
-﻿import "./MessageItem.css";
+import { tryParseNewsChatMessage } from "../../../../../utils/newsChatPayload";
+import NewsChatCard from "./NewsChatCard";
+import "./MessageItem.css";
 
 type Props = {
     message: any;
@@ -21,12 +23,18 @@ export default function MessageItem({
         });
     };
 
+    const newsArticle = tryParseNewsChatMessage(message.text);
+
     return (
         <div className={`message-row ${isMyMessage ? "mine" : "other"}`}>
 
-            <div className="message-bubble">
+            <div className={`message-bubble${newsArticle ? " message-bubble--news" : ""}`}>
 
-                {message.text && <div className="message-text">{message.text}</div>}
+                {newsArticle ? (
+                    <NewsChatCard article={newsArticle} isMine={isMyMessage} />
+                ) : (
+                    message.text && <div className="message-text">{message.text}</div>
+                )}
 
                 {message.mediaUrl && message.mediaType?.startsWith("image") && (
                     <img
@@ -44,12 +52,21 @@ export default function MessageItem({
                     <audio src={message.mediaUrl} controls />
                 )}
 
-                <div className="message-time">
-                    {formatTime(message.createdAt)}
+                <div className="message-meta">
+                    <div className="message-time">{formatTime(message.createdAt)}</div>
+                    {isMyMessage && (
+                        <span className="message-status" aria-label={message.status ?? "Sent"}>
+                            {message.status === "Read" ? (
+                                <span className="message-status--read">✓✓</span>
+                            ) : message.status === "Delivered" ? (
+                                <span className="message-status--delivered">✓✓</span>
+                            ) : (
+                                <span className="message-status--sent">✓</span>
+                            )}
+                        </span>
+                    )}
                 </div>
-
             </div>
-
         </div>
     );
 }

@@ -1,30 +1,64 @@
-﻿.chat-item{
+.chat-item{
     padding:10px 14px;
     border-radius:8px;
     margin-bottom:6px;
     cursor:pointer;
     transition:background-color 0.2s;
-    color:#ffffff;
+    color: var(--text-primary, #ffffff);
 }
 
 .chat-item:hover{
-    background-color:#2c2c34;
+    background-color: var(--chat-item-hover, #2c2c34);
 }
 
 .chat-item.active{
     background-color:#00b6ff;
 }
 
-.participant{
-    display:flex;
-    align-items:center;
-    gap:10px;
+.participant {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
 }
 
-.avatar{
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    object-fit:cover;
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.participant-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.participant-name {
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.participant-presence {
+    font-size: 11px;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.participant-preview {
+    font-size: 12px;
+    opacity: 0.78;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 

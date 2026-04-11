@@ -37,7 +37,7 @@ function AuthPage() {
                 {formType === "recovery" && <RecoveryForm onClose={() => setFormType("login")} goLogin={() => setFormType("login")} goRegister={() => setFormType("register")} />}
             </aside>
 
-            <footer>© 2026 TextMe. All rights reserved.</footer>
+                <footer>© 2026 TextMe. All rights reserved.</footer>
 
         </div>
     )

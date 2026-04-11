@@ -1,22 +1,44 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import chatHub from "../hubs/chatHub";
 import { messageService } from "../services/messageService";
 import { toast } from "react-toastify";
 import { validateFiles } from "../utils/fileValidatorUtil";
 import { voiceRecorderService } from "../services/voiceRecorderService";
 
-export function useChatWindow(selectedChatId: number | null) {
+export function useChatWindow(selectedChatId: number | null, currentUserId: string | null) {
     const [messages, setMessages] = useState<any[]>([]);
     const [text, setText] = useState("");
     const [recording, setRecording] = useState(false);
     const [recordTime, setRecordTime] = useState(0);
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
     const recordIntervalRef = useRef<number | null>(null);
+    const selectedChatIdRef = useRef(selectedChatId);
+    selectedChatIdRef.current = selectedChatId;
+
+    const mergeStatus = useCallback((messageId: number, status: string) => {
+        setMessages(prev => prev.map(m => (m.id === messageId ? { ...m, status } : m)));
+    }, []);
 
     useEffect(() => {
         if (!selectedChatId) return;
 
-        const messageCallback = (msg: any) => setMessages(prev => [...prev, msg]);
+        const messageCallback = async (msg: any) => {
+            setMessages(prev => [...prev, msg]);
+            const uid = currentUserId?.toLowerCase();
+            const mine = msg.senderId?.toLowerCase() === uid;
+            if (!mine && typeof msg.id === "number") {
+                try {
+                    await chatHub.ackMessageDelivered(msg.id);
+                } catch {
+                    /* ignore */
+                }
+            }
+        };
+
+        const statusCallback = (payload: { messageId: number; chatId: number; status: string }) => {
+            if (payload.chatId !== selectedChatIdRef.current) return;
+            mergeStatus(payload.messageId, payload.status);
+        };
 
         const init = async () => {
             try {
@@ -24,9 +46,15 @@ export function useChatWindow(selectedChatId: number | null) {
                 await chatHub.joinChat(selectedChatId);
 
                 chatHub.onReceiveMessage(messageCallback);
+                chatHub.onMessageStatusUpdated(statusCallback);
 
                 const oldMessages = await messageService.getMessages(selectedChatId);
                 setMessages(oldMessages);
+                try {
+                    await chatHub.markChatAsRead(selectedChatId);
+                } catch {
+                    /* ignore */
+                }
             } catch (err) {
                 console.error("ChatHub init error:", err);
                 toast.error("Failed to connect to chat");
@@ -38,8 +66,9 @@ export function useChatWindow(selectedChatId: number | null) {
         return () => {
             chatHub.leaveChat(selectedChatId);
             chatHub.offReceiveMessage(messageCallback);
+            chatHub.offMessageStatusUpdated(statusCallback);
         };
-    }, [selectedChatId]);
+    }, [selectedChatId, currentUserId, mergeStatus]);
 
     const handleFileChange = (files: FileList | null) => {
         if (!files) return;

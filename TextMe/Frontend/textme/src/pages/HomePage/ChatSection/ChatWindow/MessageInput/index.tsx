@@ -1,4 +1,4 @@
-﻿import "./MessageInput.css";
+import "./MessageInput.css";
 import type {RefObject} from "react";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
     startRecording: () => void;
     stopRecording: () => void;
     typingAudioRef: RefObject<HTMLAudioElement>;
+    typingSoundEnabled: boolean;
 };
 
 export default function MessageInput({
@@ -24,7 +25,8 @@ export default function MessageInput({
                                          recordTime,
                                          startRecording,
                                          stopRecording,
-                                         typingAudioRef
+                                         typingAudioRef,
+                                         typingSoundEnabled
                                      }: Props) {
     return (
         <div className="input-wrapper">
@@ -38,7 +40,7 @@ export default function MessageInput({
                     value={text}
                     onChange={e => {
                         setText(e.target.value);
-                        if (typingAudioRef.current) {
+                        if (typingSoundEnabled && typingAudioRef.current) {
                             typingAudioRef.current.currentTime = 0;
                             typingAudioRef.current.play().catch(() => {});
                         }

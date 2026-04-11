@@ -1,19 +1,22 @@
-﻿import "./../../styles/Global.css";
+import "./../../styles/Global.css";
 import "./HomePage.css";
 import { useNavigate } from "react-router";
 import ChatSection from "./ChatSection";
+import ProfileSection from "./ProfileSection";
+import SettingsSection from "./SettingsSection";
+import NewsFeedSection from "./NewsFeedSection";
+import SidebarNav from "./SidebarNav";
 import { useEffect, useState } from "react";
 import { initAuth } from "../../utils/initAuthUtil.ts";
 import { authService } from "../../services/authService.ts";
 import AuthLoader from "./AuthLoader";
-import PlaceholderPage from "../../components/PlacerHolder";
-
-type Tab = "chats" | "settings" | "profile" | "notifications";
+import { AppSettingsProvider } from "../../context/AppSettingsContext";
+import type { TabId } from "./homeTabs";
 
 function HomePage() {
     const navigate = useNavigate();
     const [authInitialized, setAuthInitialized] = useState(false);
-    const [activeTab, setActiveTab] = useState<Tab>("chats");
+    const [activeTab, setActiveTab] = useState<TabId>("chats");
 
     useEffect(() => {
         const init = async () => {
@@ -31,50 +34,24 @@ function HomePage() {
     };
 
     return (
-        <div className="homepage fade-in">
-            <div className="sidebar">
-                <div className="sidebar-icons">
-                    <div
-                        className={`sidebar-icon ${activeTab === "chats" ? "active" : ""}`}
-                        onClick={() => setActiveTab("chats")}
-                    >
-                        💬
-                    </div>
+        <AppSettingsProvider>
+            <div className="homepage fade-in">
+                <div className="sidebar">
+                    <SidebarNav activeTab={activeTab} onSelect={setActiveTab} />
 
-                    <div
-                        className={`sidebar-icon ${activeTab === "settings" ? "active" : ""}`}
-                        onClick={() => setActiveTab("settings")}
-                    >
-                        ⚙️
-                    </div>
-
-                    <div
-                        className={`sidebar-icon ${activeTab === "profile" ? "active" : ""}`}
-                        onClick={() => setActiveTab("profile")}
-                    >
-                        👤
-                    </div>
-
-                    <div
-                        className={`sidebar-icon ${activeTab === "notifications" ? "active" : ""}`}
-                        onClick={() => setActiveTab("notifications")}
-                    >
-                        📢
+                    <div className="sidebar-logout" onClick={handleLogout}>
+                        Log out
                     </div>
                 </div>
 
-                <div className="sidebar-logout" onClick={handleLogout}>
-                    Log out
+                <div className="main-content">
+                    {activeTab === "chats" && <ChatSection />}
+                    {activeTab === "settings" && <SettingsSection />}
+                    {activeTab === "profile" && <ProfileSection />}
+                    {activeTab === "news" && <NewsFeedSection />}
                 </div>
             </div>
-
-            <div className="main-content">
-                {activeTab === "chats" && <ChatSection />}
-                {activeTab === "settings" && <PlaceholderPage/>}
-                {activeTab === "profile" && <PlaceholderPage/>}
-                {activeTab === "notifications" && <PlaceholderPage/>}
-            </div>
-        </div>
+        </AppSettingsProvider>
     );
 }
 

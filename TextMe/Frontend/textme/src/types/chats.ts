@@ -1,7 +1,10 @@
-﻿export type ParticipantDTO = {
+export type ParticipantDTO = {
     userId: string;
     userName?: string;
     avatarUrl?: string;
+    presenceHidden?: boolean;
+    isOnline?: boolean | null;
+    lastSeenAt?: string | null;
 };
 
 export type PrivateChatDTOResponse = {

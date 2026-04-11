@@ -1,4 +1,5 @@
-﻿import { forwardRef } from "react";
+import { forwardRef, Fragment } from "react";
+import { useAppSettings } from "../../../../../context/AppSettingsContext";
 import MessageItem from "../MessageItem";
 import "./MessagesList.css";
 
@@ -10,6 +11,7 @@ type Props = {
 
 const MessagesList = forwardRef<HTMLDivElement, Props>(
     ({ messages, currentUserId, setSelectedImage }, ref) => {
+        const { messageDensity } = useAppSettings();
 
         const isNewDay = (curr: any, prev: any) => {
             if (!prev) return true;
@@ -36,7 +38,10 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(
         };
 
         return (
-            <div className="messages-list" ref={ref}>
+            <div
+                className={`messages-list${messageDensity === "compact" ? " messages-list--compact" : ""}`}
+                ref={ref}
+            >
 
                 {messages.map((msg, index) => {
 
@@ -48,8 +53,7 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(
                         currentUserId?.toLowerCase();
 
                     return (
-                        <div key={msg.id}>
-
+                        <Fragment key={msg.id}>
                             {showDate && (
                                 <div className="date-separator">
                                     {formatDateLabel(new Date(msg.createdAt))}
@@ -61,8 +65,7 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(
                                 isMyMessage={isMyMessage}
                                 setSelectedImage={setSelectedImage}
                             />
-
-                        </div>
+                        </Fragment>
                     );
                 })}
 
