@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
 using Domain;
 using Application.Interfaces.Repositories;
@@ -28,5 +28,40 @@ public class MessageRepository : IMessageRepository
             .Where(x => x.ChatId == chatId)
             .OrderBy(x => x.CreatedAt)
             .ToListAsync();
+    }
+
+    public async Task<Message?> GetByIdTrackingAsync(int messageId)
+    {
+        return await context.Messages.FirstOrDefaultAsync(m => m.Id == messageId);
+    }
+
+    public async Task UpdateMessageAsync(Message message)
+    {
+        context.Messages.Update(message);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<IReadOnlyList<(int MessageId, string SenderId)>> MarkIncomingAsDeliveredAsync(int chatId, string recipientUserId)
+    {
+        var msgs = await context.Messages
+            .Where(m => m.ChatId == chatId && m.SenderId != recipientUserId && m.Status == MessageStatus.Sent)
+            .ToListAsync();
+        foreach (var m in msgs)
+            m.Status = MessageStatus.Delivered;
+        if (msgs.Count > 0)
+            await context.SaveChangesAsync();
+        return msgs.ConvertAll(m => (m.Id, m.SenderId));
+    }
+
+    public async Task<IReadOnlyList<(int MessageId, string SenderId)>> MarkIncomingAsReadAsync(int chatId, string readerUserId)
+    {
+        var msgs = await context.Messages
+            .Where(m => m.ChatId == chatId && m.SenderId != readerUserId && m.Status != MessageStatus.Read)
+            .ToListAsync();
+        foreach (var m in msgs)
+            m.Status = MessageStatus.Read;
+        if (msgs.Count > 0)
+            await context.SaveChangesAsync();
+        return msgs.ConvertAll(m => (m.Id, m.SenderId));
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Mapping;
 using Application.Services.Classes;
 using Application.Services.Interfaces;
@@ -18,6 +19,7 @@ public static class ApplicationCollectionExtension
         services.AddAutoMapper(cfg =>{ cfg.AddProfile<MappingProfile>(); });
         services.AddScoped<IAccountRestoreService, AccountRecoveryService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
 );

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
 using Domain;
 using Application.Interfaces.Repositories;
@@ -47,6 +47,44 @@ public class ChatRepository : IChatRepository
             .Where(c => !c.IsGroup)
             .Where(c => c.Participants.Any(p => p.UserId == userId))
             .Include(c => c.Participants)
+            .OrderByDescending(c => c.LastMessageAt ?? c.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<bool> IsUserParticipantInChatAsync(int chatId, string userId)
+    {
+        return await textMeDbContext.Chats
+            .AsNoTracking()
+            .AnyAsync(c => c.Id == chatId && c.Participants.Any(p => p.UserId == userId));
+    }
+
+    public async Task UpdateChatLastMessageAsync(int chatId, string? preview, DateTimeOffset at)
+    {
+        var chat = await textMeDbContext.Chats.FirstAsync(c => c.Id == chatId);
+        chat.LastMessagePreview = preview;
+        chat.LastMessageAt = at;
+        await textMeDbContext.SaveChangesAsync();
+    }
+
+    public async Task<IReadOnlyList<string>> GetChatParticipantIdsAsync(int chatId)
+    {
+        return await textMeDbContext.Chats
+            .AsNoTracking()
+            .Where(c => c.Id == chatId)
+            .SelectMany(c => c.Participants)
+            .Select(p => p.UserId)
+            .ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<string>> GetDistinctPrivateChatPartnerIdsAsync(string userId)
+    {
+        return await textMeDbContext.Chats
+            .AsNoTracking()
+            .Where(c => !c.IsGroup && c.Participants.Any(p => p.UserId == userId))
+            .SelectMany(c => c.Participants)
+            .Where(p => p.UserId != userId)
+            .Select(p => p.UserId)
+            .Distinct()
             .ToListAsync();
     }
 }

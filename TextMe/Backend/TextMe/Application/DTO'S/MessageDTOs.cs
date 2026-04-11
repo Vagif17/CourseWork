@@ -1,4 +1,4 @@
-﻿public class MessageDTO
+public class MessageDTO
 {
     public int Id { get; set; }
 
@@ -19,6 +19,9 @@
     public string? MediaType { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Sent, Delivered, or Read.</summary>
+    public string Status { get; set; } = "Sent";
 }
 
 public class UploadMediaRequestDTO

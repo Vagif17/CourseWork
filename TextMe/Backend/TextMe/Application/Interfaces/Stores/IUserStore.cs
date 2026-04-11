@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 
 namespace Application.Interfaces.Stores;
 
@@ -16,4 +16,21 @@ public interface IUserStore
     public Task<string> CreateUserAsync(RegisterRequestDTO request);
     public Task AddToRoleAsync(string userId, string role);
 
+    public Task<UserProfileResponseDTO?> GetUserProfileAsync(string userId);
+    public Task<(UserProfileResponseDTO Profile, bool UserNameChanged)> UpdateUserProfileAsync(
+        string userId,
+        UpdateProfileRequestDTO request,
+        Stream? avatarStream,
+        string? fileName,
+        string? contentType);
+    public Task ChangePasswordAsync(string userId, string currentPassword, string newPassword);
+
+    Task<IReadOnlyDictionary<string, (bool ShareOnlineStatus, DateTimeOffset? LastSeenAt)>> GetUserPresenceFieldsByIdsAsync(
+        IEnumerable<string> userIds,
+        CancellationToken cancellationToken = default);
+
+    Task<UserProfileResponseDTO> UpdateShareOnlineStatusAsync(
+        string userId,
+        bool shareOnlineStatus,
+        CancellationToken cancellationToken = default);
 }

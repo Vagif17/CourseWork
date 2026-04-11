@@ -1,5 +1,5 @@
-﻿using MediatR;
+using MediatR;
 
 namespace Application.Features.Messages.Queries;
 
-public record GetMessagesQuery (int chatId) : IRequest<IEnumerable<MessageDTO>>;
+public record GetMessagesQuery(int ChatId, string UserId) : IRequest<IEnumerable<MessageDTO>>;

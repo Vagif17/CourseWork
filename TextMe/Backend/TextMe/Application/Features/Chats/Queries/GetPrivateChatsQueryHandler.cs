@@ -1,5 +1,6 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Interfaces.Stores;
 using AutoMapper;
 using MediatR;
@@ -10,20 +11,23 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
 {
     private readonly IChatRepository chatRepository;
     private readonly IUserStore userStore;
+    private readonly IUserPresenceService presenceService;
     private readonly IMapper mapper;
 
     public GetPrivateChatsQueryHandler(
         IChatRepository _chatRepository,
         IUserStore _userStore,
+        IUserPresenceService presenceService,
         IMapper _mapper)
     {
         chatRepository = _chatRepository;
         userStore = _userStore;
+        this.presenceService = presenceService;
         mapper = _mapper;
     }
 
     public async Task<IEnumerable<PrivateChatResponseDTO>> Handle(
-        GetPrivateChatsQuery request, 
+        GetPrivateChatsQuery request,
         CancellationToken cancellationToken)
     {
         var chats = await chatRepository.GetAllPrivateChatsAsync(request.userId);
@@ -39,6 +43,7 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
         var users = await userStore.GetUsersByIdsAsync(allUserIds);
 
         var userDict = users.ToDictionary(u => u.Id);
+        var presenceDict = await userStore.GetUserPresenceFieldsByIdsAsync(allUserIds, cancellationToken);
 
         foreach (var chat in chatDtos)
         {
@@ -49,10 +54,34 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
                     participant.UserName = user.UserName;
                     participant.AvatarUrl = user.AvatarUrl;
                 }
+
+                if (participant.UserId == request.userId)
+                {
+                    participant.PresenceHidden = false;
+                    participant.IsOnline = null;
+                    participant.LastSeenAt = null;
+                    continue;
+                }
+
+                if (!presenceDict.TryGetValue(participant.UserId, out var pres))
+                    continue;
+
+                if (!pres.ShareOnlineStatus)
+                {
+                    participant.PresenceHidden = true;
+                    participant.IsOnline = null;
+                    participant.LastSeenAt = null;
+                }
+                else
+                {
+                    participant.PresenceHidden = false;
+                    var online = presenceService.IsOnline(participant.UserId);
+                    participant.IsOnline = online;
+                    participant.LastSeenAt = online ? null : pres.LastSeenAt;
+                }
             }
         }
 
         return chatDtos;
-
     }
 }

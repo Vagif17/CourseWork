@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Interfaces.Stores;
@@ -73,6 +73,12 @@ public class AuthService : IAuthService
             Email = userEmail,
             Roles = roles
         };
+    }
+
+    public async Task<AuthResponseDTO> IssueTokensForUserAsync(string userId)
+    {
+        var email = await UserStore.GetEmailAsync(userId);
+        return await GenerateTokensAsync(userId, email);
     }
 
     public async Task RevokeRefreshTokenAsync(RefreshTokenRequestDTO refreshTokenRequest)

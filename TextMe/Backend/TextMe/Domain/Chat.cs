@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,4 +16,8 @@ public class Chat
     public ICollection<Message> Messages { get; set; } = new List<Message>();
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Denormalized from last message for fast chat list sort and preview.</summary>
+    public DateTimeOffset? LastMessageAt { get; set; }
+    public string? LastMessagePreview { get; set; }
 }

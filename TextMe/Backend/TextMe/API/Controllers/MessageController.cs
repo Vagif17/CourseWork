@@ -1,13 +1,16 @@
-﻿using Application.DTOs;
 using Application.Features.Messages.Queries;
 using Application.Services.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class MessageController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -22,8 +25,19 @@ namespace API.Controllers
         [HttpGet("{chatId}")]
         public async Task<IActionResult> GetChatMessages(int chatId)
         {
-            var messages = await mediator.Send(new GetMessagesQuery(chatId));
-            return Ok(messages);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            try
+            {
+                var messages = await mediator.Send(new GetMessagesQuery(chatId, userId));
+                return Ok(messages);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
         }
 
         [HttpPost("upload-media")]
@@ -50,7 +64,7 @@ namespace API.Controllers
                 urls.Add(url);
             }
 
-            return Ok(urls); 
+            return Ok(urls);
         }
     }
 }

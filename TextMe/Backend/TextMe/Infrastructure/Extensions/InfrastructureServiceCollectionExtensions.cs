@@ -1,4 +1,4 @@
-﻿using Application.Config;
+using Application.Config;
 using Application.Interfaces.Notifications;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
@@ -8,6 +8,7 @@ using Infrastructure.Data;
 using Infrastructure.Jwt;
 using Infrastructure.Notifications;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Infrastructure.Storages;
 using Infrastructure.Stores;
 using Microsoft.EntityFrameworkCore;
@@ -33,10 +34,15 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAccountRestoreRepository, AccountRestoreRepository>();
 
+        services.AddSingleton<IUserPresenceService, UserPresenceService>();
+        services.AddScoped<IMessageRealtimeNotifier, HubMessageRealtimeNotifier>();
         services.AddScoped<IChatNotification, ChatNotification>();
         services.AddScoped<IJwtTokenSerivce, JwtTokenService>();
         services.AddScoped<IUserStore, UserStore>();
         services.AddScoped<ICloudinaryStorage, CloudinaryStorage>();
+
+        services.AddHttpClient(nameof(RssNewsFeedService));
+        services.AddScoped<INewsFeedService, RssNewsFeedService>();
 
         return services;
     }

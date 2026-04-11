@@ -1,4 +1,4 @@
-﻿using Domain;
+using Domain;
 using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure;
@@ -14,5 +14,9 @@ public class AppUser : IdentityUser
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    public DateTimeOffset? LastSeenAt { get; set; }
+
+    public bool ShareOnlineStatus { get; set; } = true;
 
 }
