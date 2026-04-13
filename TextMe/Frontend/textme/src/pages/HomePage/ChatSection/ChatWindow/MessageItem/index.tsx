@@ -1,22 +1,32 @@
+import { useState } from "react";
 import { tryParseNewsChatMessage } from "../../../../../utils/newsChatPayload";
 import NewsChatCard from "./NewsChatCard";
+import AudioPlayer from "./AudioPlayer";
 import "./MessageItem.css";
 
 type Props = {
     message: any;
     isMyMessage: boolean;
     setSelectedImage: (url: string) => void;
+    currentUserId: string | null;
+    onReply?: (message: any) => void;
+    onEdit?: (message: any) => void;
+    onDelete?: (messageId: number) => void;
 };
 
 export default function MessageItem({
                                         message,
                                         isMyMessage,
-                                        setSelectedImage
+                                        setSelectedImage,
+                                        currentUserId,
+                                        onReply,
+                                        onEdit,
+                                        onDelete
                                     }: Props) {
+    const [showActions, setShowActions] = useState(false);
 
     const formatTime = (dateString: string) => {
         if (!dateString) return "";
-
         return new Date(dateString).toLocaleTimeString("en-US", {
             hour: "2-digit",
             minute: "2-digit"
@@ -26,17 +36,40 @@ export default function MessageItem({
     const newsArticle = tryParseNewsChatMessage(message.text);
 
     return (
-        <div className={`message-row ${isMyMessage ? "mine" : "other"}`}>
-
-            <div className={`message-bubble${newsArticle ? " message-bubble--news" : ""}`}>
-
-                {newsArticle ? (
-                    <NewsChatCard article={newsArticle} isMine={isMyMessage} />
-                ) : (
-                    message.text && <div className="message-text">{message.text}</div>
+        <div 
+            className={`message-row ${isMyMessage ? "mine" : "other"}`}
+            onMouseEnter={() => setShowActions(true)}
+            onMouseLeave={() => setShowActions(false)}
+        >
+            <div className={`message-bubble${newsArticle ? " message-bubble--news" : ""}${message.isDeleted ? " message-deleted" : ""}`}>
+                
+                {message.replyToMessage && !message.isDeleted && (
+                    <div className="message-reply-block" onClick={() => {
+                        
+                    }}>
+                        <div className="reply-author">
+                            {message.replyToMessage.senderId === currentUserId ? "You" : "Participant"}
+                        </div>
+                        <div className="reply-text">
+                            {message.replyToMessage.text || (message.replyToMessage.mediaType ? "Media" : "Message")}
+                        </div>
+                    </div>
                 )}
 
-                {message.mediaUrl && message.mediaType?.startsWith("image") && (
+                {message.isDeleted ? (
+                    <div className="message-text deleted-text">🚫 This message was deleted</div>
+                ) : newsArticle ? (
+                    <NewsChatCard article={newsArticle} isMine={isMyMessage} />
+                ) : (
+                    message.text && (
+                        <div className="message-text">
+                            {message.text}
+                            {message.isEdited && <span className="message-edited-flag"> (edited)</span>}
+                        </div>
+                    )
+                )}
+
+                {!message.isDeleted && message.mediaUrl && message.mediaType?.startsWith("image") && (
                     <img
                         src={message.mediaUrl}
                         className="message-image"
@@ -44,12 +77,12 @@ export default function MessageItem({
                     />
                 )}
 
-                {message.mediaUrl && message.mediaType?.startsWith("video") && (
+                {!message.isDeleted && message.mediaUrl && message.mediaType?.startsWith("video") && (
                     <video src={message.mediaUrl} className="message-video" controls />
                 )}
 
-                {message.mediaUrl && message.mediaType?.startsWith("audio") && (
-                    <audio src={message.mediaUrl} controls />
+                {!message.isDeleted && message.mediaUrl && message.mediaType?.startsWith("audio") && (
+                    <AudioPlayer src={message.mediaUrl} />
                 )}
 
                 <div className="message-meta">
@@ -66,6 +99,24 @@ export default function MessageItem({
                         </span>
                     )}
                 </div>
+
+                {showActions && !message.isDeleted && (
+                    <div className="message-actions">
+                        <button className="action-btn-sm" onClick={() => onReply?.(message)} title="Reply">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
+                        </button>
+                        {isMyMessage && (
+                            <button className="action-btn-sm" onClick={() => onEdit?.(message)} title="Edit">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                        )}
+                        {isMyMessage && (
+                            <button className="action-btn-sm danger" onClick={() => onDelete?.(message.id)} title="Delete">
+                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

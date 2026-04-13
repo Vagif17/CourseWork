@@ -11,7 +11,6 @@ export function decodeNewsImageUrl(url: string): string {
         .replace(/&gt;/gi, ">");
 }
 
-/** Same-origin image URL via API proxy (avoids hotlink / empty img from CDNs). */
 export function newsImageDisplayUrl(remoteUrl: string | null | undefined): string | undefined {
     if (!remoteUrl?.trim()) return undefined;
     const clean = decodeNewsImageUrl(remoteUrl);
@@ -19,7 +18,6 @@ export function newsImageDisplayUrl(remoteUrl: string | null | undefined): strin
     return `${base}/News/feed-image?url=${encodeURIComponent(clean)}`;
 }
 
-/** Absolute URL for `<img src>` (some browsers resolve relative paths inconsistently inside transforms). */
 export function newsImageDisplayUrlAbsolute(remoteUrl: string | null | undefined): string | undefined {
     const rel = newsImageDisplayUrl(remoteUrl);
     if (!rel) return undefined;

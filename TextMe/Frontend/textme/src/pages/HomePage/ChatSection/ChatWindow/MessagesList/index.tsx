@@ -7,10 +7,13 @@ type Props = {
     messages: any[];
     currentUserId: string | null;
     setSelectedImage: (url: string) => void;
+    onReply: (message: any) => void;
+    onEdit: (message: any) => void;
+    onDelete: (messageId: number) => void;
 };
 
 const MessagesList = forwardRef<HTMLDivElement, Props>(
-    ({ messages, currentUserId, setSelectedImage }, ref) => {
+    ({ messages, currentUserId, setSelectedImage, onReply, onEdit, onDelete }, ref) => {
         const { messageDensity } = useAppSettings();
 
         const isNewDay = (curr: any, prev: any) => {
@@ -64,6 +67,10 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(
                                 message={msg}
                                 isMyMessage={isMyMessage}
                                 setSelectedImage={setSelectedImage}
+                                currentUserId={currentUserId}
+                                onReply={onReply}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
                             />
                         </Fragment>
                     );

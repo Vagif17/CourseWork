@@ -120,7 +120,8 @@ public class ChatHub : Hub
         string? text,
         string? mediaUrl,
         string? mediaType,
-        int? audioDuration)
+        int? audioDuration,
+        int? replyToMessageId = null)
     {
         var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -133,7 +134,8 @@ public class ChatHub : Hub
             text,
             mediaUrl,
             mediaType,
-            audioDuration
+            audioDuration,
+            replyToMessageId
         ));
 
         await Clients.Group($"chat-{chatId}")
@@ -148,6 +150,69 @@ public class ChatHub : Hub
         };
         var participants = await chatRepository.GetChatParticipantIdsAsync(chatId);
         await Clients.Users(participants.ToArray()).SendAsync("ChatListUpdated", previewDto);
+    }
+
+    public async Task EditMessage(int messageId, string newText)
+    {
+        var userId = Context.UserIdentifier;
+        if (userId == null) throw new HubException("Unauthorized");
+
+        var updatedMsg = await mediator.Send(new EditMessageCommand(messageId, userId, newText));
+        
+        await Clients.Group($"chat-{updatedMsg.ChatId}")
+            .SendAsync("MessageEdited", updatedMsg);
+    }
+
+    public async Task DeleteMessage(int messageId)
+    {
+        var userId = Context.UserIdentifier;
+        if (userId == null) throw new HubException("Unauthorized");
+
+        var msg = await messageRepository.GetByIdTrackingAsync(messageId);
+        if (msg == null) return;
+
+        var success = await mediator.Send(new DeleteMessageCommand(messageId, userId));
+        
+        if (success)
+        {
+            await Clients.Group($"chat-{msg.ChatId}")
+                .SendAsync("MessageDeleted", new { MessageId = messageId, ChatId = msg.ChatId });
+        }
+    }
+
+    public async Task CallUser(string targetUserId, object offer)
+    {
+        var callerId = Context.UserIdentifier;
+        if (callerId == null) return;
+        await Clients.User(targetUserId).SendAsync("IncomingCall", new { CallerId = callerId, Offer = offer });
+    }
+
+    public async Task AnswerCall(string targetUserId, object answer)
+    {
+        var answererId = Context.UserIdentifier;
+        if (answererId == null) return;
+        await Clients.User(targetUserId).SendAsync("CallAnswered", new { AnswererId = answererId, Answer = answer });
+    }
+
+    public async Task RejectCall(string targetUserId)
+    {
+        var rejecterId = Context.UserIdentifier;
+        if (rejecterId == null) return;
+        await Clients.User(targetUserId).SendAsync("CallRejected", new { RejecterId = rejecterId });
+    }
+
+    public async Task EndCall(string targetUserId)
+    {
+        var enderId = Context.UserIdentifier;
+        if (enderId == null) return;
+        await Clients.User(targetUserId).SendAsync("CallEnded", new { EnderId = enderId });
+    }
+
+    public async Task SendIceCandidate(string targetUserId, object candidate)
+    {
+        var senderId = Context.UserIdentifier;
+        if (senderId == null) return;
+        await Clients.User(targetUserId).SendAsync("ReceiveIceCandidate", new { SenderId = senderId, Candidate = candidate });
     }
 
     public async Task AckMessageDelivered(int messageId)

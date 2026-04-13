@@ -32,6 +32,7 @@ public class CreateMessageCommandHandler : IRequestHandler<CreateMessageCommand,
             MediaUrl = request.MediaUrl,
             MediaType = request.MediaType,
             AudioDuration = request.AudioDuration,
+            ReplyToMessageId = request.ReplyToMessageId,
             CreatedAt = DateTimeOffset.UtcNow,
             Status = MessageStatus.Sent
         };

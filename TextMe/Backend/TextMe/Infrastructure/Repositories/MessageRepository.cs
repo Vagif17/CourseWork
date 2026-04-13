@@ -18,6 +18,11 @@ public class MessageRepository : IMessageRepository
     {
         await context.Messages.AddAsync(message);
         await context.SaveChangesAsync();
+        
+        if (message.ReplyToMessageId.HasValue)
+        {
+            await context.Entry(message).Reference(m => m.ReplyToMessage).LoadAsync();
+        }
 
         return message;
     }
@@ -25,6 +30,7 @@ public class MessageRepository : IMessageRepository
     public async Task<IEnumerable<Message>> GetChatMessagesAsync(int chatId)
     {
         return await context.Messages
+            .Include(x => x.ReplyToMessage)
             .Where(x => x.ChatId == chatId)
             .OrderBy(x => x.CreatedAt)
             .ToListAsync();

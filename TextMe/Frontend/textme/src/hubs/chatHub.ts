@@ -14,9 +14,9 @@ class ChatHub {
             return;
         }
 
-
+        //http://localhost:5243
         this.connection = new signalR.HubConnectionBuilder()
-                .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
+            .withUrl("https://coursework-1-1mjp.onrender.com/hubs/chat", {
                 accessTokenFactory: async () => {
                     return (await tokenService.getValidToken()) || "";
                 },
@@ -52,7 +52,8 @@ class ChatHub {
         text?: string,
         mediaUrl?: string,
         mediaType?: string,
-        audioDuration?: number
+        audioDuration?: number,
+        replyToMessageId?: number
     ) {
         await this.connection?.invoke(
             "SendMessage",
@@ -60,8 +61,17 @@ class ChatHub {
             text,
             mediaUrl,
             mediaType,
-            audioDuration
+            audioDuration,
+            replyToMessageId
         );
+    }
+
+    async editMessage(messageId: number, newText: string) {
+        await this.connection?.invoke("EditMessage", messageId, newText);
+    }
+
+    async deleteMessage(messageId: number) {
+        await this.connection?.invoke("DeleteMessage", messageId);
     }
 
     onReceiveMessage(callback: (message: any) => void) {
@@ -70,6 +80,22 @@ class ChatHub {
 
     offReceiveMessage(callback: (message: any) => void) {
         this.connection?.off("ReceiveMessage", callback);
+    }
+
+    onMessageEdited(callback: (message: any) => void) {
+        this.connection?.on("MessageEdited", callback);
+    }
+
+    offMessageEdited(callback: (message: any) => void) {
+        this.connection?.off("MessageEdited", callback);
+    }
+
+    onMessageDeleted(callback: (payload: { messageId: number; chatId: number }) => void) {
+        this.connection?.on("MessageDeleted", callback);
+    }
+
+    offMessageDeleted(callback: (payload: { messageId: number; chatId: number }) => void) {
+        this.connection?.off("MessageDeleted", callback);
     }
 
     onReceiveNewChat(callback: (chat: any) => void) {

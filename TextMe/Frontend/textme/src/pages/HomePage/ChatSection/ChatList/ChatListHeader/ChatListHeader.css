@@ -1,4 +1,4 @@
-﻿.chat-header{
+.chat-header{
     display:flex;
     gap:10px;
     align-items:center;
@@ -14,8 +14,8 @@
     padding:10px 12px 10px 36px;
     border-radius:12px;
     border:none;
-    background:#1a1f24;
-    color:white;
+    background: var(--surface-raised, #1a1f24);
+    color: var(--text-primary, #fff);
     outline:none;
 }
 

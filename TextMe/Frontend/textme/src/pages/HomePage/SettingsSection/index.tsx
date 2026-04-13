@@ -7,7 +7,7 @@ import SettingsToggle from "./SettingsToggle";
 import "./SettingsSection.css";
 
 export default function SettingsSection() {
-    const { theme, setTheme, typingSoundEnabled, setTypingSoundEnabled, messageDensity, setMessageDensity } =
+    const { theme, setTheme, typingSoundEnabled, setTypingSoundEnabled } =
         useAppSettings();
 
     const [shareOnlineStatus, setShareOnlineStatus] = useState(true);
@@ -76,28 +76,7 @@ export default function SettingsSection() {
                             </button>
                         </div>
                     </div>
-                    <div className="settings-row">
-                        <div>
-                            <span>Message list density</span>
-                            <div className="settings-hint">Compact fits more messages on screen</div>
-                        </div>
-                        <div className="settings-segment">
-                            <button
-                                type="button"
-                                className={`settings-chip ${messageDensity === "comfortable" ? "active" : ""}`}
-                                onClick={() => setMessageDensity("comfortable")}
-                            >
-                                Comfortable
-                            </button>
-                            <button
-                                type="button"
-                                className={`settings-chip ${messageDensity === "compact" ? "active" : ""}`}
-                                onClick={() => setMessageDensity("compact")}
-                            >
-                                Compact
-                            </button>
-                        </div>
-                    </div>
+
                 </section>
 
                 <section className="settings-card">
@@ -125,7 +104,7 @@ export default function SettingsSection() {
                 <section className="settings-card">
                     <h2>About</h2>
                     <p style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.5, margin: 0 }}>
-                        Theme and density are stored in this browser. Online visibility is saved on your account.
+                        Theme is stored in this browser. Online visibility is saved on your account.
                     </p>
                 </section>
             </div>

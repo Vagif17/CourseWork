@@ -11,6 +11,11 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
     const [recording, setRecording] = useState(false);
     const [recordTime, setRecordTime] = useState(0);
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
+    
+    // Message management state
+    const [replyingMessage, setReplyingMessage] = useState<any | null>(null);
+    const [editingMessage, setEditingMessage] = useState<any | null>(null);
+    
     const recordIntervalRef = useRef<number | null>(null);
     const selectedChatIdRef = useRef(selectedChatId);
     selectedChatIdRef.current = selectedChatId;
@@ -40,6 +45,15 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
             mergeStatus(payload.messageId, payload.status);
         };
 
+        const editedCallback = (updatedMsg: any) => {
+            setMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m));
+        };
+
+        const deletedCallback = (payload: { messageId: number; chatId: number }) => {
+            if (payload.chatId !== selectedChatIdRef.current) return;
+            setMessages(prev => prev.map(m => m.id === payload.messageId ? { ...m, isDeleted: true, text: "This message was deleted.", mediaUrl: null, mediaType: null } : m));
+        };
+
         const init = async () => {
             try {
                 if (!chatHub.isConnected()) await chatHub.start();
@@ -47,6 +61,8 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
 
                 chatHub.onReceiveMessage(messageCallback);
                 chatHub.onMessageStatusUpdated(statusCallback);
+                chatHub.onMessageEdited(editedCallback);
+                chatHub.onMessageDeleted(deletedCallback);
 
                 const oldMessages = await messageService.getMessages(selectedChatId);
                 setMessages(oldMessages);
@@ -67,6 +83,8 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
             chatHub.leaveChat(selectedChatId);
             chatHub.offReceiveMessage(messageCallback);
             chatHub.offMessageStatusUpdated(statusCallback);
+            chatHub.offMessageEdited(editedCallback);
+            chatHub.offMessageDeleted(deletedCallback);
         };
     }, [selectedChatId, currentUserId, mergeStatus]);
 
@@ -83,17 +101,37 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
     const sendMessage = async () => {
         if (!selectedChatId) return;
         try {
+            if (editingMessage) {
+                if (text.trim()) {
+                    await chatHub.editMessage(editingMessage.id, text);
+                }
+                setEditingMessage(null);
+                setText("");
+                return;
+            }
+
             if (previewImages.length > 0) {
                 const urls = await messageService.uploadMedia(previewImages.map(p => p.file));
                 for (let i = 0; i < urls.length; i++) {
                     await chatHub.sendMessage(selectedChatId, "", urls[i], previewImages[i].file.type);
                 }
             }
-            if (text.trim()) await chatHub.sendMessage(selectedChatId, text);
+            if (text.trim()) {
+                await chatHub.sendMessage(selectedChatId, text, undefined, undefined, undefined, replyingMessage?.id);
+            }
             setText("");
             setPreviewImages([]);
+            setReplyingMessage(null);
         } catch (err: any) {
             toast.error("Error sending message: " + err.message);
+        }
+    };
+
+    const deleteMessage = async (messageId: number) => {
+        try {
+            await chatHub.deleteMessage(messageId);
+        } catch (err: any) {
+            toast.error("Failed to delete message: " + err.message);
         }
     };
 
@@ -137,5 +175,10 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
         sendMessage,
         startRecording,
         stopRecording,
+        replyingMessage,
+        setReplyingMessage,
+        editingMessage,
+        setEditingMessage,
+        deleteMessage,
     };
 }

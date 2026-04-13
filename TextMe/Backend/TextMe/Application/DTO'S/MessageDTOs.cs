@@ -20,8 +20,20 @@ public class MessageDTO
 
     public DateTimeOffset CreatedAt { get; set; }
 
-    /// <summary>Sent, Delivered, or Read.</summary>
     public string Status { get; set; } = "Sent";
+
+    public bool IsDeleted { get; set; }
+    public bool IsEdited { get; set; }
+    public int? ReplyToMessageId { get; set; }
+    public ReplyMessageDTO? ReplyToMessage { get; set; }
+}
+
+public class ReplyMessageDTO
+{
+    public int Id { get; set; }
+    public string SenderId { get; set; } = null!;
+    public string? Text { get; set; }
+    public string? MediaType { get; set; }
 }
 
 public class UploadMediaRequestDTO

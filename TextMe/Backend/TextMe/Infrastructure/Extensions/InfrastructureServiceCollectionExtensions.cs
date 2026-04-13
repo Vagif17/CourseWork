@@ -40,6 +40,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IJwtTokenSerivce, JwtTokenService>();
         services.AddScoped<IUserStore, UserStore>();
         services.AddScoped<ICloudinaryStorage, CloudinaryStorage>();
+        services.AddSingleton<IEncryptionService, EncryptionService>();
 
         services.AddHttpClient(nameof(RssNewsFeedService));
         services.AddScoped<INewsFeedService, RssNewsFeedService>();

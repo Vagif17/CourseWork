@@ -25,8 +25,10 @@ public class MappingProfile : Profile
 
         CreateMap<Message, MessageDTO>()
             .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(dest => dest.ReplyToMessage, opt => opt.MapFrom(src => src.ReplyToMessage));
 
+        CreateMap<Message, ReplyMessageDTO>();
 
         #endregion
     }

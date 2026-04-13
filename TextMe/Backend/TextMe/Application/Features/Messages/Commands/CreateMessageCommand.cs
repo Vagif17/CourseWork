@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace Application.Features.Messages.Commands;
 
@@ -8,4 +8,5 @@ public record CreateMessageCommand(
     string? Text,
     string? MediaUrl,
     string? MediaType,
-    int? AudioDuration = null) : IRequest<MessageDTO>;
+    int? AudioDuration = null,
+    int? ReplyToMessageId = null) : IRequest<MessageDTO>;

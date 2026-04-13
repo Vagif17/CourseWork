@@ -220,7 +220,6 @@ public class RssNewsFeedService : INewsFeedService
             }
             catch
             {
-                // ignore
             }
         }
 
@@ -309,7 +308,6 @@ public class RssNewsFeedService : INewsFeedService
             }
             catch
             {
-                // ignore malformed extension nodes
             }
         }
 

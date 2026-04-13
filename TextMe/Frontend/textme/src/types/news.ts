@@ -1,4 +1,3 @@
-/** Ключи категорий совпадают с API: GET /News/{category} */
 export type NewsCategoryId = "sports" | "world" | "popculture" | "games";
 
 export interface NewsArticle {

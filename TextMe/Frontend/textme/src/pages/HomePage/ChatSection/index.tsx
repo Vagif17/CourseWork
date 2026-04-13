@@ -4,6 +4,8 @@ import type { PrivateChatDTOResponse } from "../../../types/chats";
 import "./ChatSection.css";
 import ChatList from "./ChatList";
 import ChatWindow from "./ChatWindow";
+import CallModal from "../../../components/CallModal";
+import { useWebRTC } from "../../../hooks/useWebRTC";
 
 export default function ChatSection() {
     const currentUserId = getUserId();
@@ -14,6 +16,8 @@ export default function ChatSection() {
         () => listChats.find(c => c.id === selectedChatId) ?? null,
         [listChats, selectedChatId]
     );
+
+    const webrtc = useWebRTC(currentUserId);
 
     return (
         <div className="chat-section">
@@ -31,8 +35,11 @@ export default function ChatSection() {
                     currentUserId={currentUserId}
                     selectedChatId={selectedChatId}
                     activeChat={activeChat}
+                    onStartCall={webrtc.startCall}
                 />
             </div>
+
+            <CallModal webrtc={webrtc} />
         </div>
     );
 }
