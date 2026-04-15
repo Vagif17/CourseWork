@@ -1,11 +1,9 @@
-using System.Net;
-using System.ServiceModel.Syndication;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
 using Application.DTOs;
 using Application.Interfaces.Services;
+using Infrastructure.Helpers;
 using Microsoft.Extensions.Caching.Memory;
+using System.ServiceModel.Syndication;
+using System.Xml;
 
 namespace Infrastructure.Services;
 
@@ -72,20 +70,21 @@ public class RssNewsFeedService : INewsFeedService
 
                 var title = item.Title?.Text?.Trim() ?? "Untitled";
                 var summaryHtml = item.Summary?.Text ?? string.Empty;
-                var contentHtml = GetItemBodyHtml(item);
-                var summary = PlainText(summaryHtml);
+                var contentHtml = RssParsingHelper.GetItemBodyHtml(item);
+                var summary = RssParsingHelper.PlainText(summaryHtml);
+                
                 var image = item.Links.FirstOrDefault(l =>
                     string.Equals(l.RelationshipType, "enclosure", StringComparison.OrdinalIgnoreCase)
                     && l.MediaType != null
                     && l.MediaType.StartsWith("image", StringComparison.OrdinalIgnoreCase))?.Uri?.AbsoluteUri;
 
-                var extXml = GetElementExtensionsFlatXml(item);
+                var extXml = RssParsingHelper.GetElementExtensionsFlatXml(item);
                 var aggregate = string.Join('\n', summaryHtml, contentHtml, extXml);
 
-                image ??= TryExtractImageFromHtml(aggregate);
-                image ??= TryExtractImageFromHtml(summaryHtml);
-                image ??= TryExtractImageFromHtml(contentHtml);
-                image ??= TryGetMediaThumbnailUrl(item);
+                image ??= RssParsingHelper.TryExtractImageFromHtml(aggregate);
+                image ??= RssParsingHelper.TryExtractImageFromHtml(summaryHtml);
+                image ??= RssParsingHelper.TryExtractImageFromHtml(contentHtml);
+                image ??= RssParsingHelper.TryGetMediaThumbnailUrl(item);
 
                 list.Add(new NewsArticleDTO
                 {
@@ -104,213 +103,5 @@ public class RssNewsFeedService : INewsFeedService
         {
             return Array.Empty<NewsArticleDTO>();
         }
-    }
-
-    private static string PlainText(string? html)
-    {
-        if (string.IsNullOrWhiteSpace(html))
-            return string.Empty;
-        var s = Regex.Replace(html, "<.*?>", string.Empty);
-        return System.Net.WebUtility.HtmlDecode(s).Trim();
-    }
-
-    private static string? TryExtractImageFromHtml(string? html)
-    {
-        if (string.IsNullOrWhiteSpace(html))
-            return null;
-
-        var og = Regex.Match(
-            html,
-            @"property\s*=\s*[""']og:image[""'][^>]*?content\s*=\s*[""']([^""']+)[""']",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        if (!og.Success)
-        {
-            og = Regex.Match(
-                html,
-                @"content\s*=\s*[""']([^""']+)[""'][^>]*?property\s*=\s*[""']og:image[""']",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        }
-
-        if (og.Success && TryNormalizeImageUrl(og.Groups[1].Value) is { } fromOg && !LooksLikeTrackingPixel(fromOg))
-            return fromOg;
-
-        var mediaThumb = Regex.Match(
-            html,
-            @"<media:thumbnail\b[^>]*\burl\s*=\s*[""']([^""']+)[""']",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        if (!mediaThumb.Success)
-        {
-            mediaThumb = Regex.Match(
-                html,
-                @"<media:thumbnail\b[^>]*\burl\s*=\s*([^\s>]+)",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        }
-
-        if (mediaThumb.Success && TryNormalizeImageUrl(mediaThumb.Groups[1].Value) is { } fromMt && !LooksLikeTrackingPixel(fromMt))
-            return fromMt;
-
-        foreach (Match im in Regex.Matches(html, @"<img\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline))
-        {
-            var tag = im.Value;
-            foreach (var raw in new[] { ExtractAttr(tag, "src"), ExtractAttr(tag, "data-src"), FirstSrcsetUrl(tag) })
-            {
-                if (string.IsNullOrWhiteSpace(raw))
-                    continue;
-                if (TryNormalizeImageUrl(raw) is not { } abs)
-                    continue;
-                if (LooksLikeTrackingPixel(abs))
-                    continue;
-                return abs;
-            }
-        }
-
-        var mediaContent = Regex.Match(
-            html,
-            @"<media:content\b[^>]*\burl\s*=\s*[""']([^""']+)[""']",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        if (mediaContent.Success && TryNormalizeImageUrl(mediaContent.Groups[1].Value) is { } fromMc && !LooksLikeTrackingPixel(fromMc))
-            return fromMc;
-
-        var mediaThumbText = Regex.Match(
-            html,
-            @"<media:thumbnail\b[^>]*>\s*([^\s<]+)\s*</media:thumbnail>",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        if (mediaThumbText.Success && TryNormalizeImageUrl(mediaThumbText.Groups[1].Value) is { } fromMtt && !LooksLikeTrackingPixel(fromMtt))
-            return fromMtt;
-
-        var ignAsset = Regex.Match(
-            html,
-            @"https://[a-z0-9.-]*\bignimgs\.com/[^""'\s<>]+?\.(?:jpg|jpeg|png|webp)(?:\?[^\s""'<>]*)?",
-            RegexOptions.IgnoreCase);
-        if (ignAsset.Success && TryNormalizeImageUrl(ignAsset.Value) is { } ignU && !LooksLikeTrackingPixel(ignU))
-            return ignU;
-
-        return null;
-    }
-
-    private static string GetItemBodyHtml(SyndicationItem item)
-    {
-        if (item.Content is TextSyndicationContent tc)
-            return tc.Text ?? string.Empty;
-        if (item.Content is XmlSyndicationContent xc)
-        {
-            try
-            {
-                using var r = xc.GetReaderAtContent();
-                return r.ReadOuterXml();
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        return string.Empty;
-    }
-
-    private static string GetElementExtensionsFlatXml(SyndicationItem item)
-    {
-        var sb = new StringBuilder();
-        foreach (var ext in item.ElementExtensions)
-        {
-            try
-            {
-                using var r = ext.GetReader();
-                sb.Append(r.ReadOuterXml());
-            }
-            catch
-            {
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    private static string? ExtractAttr(string tag, string name)
-    {
-        var m = Regex.Match(
-            tag,
-            $@"\b{Regex.Escape(name)}\s*=\s*""([^""]*)""",
-            RegexOptions.IgnoreCase);
-        if (m.Success)
-            return m.Groups[1].Value.Trim();
-
-        m = Regex.Match(
-            tag,
-            $@"\b{Regex.Escape(name)}\s*=\s*'([^']*)'",
-            RegexOptions.IgnoreCase);
-        if (m.Success)
-            return m.Groups[1].Value.Trim();
-
-        m = Regex.Match(
-            tag,
-            $@"\b{Regex.Escape(name)}\s*=\s*([^\s>]+)",
-            RegexOptions.IgnoreCase);
-        return m.Success ? m.Groups[1].Value.Trim() : null;
-    }
-
-    private static string? FirstSrcsetUrl(string tag)
-    {
-        var m = Regex.Match(tag, @"\bsrcset\s*=\s*""([^""]+)""", RegexOptions.IgnoreCase);
-        if (!m.Success)
-            m = Regex.Match(tag, @"\bsrcset\s*=\s*'([^']+)'", RegexOptions.IgnoreCase);
-        if (!m.Success)
-            return null;
-
-        var part = m.Groups[1].Value.Split(',')[0].Trim();
-        var space = part.IndexOf(' ');
-        if (space > 0)
-            part = part[..space];
-        return string.IsNullOrWhiteSpace(part) ? null : part.Trim();
-    }
-
-    private static bool LooksLikeTrackingPixel(string url)
-    {
-        var u = url.ToLowerInvariant();
-        return u.Contains("1x1", StringComparison.Ordinal)
-            || u.Contains("/pixel.gif", StringComparison.Ordinal)
-            || u.Contains("spacer.gif", StringComparison.Ordinal)
-            || u.Contains("/blank.", StringComparison.Ordinal)
-            || u.Contains("transparent.gif", StringComparison.Ordinal);
-    }
-
-    private static string? TryNormalizeImageUrl(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return null;
-
-        var url = WebUtility.HtmlDecode(raw.Trim());
-        if (url.StartsWith("//", StringComparison.Ordinal))
-            url = "https:" + url;
-
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-            return null;
-
-        return url;
-    }
-
-    private static string? TryGetMediaThumbnailUrl(SyndicationItem item)
-    {
-        foreach (var ext in item.ElementExtensions)
-        {
-            try
-            {
-                if (!string.Equals(ext.OuterName, "thumbnail", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                using var r = ext.GetReader();
-                if (r.MoveToContent() != XmlNodeType.Element)
-                    continue;
-
-                var url = r.GetAttribute("url") ?? r.GetAttribute("href");
-                if (!string.IsNullOrWhiteSpace(url) && Uri.TryCreate(url, UriKind.Absolute, out _))
-                    return url;
-            }
-            catch
-            {
-            }
-        }
-
-        return null;
     }
 }

@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Features.Messages.Queries;
 using Application.Services.Interfaces;
 using MediatR;

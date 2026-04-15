@@ -1,32 +1,34 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Features.Chats.Commands;
 using Application.Interfaces.Notifications;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Interfaces.Stores;
+using Application.Helpers;
 using AutoMapper;
 using MediatR;
 
 public class CreateChatCommandHandler
-    : IRequestHandler<CreateChatCommand, PrivateChatResponseDTO>
+    : IRequestHandler<CreateChatCommand, ChatDTO>
 {
     private readonly IChatRepository chatRepository;
     private readonly IUserStore userStore;
     private readonly IMapper mapper;
-    private readonly IChatNotification chatNotificationr;
+    private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
 
     public CreateChatCommandHandler(
         IChatRepository _chatRepository,
         IUserStore _userStore,
         IMapper _mapper,
-        IChatNotification _chatNotification)
+        IMessageRealtimeNotifier _messageRealtimeNotifier)
     {
         chatRepository = _chatRepository;
         userStore = _userStore;
         mapper = _mapper;
-        chatNotificationr = _chatNotification;
+        messageRealtimeNotifier = _messageRealtimeNotifier;
     }
 
-    public async Task<PrivateChatResponseDTO> Handle(
+    public async Task<ChatDTO> Handle(
         CreateChatCommand request,
         CancellationToken cancellationToken)
     {
@@ -46,7 +48,7 @@ public class CreateChatCommandHandler
 
         var chat = await chatRepository.CreatePrivateChatAsync(request.creatorId, targetUserId);
 
-        var chatDto = mapper.Map<PrivateChatResponseDTO>(chat);
+        var chatDto = mapper.Map<ChatDTO>(chat);
 
         foreach (var participant in chatDto.Participants)
         {
@@ -55,7 +57,7 @@ public class CreateChatCommandHandler
             participant.AvatarUrl = user.AvatarUrl;
         }
 
-        await chatNotificationr.NotifyNewChatAsync(request.creatorId, targetUserId, chatDto);
+        await messageRealtimeNotifier.NotifyNewChatAsync(new[] { request.creatorId, targetUserId }, chatDto);
 
         return chatDto;
     }

@@ -20,4 +20,5 @@ public class Chat
     /// <summary>Denormalized from last message for fast chat list sort and preview.</summary>
     public DateTimeOffset? LastMessageAt { get; set; }
     public string? LastMessagePreview { get; set; }
+    public string? GroupAvatarUrl { get; set; }
 }

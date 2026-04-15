@@ -1,3 +1,5 @@
+namespace Application.DTOs;
+
 public class MessageDTO
 {
     public int Id { get; set; }

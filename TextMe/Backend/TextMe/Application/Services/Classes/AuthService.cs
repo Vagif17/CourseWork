@@ -125,4 +125,9 @@ public class AuthService : IAuthService
             AvatarUrl = avatarUrl
         };
     }
+
+    public async Task<IEnumerable<ParticipantDTO>> SearchUsersAsync(string query)
+    {
+        return await UserStore.SearchUsersAsync(query);
+    }
 }

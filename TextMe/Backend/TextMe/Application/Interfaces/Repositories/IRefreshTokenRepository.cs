@@ -1,10 +1,10 @@
-﻿using Domain;
+using Domain;
 
 namespace Application.Interfaces.Repositories;
 
 public interface IRefreshTokenRepository
 {
-    Task<RefreshToken?> GetByJwtIdAsync(string jwtId);
-    Task<RefreshToken> AddAsync(RefreshToken refreshToken);
-    Task UpdateAsync(RefreshToken refreshToken);
+    public Task<RefreshToken?> GetByJwtIdAsync(string jwtId);
+    public Task<RefreshToken> AddAsync(RefreshToken refreshToken);
+    public Task UpdateAsync(RefreshToken refreshToken);
 }

@@ -44,7 +44,7 @@ function HomePage() {
                     </div>
                 </div>
 
-                <div className="main-content">
+                <div className="main-content" key={activeTab}>
                     {activeTab === "chats" && <ChatSection />}
                     {activeTab === "settings" && <SettingsSection />}
                     {activeTab === "profile" && <ProfileSection />}

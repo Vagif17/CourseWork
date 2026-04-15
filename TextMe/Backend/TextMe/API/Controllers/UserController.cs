@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -99,5 +99,11 @@ public class UserController : ControllerBase
             return BadRequest("Invalid code or email");
 
         return Ok("Password changed");
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<ParticipantDTO>>> Search(string query)
+    {
+        return Ok(await authService.SearchUsersAsync(query));
     }
 }

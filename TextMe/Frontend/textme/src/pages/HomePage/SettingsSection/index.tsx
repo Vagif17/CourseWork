@@ -46,8 +46,17 @@ export default function SettingsSection() {
         }
     }, [shareOnlineStatus]);
 
+    if (!privacyLoaded) {
+        return (
+            <div className="section-loader">
+                <div className="spinner-modern"></div>
+                <span>Loading settings...</span>
+            </div>
+        );
+    }
+
     return (
-        <div className="settings-section">
+        <div className="settings-section fade-in">
             <div className="settings-inner">
                 <h1>Settings</h1>
                 <p className="settings-subtitle">Appearance, chat behaviour, and privacy</p>

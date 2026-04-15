@@ -238,6 +238,26 @@ public class UserStore : IUserStore
         ShareOnlineStatus = user.ShareOnlineStatus,
         LastSeenAt = user.LastSeenAt
     };
+
+    public async Task<IEnumerable<ParticipantDTO>> SearchUsersAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return Enumerable.Empty<ParticipantDTO>();
+
+        var normalizedQuery = query.ToUpperInvariant();
+
+        return await userManager.Users
+            .Where(u => u.NormalizedUserName!.Contains(normalizedQuery) || u.NormalizedEmail!.Contains(normalizedQuery))
+            .Take(10)
+            .Select(u => new ParticipantDTO
+            {
+                UserId = u.Id,
+                UserName = u.UserName,
+                Email = u.Email,
+                AvatarUrl = u.AvatarUrl
+            })
+            .ToListAsync();
+    }
 }
 
 

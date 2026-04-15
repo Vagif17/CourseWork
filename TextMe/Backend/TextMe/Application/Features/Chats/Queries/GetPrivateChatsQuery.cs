@@ -1,6 +1,6 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using MediatR;
 
 namespace Application.Features.Chats.Queries;
 
-public record GetPrivateChatsQuery (string userId) : IRequest<IEnumerable<PrivateChatResponseDTO>>;
+public record GetPrivateChatsQuery (string userId) : IRequest<IEnumerable<ChatDTO>>;

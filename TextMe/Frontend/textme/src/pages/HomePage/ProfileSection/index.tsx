@@ -119,8 +119,9 @@ export default function ProfileSection() {
 
     if (loading || !profile) {
         return (
-            <div className="profile-section">
-                <div className="profile-section-inner">Loading profile…</div>
+            <div className="section-loader">
+                <div className="spinner-modern"></div>
+                <span>Loading profile...</span>
             </div>
         );
     }

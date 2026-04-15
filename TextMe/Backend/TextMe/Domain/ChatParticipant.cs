@@ -1,4 +1,4 @@
-﻿namespace Domain;
+namespace Domain;
 
 public class ChatParticipant
 {
@@ -6,4 +6,5 @@ public class ChatParticipant
     public Chat Chat { get; set; } = null!;
 
     public string UserId { get; set; } = null!;
+    public bool IsAdmin { get; set; }
 }

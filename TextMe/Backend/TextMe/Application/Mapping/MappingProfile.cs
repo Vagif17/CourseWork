@@ -14,7 +14,7 @@ public class MappingProfile : Profile
         CreateMap<ChatParticipant, ParticipantDTO>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
-        CreateMap<Chat, PrivateChatResponseDTO>()
+        CreateMap<Chat, ChatDTO>()
             .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants))
             .ForMember(dest => dest.LastMessage, opt => opt.MapFrom(src => src.LastMessagePreview))
             .ForMember(dest => dest.LastMessageAt, opt => opt.MapFrom(src => src.LastMessageAt));

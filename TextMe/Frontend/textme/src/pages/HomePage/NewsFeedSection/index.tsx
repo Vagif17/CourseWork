@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import ImageCarousel from "../../../components/ImageCarousel";
+import ImageCarousel from "../../../components/ImageCarousel/ImageCarousel.tsx";
 import { newsService } from "../../../services/newsService";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import type { NewsArticle, NewsCategoryId } from "../../../types/news";

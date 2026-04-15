@@ -33,4 +33,6 @@ public interface IUserStore
         string userId,
         bool shareOnlineStatus,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<ParticipantDTO>> SearchUsersAsync(string query);
 }

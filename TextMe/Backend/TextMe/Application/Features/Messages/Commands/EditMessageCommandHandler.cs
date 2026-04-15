@@ -1,4 +1,5 @@
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Notifications;
 using AutoMapper;
 using MediatR;
 using Application.DTOs;
@@ -8,11 +9,16 @@ namespace Application.Features.Messages.Commands;
 public class EditMessageCommandHandler : IRequestHandler<EditMessageCommand, MessageDTO>
 {
     private readonly IMessageRepository messageRepository;
+    private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
     private readonly IMapper mapper;
 
-    public EditMessageCommandHandler(IMessageRepository messageRepository, IMapper mapper)
+    public EditMessageCommandHandler(
+        IMessageRepository messageRepository,
+        IMessageRealtimeNotifier messageRealtimeNotifier,
+        IMapper mapper)
     {
         this.messageRepository = messageRepository;
+        this.messageRealtimeNotifier = messageRealtimeNotifier;
         this.mapper = mapper;
     }
 
@@ -30,6 +36,11 @@ public class EditMessageCommandHandler : IRequestHandler<EditMessageCommand, Mes
 
         await messageRepository.UpdateMessageAsync(msg);
 
-        return mapper.Map<MessageDTO>(msg);
+        var messageDto = mapper.Map<MessageDTO>(msg);
+
+        // Уведомляем участников чата об изменении сообщения
+        await messageRealtimeNotifier.NotifyMessageEditedAsync(msg.ChatId, messageDto);
+
+        return messageDto;
     }
 }

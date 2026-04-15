@@ -1,4 +1,5 @@
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Notifications;
 using MediatR;
 
 namespace Application.Features.Messages.Commands;
@@ -6,10 +7,14 @@ namespace Application.Features.Messages.Commands;
 public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand, bool>
 {
     private readonly IMessageRepository messageRepository;
+    private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
 
-    public DeleteMessageCommandHandler(IMessageRepository messageRepository)
+    public DeleteMessageCommandHandler(
+        IMessageRepository messageRepository,
+        IMessageRealtimeNotifier messageRealtimeNotifier)
     {
         this.messageRepository = messageRepository;
+        this.messageRealtimeNotifier = messageRealtimeNotifier;
     }
 
     public async Task<bool> Handle(DeleteMessageCommand request, CancellationToken cancellationToken)
@@ -25,6 +30,9 @@ public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand,
         msg.AudioDuration = null;
 
         await messageRepository.UpdateMessageAsync(msg);
+
+        // Уведомляем участников об удалении
+        await messageRealtimeNotifier.NotifyMessageDeletedAsync(msg.ChatId, msg.Id);
 
         return true;
     }

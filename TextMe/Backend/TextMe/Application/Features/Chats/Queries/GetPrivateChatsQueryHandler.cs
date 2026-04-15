@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Features.Chats.Queries;
 
-public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery, IEnumerable<PrivateChatResponseDTO>>
+public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery, IEnumerable<ChatDTO>>
 {
     private readonly IChatRepository chatRepository;
     private readonly IUserStore userStore;
@@ -26,13 +26,13 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
         mapper = _mapper;
     }
 
-    public async Task<IEnumerable<PrivateChatResponseDTO>> Handle(
+    public async Task<IEnumerable<ChatDTO>> Handle(
         GetPrivateChatsQuery request,
         CancellationToken cancellationToken)
     {
-        var chats = await chatRepository.GetAllPrivateChatsAsync(request.userId);
+        var chats = await chatRepository.GetAllUserChatsAsync(request.userId);
 
-        var chatDtos = mapper.Map<List<PrivateChatResponseDTO>>(chats);
+        var chatDtos = mapper.Map<List<ChatDTO>>(chats);
 
         var allUserIds = chatDtos
             .SelectMany(c => c.Participants)

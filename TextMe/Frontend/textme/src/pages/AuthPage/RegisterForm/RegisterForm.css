@@ -1,94 +1,84 @@
-﻿
 .register-form {
-    padding: 25px;
-    gap: 15px;
-    background-color: #1a1d22;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 30px;
+    gap: 20px;
+    background: var(--surface-raised);
+    border-radius: 24px;
+    border: 1px solid var(--border-chat);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
 .register-form button {
-    background-color: #2196f3;
+    background: linear-gradient(135deg, #007aff, #00b6ff);
     color: white;
-    border-radius: 6px;
-    padding: 10px;
+    border-radius: 12px;
+    padding: 12px;
     font-size: 16px;
     border: none;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.2s;
+    font-weight: 600;
 }
 
 .register-form button:hover {
-    background-color: #1976d2;
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 .register-links {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    margin-top: 15px;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 .register-links a {
     font-size: 14px;
-    color: #01dafa;
+    color: #00b6ff;
     text-decoration: none;
     cursor: pointer;
     transition: 0.2s;
+    font-weight: 500;
 }
 
 .register-links a:hover {
-    text-decoration: underline;
+    filter: brightness(0.9);
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
 }
-
-.form-grid input {
-    border-radius: 6px;
-}
-
-.full-width {
-    grid-column: span 2;
-}
-
 
 .avatar-upload-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .avatar-label {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    border: 2px dashed #ccc;
+    border: 2px dashed var(--border-chat);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
-    font-size: 48px;
-    color: #999;
-    transition: border 0.3s, transform 0.2s;
+    font-size: 40px;
+    color: var(--text-secondary);
+    transition: all 0.3s;
+    background: var(--bg-input);
 }
 
 .avatar-label:hover {
-    border-color: #666;
+    border-color: #00b6ff;
+    color: #00b6ff;
     transform: scale(1.05);
-}
-
-.avatar-plus {
-    display: inline-block;
 }
 
 .avatar-preview {
@@ -98,39 +88,15 @@
     border-radius: 50%;
 }
 
-
-input {
-    border: 1px solid #ccc;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 6px;
-    outline: none;
-    transition: 0.2s, box-shadow 0.2s;
-}
-
-input:focus {
-    border-color: #4f46e5;
-    box-shadow: none;
-}
-
-.input-error {
-    border-color: #ef4444;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
-}
-
-.input-error-username {
-    border-color: #ef4444;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
-    grid-column: span 2;
-}
-
-
 .form-title {
     text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 15px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+.full-width, .input-error-username {
+    grid-column: span 2;
 }

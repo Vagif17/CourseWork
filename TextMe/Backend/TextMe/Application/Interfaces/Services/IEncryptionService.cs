@@ -2,6 +2,6 @@ namespace Application.Interfaces.Services;
 
 public interface IEncryptionService
 {
-    string Encrypt(string plainText);
-    string Decrypt(string cipherText);
+    public string Encrypt(string plainText);
+    public string Decrypt(string cipherText);
 }

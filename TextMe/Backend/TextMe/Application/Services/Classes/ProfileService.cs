@@ -72,7 +72,7 @@ public class ProfileService : IProfileService
         if (partners.Count == 0)
             return profile;
 
-        var dto = new UserPresenceSocketDto
+        var dto = new UserPresenceSocketDTO
         {
             UserId = userId,
             PresenceHidden = !profile.ShareOnlineStatus,

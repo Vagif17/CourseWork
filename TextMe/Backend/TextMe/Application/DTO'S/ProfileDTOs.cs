@@ -11,10 +11,8 @@ public class UserProfileResponseDTO
     public string? AvatarUrl { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 
-    /// <summary>When false, others do not see online / last seen for this user.</summary>
     public bool ShareOnlineStatus { get; set; } = true;
 
-    /// <summary>Approximate last activity when offline (for own profile / diagnostics).</summary>
     public DateTimeOffset? LastSeenAt { get; set; }
 }
 

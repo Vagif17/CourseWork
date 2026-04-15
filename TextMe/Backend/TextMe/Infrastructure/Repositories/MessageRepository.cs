@@ -3,7 +3,7 @@ using Infrastructure.Data;
 using Domain;
 using Application.Interfaces.Repositories;
 
-namespace TextMe.Repositories.Classes;
+namespace Infrastructure.Repositories;
 
 public class MessageRepository : IMessageRepository
 {

@@ -33,6 +33,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("GroupAvatarUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsGroup")
                         .HasColumnType("bit");
 
@@ -62,6 +65,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
 
                     b.HasKey("ChatId", "UserId");
 

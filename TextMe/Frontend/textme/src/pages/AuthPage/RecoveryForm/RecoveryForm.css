@@ -1,66 +1,79 @@
-﻿.recovery-container {
-    max-width: 400px;
+.recovery-container {
+    max-width: 440px;
     margin: auto;
-    padding: 20px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
+    padding: 30px;
+    background: var(--surface-raised);
+    border-radius: 24px;
+    border: 1px solid var(--border-chat);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
-input {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    outline: none;
-}
-
-input:focus {
-    border-color: #4f46e5;
-}
-
-.input-error {
-    border-color: #ef4444;
-}
-
-button {
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #2196f3;
+.recovery-container button {
+    padding: 12px;
+    border-radius: 12px;
+    background: #007aff;
     color: white;
     border: none;
     cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
-button[disabled] {
-    opacity: 0.6;
+.recovery-container button:hover:not([disabled]) {
+    background: #0062cc;
+    transform: translateY(-1px);
+}
+
+.recovery-container button[disabled] {
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .nav-buttons, .step-buttons {
     display: flex;
     justify-content: space-between;
+    gap: 12px;
     margin-top: 10px;
 }
 
 .back-btn {
-    background-color: #ef4444;
+    background: #ff3b30 !important; /* System red */
+}
+
+.back-btn:hover {
+    background: #d70015 !important;
 }
 
 .nav-links {
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 14px;
+    text-align: center;
+    color: var(--text-secondary);
 }
 
 .link-button {
-    color: #007BFF;
+    color: #00b6ff;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
+    font-weight: 600;
 }
 
 .link-button:hover {
-    color: #0056b3;
+    text-decoration: underline;
+}
+
+.recovery-container h2 {
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.recovery-container p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 15px;
 }

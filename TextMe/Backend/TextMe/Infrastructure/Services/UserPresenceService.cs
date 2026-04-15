@@ -3,7 +3,7 @@ using Application.Interfaces.Services;
 
 namespace Infrastructure.Services;
 
-public sealed class UserPresenceService : IUserPresenceService
+public class UserPresenceService : IUserPresenceService
 {
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, byte>> _connections = new();
 

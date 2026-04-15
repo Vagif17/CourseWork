@@ -6,6 +6,7 @@ import "./MessagesList.css";
 type Props = {
     messages: any[];
     currentUserId: string | null;
+    isGroup?: boolean;
     setSelectedImage: (url: string) => void;
     onReply: (message: any) => void;
     onEdit: (message: any) => void;
@@ -13,7 +14,7 @@ type Props = {
 };
 
 const MessagesList = forwardRef<HTMLDivElement, Props>(
-    ({ messages, currentUserId, setSelectedImage, onReply, onEdit, onDelete }, ref) => {
+    ({ messages, currentUserId, isGroup, setSelectedImage, onReply, onEdit, onDelete }, ref) => {
         const { messageDensity } = useAppSettings();
 
         const isNewDay = (curr: any, prev: any) => {
@@ -66,6 +67,7 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(
                             <MessageItem
                                 message={msg}
                                 isMyMessage={isMyMessage}
+                                isGroup={isGroup}
                                 setSelectedImage={setSelectedImage}
                                 currentUserId={currentUserId}
                                 onReply={onReply}

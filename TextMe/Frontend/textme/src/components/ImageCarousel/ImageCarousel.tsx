@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { decodeNewsImageUrl, newsImageDisplayUrlAbsolute } from "../services/newsService";
+import { decodeNewsImageUrl, newsImageDisplayUrlAbsolute } from "../../services/newsService.ts";
 import "./ImageCarousel.css";
 
 export type ImageCarouselItem<T = unknown> = {
     id: string;
     imageUrl: string;
-    /** @deprecated prefer `title` — kept for simple image-only slides */
     label?: string;
     title?: string;
     description?: string;

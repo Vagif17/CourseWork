@@ -5,12 +5,21 @@ export type ParticipantDTO = {
     presenceHidden?: boolean;
     isOnline?: boolean | null;
     lastSeenAt?: string | null;
+    isAdmin?: boolean;
+    email?: string;
 };
 
-export type PrivateChatDTOResponse = {
+export type ChatDTO = {
     id: number;
     createdAt: string;
     participants: ParticipantDTO[];
     lastMessage?: string | null;
     lastMessageAt?: string | null;
+    
+    isGroup: boolean;
+    name?: string;
+    groupAvatarUrl?: string;
 };
+
+// Alias for transition if needed, but better use ChatDTO
+export type PrivateChatDTOResponse = ChatDTO;
