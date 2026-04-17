@@ -172,3 +172,85 @@
     align-items: center;
     justify-content: center;
 }
+
+.call-btn.muted {
+    background: #ff3b30;
+    color: white;
+}
+
+.call-btn.unmuted {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Audio Call Connected View */
+.audio-call-connected {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: linear-gradient(180deg, #0f172a 0%, #000 100%);
+    color: white;
+}
+
+.connected-avatar-wrapper {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin-bottom: 40px;
+}
+
+.connected-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.glow-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: rgba(0, 182, 255, 0.4);
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+}
+
+.connected-avatar-wrapper.is-talking .glow-ring {
+    opacity: 1;
+    animation: voice-glow 1.5s ease-in-out infinite;
+}
+
+.connected-avatar-wrapper.is-talking .connected-avatar {
+    border-color: #00b6ff;
+    transform: scale(1.05);
+    transition: all 0.2s;
+}
+
+@keyframes voice-glow {
+    0% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 0.4; }
+}
+
+.connected-info h2 {
+    font-size: 28px;
+    margin: 0 0 10px;
+    font-weight: 700;
+}
+
+.connected-info p {
+    font-size: 16px;
+    color: #94a3b8;
+    margin: 0;
+    letter-spacing: 0.5px;
+}

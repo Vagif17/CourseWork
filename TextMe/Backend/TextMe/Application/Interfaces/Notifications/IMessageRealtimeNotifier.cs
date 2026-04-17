@@ -13,7 +13,7 @@ public interface IMessageRealtimeNotifier
     public Task NotifyMessageDeletedAsync(int chatId, int messageId);
     public Task NotifyNewChatAsync(IEnumerable<string> userIds, ChatDTO chat);
     
-    public Task NotifyIncomingCallAsync(string targetUserId, string callerId, object offer);
+    public Task NotifyIncomingCallAsync(string targetUserId, string callerId, object offer, bool withVideo, string? avatarUrl);
     public Task NotifyCallAnsweredAsync(string targetUserId, string answererId, object answer);
     public Task NotifyCallRejectedAsync(string targetUserId, string rejecterId);
     public Task NotifyCallEndedAsync(string targetUserId, string enderId);

@@ -5,7 +5,7 @@ import ChatSection from "./ChatSection";
 import ProfileSection from "./ProfileSection";
 import SettingsSection from "./SettingsSection";
 import NewsFeedSection from "./NewsFeedSection";
-import SidebarNav from "./SidebarNav";
+import Index from "./SidebarNav";
 import { useEffect, useState } from "react";
 import { initAuth } from "../../utils/initAuthUtil.ts";
 import { authService } from "../../services/authService.ts";
@@ -37,7 +37,7 @@ function HomePage() {
         <AppSettingsProvider>
             <div className="homepage fade-in">
                 <div className="sidebar">
-                    <SidebarNav activeTab={activeTab} onSelect={setActiveTab} />
+                    <Index activeTab={activeTab} onSelect={setActiveTab} />
 
                     <div className="sidebar-logout" onClick={handleLogout}>
                         Log out

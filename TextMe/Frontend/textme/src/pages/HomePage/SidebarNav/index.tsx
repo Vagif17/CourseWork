@@ -1,4 +1,4 @@
-import type { TabId } from "./homeTabs";
+import type { TabId } from "../homeTabs.ts";
 import "./SidebarNav.css";
 
 const items: { id: TabId; label: string; icon: "chats" | "settings" | "profile" | "news" }[] = [
@@ -49,7 +49,7 @@ type Props = {
     onSelect: (tab: TabId) => void;
 };
 
-export default function SidebarNav({ activeTab, onSelect }: Props) {
+export default function Index({ activeTab, onSelect }: Props) {
     return (
         <nav className="sidebar-nav" aria-label="Main">
             {items.map(({ id, label, icon }) => (

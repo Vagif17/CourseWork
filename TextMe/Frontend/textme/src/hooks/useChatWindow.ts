@@ -25,6 +25,11 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
     }, []);
 
     useEffect(() => {
+        setReplyingMessage(null);
+        setEditingMessage(null);
+        setText("");
+        setPreviewImages([]);
+
         if (!selectedChatId) return;
 
         const messageCallback = async (msg: any) => {

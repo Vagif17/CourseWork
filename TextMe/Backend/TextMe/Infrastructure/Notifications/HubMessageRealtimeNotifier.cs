@@ -59,9 +59,9 @@ public class HubMessageRealtimeNotifier : IMessageRealtimeNotifier
             : hubContext.Clients.Users(ids).SendAsync("ReceiveNewChat", chat);
     }
 
-    public Task NotifyIncomingCallAsync(string targetUserId, string callerId, object offer)
+    public Task NotifyIncomingCallAsync(string targetUserId, string callerId, object offer, bool withVideo, string? avatarUrl)
     {
-        return hubContext.Clients.User(targetUserId).SendAsync("IncomingCall", new { CallerId = callerId, Offer = offer });
+        return hubContext.Clients.User(targetUserId).SendAsync("IncomingCall", new { CallerId = callerId, Offer = offer, WithVideo = withVideo, AvatarUrl = avatarUrl });
     }
 
     public Task NotifyCallAnsweredAsync(string targetUserId, string answererId, object answer)

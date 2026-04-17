@@ -88,11 +88,11 @@ public class ChatHub : Hub
         await mediator.Send(new DeleteMessageCommand(messageId, userId));
     }
 
-    public async Task CallUser(string targetUserId, object offer)
+    public async Task CallUser(string targetUserId, object offer, bool withVideo, string? avatarUrl)
     {
         var callerId = Context.UserIdentifier;
         if (callerId == null) return;
-        await messageRealtimeNotifier.NotifyIncomingCallAsync(targetUserId, callerId, offer);
+        await messageRealtimeNotifier.NotifyIncomingCallAsync(targetUserId, callerId, offer, withVideo, avatarUrl);
     }
 
     public async Task AnswerCall(string targetUserId, object answer)
