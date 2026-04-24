@@ -1,0 +1,28 @@
+.profile-field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 520px) {
+    .profile-field-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.profile-field-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+.profile-field-grid input {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-chat, rgba(255, 255, 255, 0.15));
+    background: var(--surface-raised, #11161d);
+    color: var(--text-primary, #fff);
+    font-size: 14px;
+}

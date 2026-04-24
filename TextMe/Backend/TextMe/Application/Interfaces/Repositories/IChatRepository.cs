@@ -12,6 +12,7 @@ public interface IChatRepository
     public Task UpdateChatLastMessageAsync(int chatId, string? preview, DateTimeOffset at);
     public Task<IReadOnlyList<string>> GetChatParticipantIdsAsync(int chatId);
     public Task<IReadOnlyList<string>> GetDistinctPrivateChatPartnerIdsAsync(string userId);
+    public Task<Chat?> GetChatByIdAsync(int chatId);
     public Task DeleteChatAsync(int chatId);
     public Task RemoveParticipantAsync(int chatId, string userId);
 }

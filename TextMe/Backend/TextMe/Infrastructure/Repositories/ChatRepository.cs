@@ -134,6 +134,13 @@ public class ChatRepository : IChatRepository
         }
     }
 
+    public async Task<Chat?> GetChatByIdAsync(int chatId)
+    {
+        return await context.Chats
+            .Include(c => c.Participants)
+            .FirstOrDefaultAsync(c => c.Id == chatId);
+    }
+
     public async Task RemoveParticipantAsync(int chatId, string userId)
     {
         var participant = await context.ChatParticipants

@@ -26,6 +26,9 @@ public class MessageDTO
 
     public bool IsDeleted { get; set; }
     public bool IsEdited { get; set; }
+    public bool IsSystem { get; set; }
+    public string? ChatName { get; set; }
+    public string? ChatAvatarUrl { get; set; }
     public int? ReplyToMessageId { get; set; }
     public ReplyMessageDTO? ReplyToMessage { get; set; }
 }
@@ -34,6 +37,7 @@ public class ReplyMessageDTO
 {
     public int Id { get; set; }
     public string SenderId { get; set; } = null!;
+    public string? SenderUserName { get; set; }
     public string? Text { get; set; }
     public string? MediaType { get; set; }
 }

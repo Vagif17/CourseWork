@@ -1,0 +1,129 @@
+.add-chat-modal {
+    background: var(--surface-raised);
+    padding: 24px;
+    border-radius: 16px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-chat);
+}
+
+.add-chat-modal h2 {
+    margin: 0;
+    color: var(--text-primary);
+    text-align: center;
+    font-size: 20px;
+}
+
+.add-chat-modal input {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-chat);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.add-chat-modal input:focus {
+    border-color: #00b6ff;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.cancel-btn, .add-btn {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cancel-btn {
+    background: var(--surface-muted);
+    color: var(--text-primary);
+}
+
+.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #00b6ff, #00d4ff);
+    color: white;
+}
+
+.add-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* --- SUGGESTIONS STYLES --- */
+
+.input-container {
+    position: relative;
+    width: 100%;
+}
+
+.input-container input {
+    width: 100% !important;
+    padding-right: 40px !important;
+}
+
+.input-spinner {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #00b6ff;
+    border-radius: 50%;
+    animation: input-spin-centered 0.6s linear infinite;
+}
+
+.suggestions-list {
+    margin-top: -8px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg-input);
+    border-radius: 12px;
+    border: 1px solid var(--border-chat);
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+    background: var(--chat-item-hover);
+}
+
+.suggestion-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.suggestion-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+@keyframes input-spin-centered {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+}

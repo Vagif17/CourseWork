@@ -98,7 +98,7 @@ public class UserStore : IUserStore
         var user = emailOrPhone.Contains("@")
             ? await userManager.FindByEmailAsync(emailOrPhone)
             : await userManager.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == emailOrPhone);
+                .FirstOrDefaultAsync(u => u.PhoneNumber == emailOrPhone || u.UserName == emailOrPhone);
 
         return user?.Id;
     }
@@ -247,7 +247,9 @@ public class UserStore : IUserStore
         var normalizedQuery = query.ToUpperInvariant();
 
         return await userManager.Users
-            .Where(u => u.NormalizedUserName!.Contains(normalizedQuery) || u.NormalizedEmail!.Contains(normalizedQuery))
+            .Where(u => u.NormalizedUserName!.Contains(normalizedQuery) || 
+                        u.NormalizedEmail!.Contains(normalizedQuery) ||
+                        (u.PhoneNumber != null && u.PhoneNumber.Contains(query)))
             .Take(10)
             .Select(u => new ParticipantDTO
             {

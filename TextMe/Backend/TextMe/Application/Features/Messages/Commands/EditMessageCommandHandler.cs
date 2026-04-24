@@ -9,15 +9,18 @@ namespace Application.Features.Messages.Commands;
 public class EditMessageCommandHandler : IRequestHandler<EditMessageCommand, MessageDTO>
 {
     private readonly IMessageRepository messageRepository;
+    private readonly IChatRepository chatRepository;
     private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
     private readonly IMapper mapper;
 
     public EditMessageCommandHandler(
         IMessageRepository messageRepository,
+        IChatRepository chatRepository,
         IMessageRealtimeNotifier messageRealtimeNotifier,
         IMapper mapper)
     {
         this.messageRepository = messageRepository;
+        this.chatRepository = chatRepository;
         this.messageRealtimeNotifier = messageRealtimeNotifier;
         this.mapper = mapper;
     }
@@ -39,7 +42,8 @@ public class EditMessageCommandHandler : IRequestHandler<EditMessageCommand, Mes
         var messageDto = mapper.Map<MessageDTO>(msg);
 
         // Уведомляем участников чата об изменении сообщения
-        await messageRealtimeNotifier.NotifyMessageEditedAsync(msg.ChatId, messageDto);
+        var participants = await chatRepository.GetChatParticipantIdsAsync(msg.ChatId);
+        await messageRealtimeNotifier.NotifyMessageEditedAsync(participants, msg.ChatId, messageDto);
 
         return messageDto;
     }

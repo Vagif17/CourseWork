@@ -70,4 +70,13 @@ public class MessageRepository : IMessageRepository
             await context.SaveChangesAsync();
         return msgs.ConvertAll(m => (m.Id, m.SenderId));
     }
+
+    public async Task<Dictionary<int, int>> GetUnreadCountsAsync(string userId, IEnumerable<int> chatIds)
+    {
+        return await context.Messages
+            .Where(m => chatIds.Contains(m.ChatId) && m.SenderId != userId && m.Status != MessageStatus.Read)
+            .GroupBy(m => m.ChatId)
+            .Select(g => new { ChatId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.ChatId, x => x.Count);
+    }
 }

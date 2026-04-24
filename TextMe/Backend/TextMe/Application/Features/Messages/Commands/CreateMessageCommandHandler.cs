@@ -60,6 +60,22 @@ public class CreateMessageCommandHandler : IRequestHandler<CreateMessageCommand,
             messageDto.SenderAvatarUrl = sender.AvatarUrl;
         }
 
+        if (messageDto.ReplyToMessage != null)
+        {
+            var replySender = await userStore.GetUserByIdAsync(messageDto.ReplyToMessage.SenderId);
+            if (replySender != null)
+            {
+                messageDto.ReplyToMessage.SenderUserName = replySender.UserName ?? "User";
+            }
+        }
+
+        var chat = await chatRepository.GetChatByIdAsync(request.ChatId);
+        if (chat != null)
+        {
+            messageDto.ChatName = chat.IsGroup ? chat.Name : null;
+            messageDto.ChatAvatarUrl = chat.IsGroup ? chat.GroupAvatarUrl : null;
+        }
+
         var participants = await chatRepository.GetChatParticipantIdsAsync(request.ChatId);
         var previewDto = new ChatListPreviewDTO
         {
@@ -68,6 +84,7 @@ public class CreateMessageCommandHandler : IRequestHandler<CreateMessageCommand,
             LastMessageAt = created.CreatedAt
         };
         await messageRealtimeNotifier.NotifyChatListUpdatedAsync(participants, previewDto);
+        await messageRealtimeNotifier.NotifyNewMessageAsync(participants, request.ChatId, messageDto);
 
         return messageDto;
     }

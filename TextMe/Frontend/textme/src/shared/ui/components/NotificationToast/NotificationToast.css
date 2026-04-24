@@ -1,0 +1,62 @@
+.notification-toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 4px;
+    min-width: 200px;
+}
+
+.noti-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.noti-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.noti-main-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.noti-sender-sub {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.noti-sender-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: #00b6ff;
+    flex-shrink: 0;
+}
+
+.noti-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    flex: 1;
+}
+
+/* Glassmorphism effect for the toast container is handled by react-toastify theme, 
+   but we can enhance it if we override react-toastify classes globally in Global.css if needed. 
+   For now, we customize the internal layout. */

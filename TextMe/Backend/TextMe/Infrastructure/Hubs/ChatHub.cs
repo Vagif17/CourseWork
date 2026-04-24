@@ -5,6 +5,7 @@ using Application.Interfaces.Notifications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Application.Interfaces.Repositories;
 
 namespace Infrastructure.Hubs;
 
@@ -14,15 +15,18 @@ public class ChatHub : Hub
     private readonly IMediator mediator;
     private readonly IUserPresenceManager userPresenceManager;
     private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
+    private readonly IChatRepository chatRepository;
 
     public ChatHub(
         IMediator mediator,
         IUserPresenceManager userPresenceManager,
-        IMessageRealtimeNotifier messageRealtimeNotifier)
+        IMessageRealtimeNotifier messageRealtimeNotifier,
+        IChatRepository chatRepository)
     {
         this.mediator = mediator;
         this.userPresenceManager = userPresenceManager;
         this.messageRealtimeNotifier = messageRealtimeNotifier;
+        this.chatRepository = chatRepository;
     }
 
     public override async Task OnConnectedAsync()
@@ -66,10 +70,8 @@ public class ChatHub : Hub
         var userId = Context.UserIdentifier;
         if (userId == null) throw new HubException("Unauthorized");
 
-        var message = await mediator.Send(new CreateMessageCommand(
+        await mediator.Send(new CreateMessageCommand(
             chatId, userId, text, mediaUrl, mediaType, audioDuration, replyToMessageId));
-
-        await messageRealtimeNotifier.NotifyNewMessageAsync(chatId, message);
     }
 
     public async Task EditMessage(int messageId, string newText)

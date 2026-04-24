@@ -1,4 +1,4 @@
-﻿using Application.Config;
+using Application.Config;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -125,7 +125,12 @@ public static class ServiceCollectionExtensions
             options.AddPolicy("AllowAll", policy =>
             {
                 policy
-                    .WithOrigins("http://localhost:5173")
+                    .WithOrigins(
+                        "http://localhost:5173", 
+                        "http://192.168.0.110:5173",
+                        "https://textmemessenger.netlify.app",
+                        "https://coursework-1-1mjp.onrender.com"
+                    )
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();

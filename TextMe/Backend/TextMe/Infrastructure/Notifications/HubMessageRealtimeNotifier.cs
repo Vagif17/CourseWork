@@ -36,19 +36,28 @@ public class HubMessageRealtimeNotifier : IMessageRealtimeNotifier
             : hubContext.Clients.Users(ids).SendAsync("UserPresenceUpdated", payload);
     }
 
-    public Task NotifyNewMessageAsync(int chatId, MessageDTO message)
+    public Task NotifyNewMessageAsync(IEnumerable<string> userIds, int chatId, MessageDTO message)
     {
-        return hubContext.Clients.Group($"chat-{chatId}").SendAsync("ReceiveMessage", message);
+        var ids = userIds.Distinct().ToArray();
+        return ids.Length == 0
+            ? Task.CompletedTask
+            : hubContext.Clients.Users(ids).SendAsync("ReceiveMessage", message);
     }
 
-    public Task NotifyMessageEditedAsync(int chatId, MessageDTO message)
+    public Task NotifyMessageEditedAsync(IEnumerable<string> userIds, int chatId, MessageDTO message)
     {
-        return hubContext.Clients.Group($"chat-{chatId}").SendAsync("MessageEdited", message);
+        var ids = userIds.Distinct().ToArray();
+        return ids.Length == 0
+            ? Task.CompletedTask
+            : hubContext.Clients.Users(ids).SendAsync("MessageEdited", message);
     }
 
-    public Task NotifyMessageDeletedAsync(int chatId, int messageId)
+    public Task NotifyMessageDeletedAsync(IEnumerable<string> userIds, int chatId, int messageId)
     {
-        return hubContext.Clients.Group($"chat-{chatId}").SendAsync("MessageDeleted", new { MessageId = messageId, ChatId = chatId });
+        var ids = userIds.Distinct().ToArray();
+        return ids.Length == 0
+            ? Task.CompletedTask
+            : hubContext.Clients.Users(ids).SendAsync("MessageDeleted", new { MessageId = messageId, ChatId = chatId });
     }
 
     public Task NotifyNewChatAsync(IEnumerable<string> userIds, ChatDTO chat)

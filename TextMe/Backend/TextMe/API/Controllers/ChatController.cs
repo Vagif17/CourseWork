@@ -35,11 +35,11 @@ public class ChatController : ControllerBase
         return Ok(chat);
     }
 
-    [HttpGet("getallmyprivatechats")]
-    public async Task<ActionResult<IEnumerable<ChatDTO>>> GetAllPrivateChats()
+    [HttpGet("getallchats")]
+    public async Task<ActionResult<IEnumerable<ChatDTO>>> GetUserChats()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return Ok(await mediator.Send(new GetPrivateChatsQuery(userId)));
+        return Ok(await mediator.Send(new GetUserChatsQuery(userId)));
     }
 
     [HttpPost("creategroup")]
@@ -88,8 +88,8 @@ public class ChatController : ControllerBase
         var isParticipant = await chatRepository.IsUserParticipantInChatAsync(id, userId);
         if (!isParticipant) return Forbid();
 
-        await chatRepository.RemoveParticipantAsync(id, userId);
-        return Ok();
+        var success = await mediator.Send(new LeaveGroupCommand(id, userId));
+        return success ? Ok() : BadRequest("Failed to leave group");
     }
 }
 

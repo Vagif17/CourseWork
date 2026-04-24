@@ -28,6 +28,7 @@ public class ChatDTO
     public bool IsGroup { get; set; }
     public string? Name { get; set; }
     public string? GroupAvatarUrl { get; set; }
+    public int UnreadCount { get; set; }
 }
 
 public class ChatListPreviewDTO

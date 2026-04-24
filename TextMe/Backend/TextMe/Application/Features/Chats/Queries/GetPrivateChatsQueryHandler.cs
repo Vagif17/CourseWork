@@ -13,17 +13,20 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
     private readonly IUserStore userStore;
     private readonly IUserPresenceService presenceService;
     private readonly IMapper mapper;
+    private readonly IMessageRepository messageRepository;
 
     public GetPrivateChatsQueryHandler(
         IChatRepository _chatRepository,
         IUserStore _userStore,
         IUserPresenceService presenceService,
-        IMapper _mapper)
+        IMapper _mapper,
+        IMessageRepository messageRepository)
     {
         chatRepository = _chatRepository;
         userStore = _userStore;
         this.presenceService = presenceService;
         mapper = _mapper;
+        this.messageRepository = messageRepository;
     }
 
     public async Task<IEnumerable<ChatDTO>> Handle(
@@ -45,8 +48,16 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
         var userDict = users.ToDictionary(u => u.Id);
         var presenceDict = await userStore.GetUserPresenceFieldsByIdsAsync(allUserIds, cancellationToken);
 
+        var chatIds = chatDtos.Select(c => c.Id).ToList();
+        var unreadCounts = await messageRepository.GetUnreadCountsAsync(request.userId, chatIds);
+
         foreach (var chat in chatDtos)
         {
+            if (unreadCounts.TryGetValue(chat.Id, out var count))
+            {
+                chat.UnreadCount = count;
+            }
+
             foreach (var participant in chat.Participants)
             {
                 if (userDict.TryGetValue(participant.UserId, out var user))

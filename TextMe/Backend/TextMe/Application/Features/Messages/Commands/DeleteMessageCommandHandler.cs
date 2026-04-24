@@ -7,13 +7,16 @@ namespace Application.Features.Messages.Commands;
 public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand, bool>
 {
     private readonly IMessageRepository messageRepository;
+    private readonly IChatRepository chatRepository;
     private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
 
     public DeleteMessageCommandHandler(
         IMessageRepository messageRepository,
+        IChatRepository chatRepository,
         IMessageRealtimeNotifier messageRealtimeNotifier)
     {
         this.messageRepository = messageRepository;
+        this.chatRepository = chatRepository;
         this.messageRealtimeNotifier = messageRealtimeNotifier;
     }
 
@@ -31,8 +34,8 @@ public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand,
 
         await messageRepository.UpdateMessageAsync(msg);
 
-        // Уведомляем участников об удалении
-        await messageRealtimeNotifier.NotifyMessageDeletedAsync(msg.ChatId, msg.Id);
+        var participants = await chatRepository.GetChatParticipantIdsAsync(msg.ChatId);
+        await messageRealtimeNotifier.NotifyMessageDeletedAsync(participants, msg.ChatId, msg.Id);
 
         return true;
     }
