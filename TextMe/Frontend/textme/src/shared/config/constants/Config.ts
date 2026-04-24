@@ -1,4 +1,4 @@
-export const IS_PRODUCTION = false;
+export const IS_PRODUCTION = true;
 
 export const API_IP = "192.168.0.106";
 export const LOCAL_BASE_URL = `http://${API_IP}:5243`;
