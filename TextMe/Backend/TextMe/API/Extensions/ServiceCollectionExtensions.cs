@@ -128,6 +128,7 @@ public static class ServiceCollectionExtensions
                     .WithOrigins(
                         "http://localhost:5173", 
                         "http://192.168.0.110:5173",
+                        "http://192.168.0.106:5173",
                         "https://textmemessenger.netlify.app",
                         "https://coursework-1-1mjp.onrender.com"
                     )

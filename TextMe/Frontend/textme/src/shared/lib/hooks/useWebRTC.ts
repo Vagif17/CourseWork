@@ -108,7 +108,7 @@ export function useWebRTC(currentUserId: string | null) {
         
         peer.onicecandidate = async (e) => {
             if (e.candidate) {
-                await (chatHub as any).connection?.invoke("SendIceCandidate", targetUserId, e.candidate);
+                await chatHub.sendIceCandidate(targetUserId, e.candidate);
             }
         };
 
@@ -148,7 +148,7 @@ export function useWebRTC(currentUserId: string | null) {
             const offer = await peer.createOffer();
             await peer.setLocalDescription(offer);
 
-            await (chatHub as any).connection?.invoke("CallUser", targetUserId, offer, withVideo, callerAvatar || null);
+            await chatHub.callUser(targetUserId, offer, withVideo, callerAvatar || null);
         } catch (err) {
             console.error("Failed to start call", err);
             toast.error("Could not access camera/microphone.");
@@ -175,38 +175,35 @@ export function useWebRTC(currentUserId: string | null) {
             pendingCandidates.current.forEach(c => pc.current?.addIceCandidate(new RTCIceCandidate(c)));
             pendingCandidates.current = [];
 
-            await (chatHub as any).connection?.invoke("AnswerCall", incomingCall.callerId, answer);
+            await chatHub.answerCall(incomingCall.callerId, answer);
             setIncomingCall(null);
         } catch (err) {
             console.error("Failed to answer", err);
             toast.error("Could not access camera/microphone for answering.");
-            await (chatHub as any).connection?.invoke("RejectCall", incomingCall.callerId);
+            await chatHub.rejectCall(incomingCall.callerId);
             cleanup();
         }
     };
 
     const rejectCall = async () => {
         if (!incomingCall) return;
-        await (chatHub as any).connection?.invoke("RejectCall", incomingCall.callerId);
+        await chatHub.rejectCall(incomingCall.callerId);
         cleanup();
     };
 
     const endCall = async () => {
         if (callTargetId) {
-            await (chatHub as any).connection?.invoke("EndCall", callTargetId);
+            await chatHub.endCall(callTargetId);
         }
         cleanup();
     };
 
     useEffect(() => {
-        if (!currentUserId || !chatHub.isConnected()) return;
-
-        const conn = (chatHub as any).connection;
-        if (!conn) return;
+        if (!currentUserId) return;
 
         const onIncomingCall = (payload: any) => {
             if (callState !== "idle") {
-                conn.invoke("RejectCall", payload.callerId);
+                chatHub.rejectCall(payload.callerId);
                 return;
             }
             setIncomingCall({ 
@@ -215,7 +212,7 @@ export function useWebRTC(currentUserId: string | null) {
                 withVideo: payload.withVideo,
                 avatarUrl: payload.avatarUrl 
             });
-            setCallTargetName("Incoming Call"); // Optional title
+            setCallTargetName("Incoming Call");
             setCallState("ringing");
         };
 
@@ -251,18 +248,18 @@ export function useWebRTC(currentUserId: string | null) {
             }
         };
 
-        conn.on("IncomingCall", onIncomingCall);
-        conn.on("CallAnswered", onCallAnswered);
-        conn.on("CallRejected", onCallRejected);
-        conn.on("CallEnded", onCallEnded);
-        conn.on("ReceiveIceCandidate", onReceiveIceCandidate);
+        chatHub.onIncomingCall(onIncomingCall);
+        chatHub.onCallAnswered(onCallAnswered);
+        chatHub.onCallRejected(onCallRejected);
+        chatHub.onCallEnded(onCallEnded);
+        chatHub.onReceiveIceCandidate(onReceiveIceCandidate);
 
         return () => {
-            conn.off("IncomingCall", onIncomingCall);
-            conn.off("CallAnswered", onCallAnswered);
-            conn.off("CallRejected", onCallRejected);
-            conn.off("CallEnded", onCallEnded);
-            conn.off("ReceiveIceCandidate", onReceiveIceCandidate);
+            chatHub.offIncomingCall(onIncomingCall);
+            chatHub.offCallAnswered(onCallAnswered);
+            chatHub.offCallRejected(onCallRejected);
+            chatHub.offCallEnded(onCallEnded);
+            chatHub.offReceiveIceCandidate(onReceiveIceCandidate);
         };
     }, [currentUserId, callState]);
 

@@ -13,7 +13,7 @@ import "./ChatList.css";
 
 type Props = {
     currentUserId: string | null;
-    onSelectChat: (chat: ChatDTO) => void;
+    onSelectChat: (chat: ChatDTO | null) => void;
     selectedChatId: number | null;
     onChatsChange: (chats: ChatDTO[]) => void;
 };
@@ -30,6 +30,11 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
     const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, chat: ChatDTO } | null>(null);
     const processedMessageIds = useRef<Set<number>>(new Set());
+    const selectedChatIdRef = useRef(selectedChatId);
+
+    useEffect(() => {
+        selectedChatIdRef.current = selectedChatId;
+    }, [selectedChatId]);
 
     useEffect(() => {
         onChatsChange(chats);
@@ -122,12 +127,20 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
             });
         };
 
+        const onChatDeleted = (chatId: number) => {
+            setChats(prev => prev.filter(c => c.id !== chatId));
+            if (selectedChatIdRef.current === chatId) {
+                onSelectChat(null);
+            }
+        };
+
         const connect = async () => {
             if (!chatHub.isConnected()) await chatHub.start();
             chatHub.onReceiveNewChat(handler);
             chatHub.onChatListUpdated(onList);
             chatHub.onUserPresenceUpdated(onPresence);
             chatHub.onReceiveMessage(onReceiveMessage);
+            chatHub.onChatDeleted(onChatDeleted);
         };
 
         connect();
@@ -140,6 +153,7 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
             chatHub.offChatListUpdated(onList);
             chatHub.offUserPresenceUpdated(onPresence);
             chatHub.offReceiveMessage(onReceiveMessage);
+            chatHub.offChatDeleted(onChatDeleted);
             window.removeEventListener("click", handleClick);
         };
     }, [selectedChatId, currentUserId]);
@@ -184,7 +198,7 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
         try {
             await chatService.deleteChat(chatId);
             setChats(prev => prev.filter(c => c.id !== chatId));
-            if (selectedChatId === chatId) onSelectChat(null as any); // Reset selected chat
+            if (selectedChatId === chatId) onSelectChat(null); // Reset selected chat
             toast.success("Chat deleted for everyone");
         } catch (err) {
             toast.error(getErrorMessage(err));

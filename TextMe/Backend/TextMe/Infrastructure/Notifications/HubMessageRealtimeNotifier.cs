@@ -67,6 +67,14 @@ public class HubMessageRealtimeNotifier : IMessageRealtimeNotifier
             ? Task.CompletedTask
             : hubContext.Clients.Users(ids).SendAsync("ReceiveNewChat", chat);
     }
+    
+    public Task NotifyChatDeletedAsync(IEnumerable<string> userIds, int chatId)
+    {
+        var ids = userIds.Distinct().ToArray();
+        return ids.Length == 0
+            ? Task.CompletedTask
+            : hubContext.Clients.Users(ids).SendAsync("ChatDeleted", chatId);
+    }
 
     public Task NotifyIncomingCallAsync(string targetUserId, string callerId, object offer, bool withVideo, string? avatarUrl)
     {

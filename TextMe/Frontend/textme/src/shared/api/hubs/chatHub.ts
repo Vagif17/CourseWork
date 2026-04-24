@@ -4,11 +4,14 @@ import { tokenService } from "../services/tokenService"
 
 class ChatHub {
     private connection: signalR.HubConnection | null = null;
+    private listeners: Map<string, Set<(payload: any) => void>> = new Map();
 
     async start() {
-
         if (this.connection) {
             if (this.connection.state === signalR.HubConnectionState.Connected)
+                return;
+            if (this.connection.state === signalR.HubConnectionState.Connecting || 
+                this.connection.state === signalR.HubConnectionState.Reconnecting)
                 return;
 
             await this.connection.start();
@@ -27,6 +30,13 @@ class ChatHub {
         this.connection.onreconnected(() => console.log("SignalR Reconnected"));
         this.connection.onclose(() => console.log("SignalR Disconnected"));
 
+        // Re-attach all listeners if connection was recreated
+        this.listeners.forEach((callbacks, eventName) => {
+            callbacks.forEach(callback => {
+                this.connection?.on(eventName, callback);
+            });
+        });
+
         await this.connection.start();
         console.log("SignalR Connected");
     }
@@ -35,11 +45,29 @@ class ChatHub {
         return this.connection?.state === signalR.HubConnectionState.Connected;
     }
 
+    private registerListener(eventName: string, callback: (payload: any) => void) {
+        if (!this.listeners.has(eventName)) {
+            this.listeners.set(eventName, new Set());
+        }
+        this.listeners.get(eventName)!.add(callback);
+        
+        if (this.connection) {
+            this.connection.on(eventName, callback);
+        }
+    }
+
+    private removeListener(eventName: string, callback: (payload: any) => void) {
+        const callbacks = this.listeners.get(eventName);
+        if (callbacks) {
+            callbacks.delete(callback);
+        }
+        if (this.connection) {
+            this.connection.off(eventName, callback);
+        }
+    }
+
     async joinChat(chatId: number) {
-
-        if (!this.isConnected())
-            await this.start();
-
+        if (!this.isConnected()) await this.start();
         await this.connection?.invoke("JoinChat", chatId);
     }
 
@@ -75,35 +103,35 @@ class ChatHub {
     }
 
     onReceiveMessage(callback: (message: any) => void) {
-        this.connection?.on("ReceiveMessage", callback);
+        this.registerListener("ReceiveMessage", callback);
     }
 
     offReceiveMessage(callback: (message: any) => void) {
-        this.connection?.off("ReceiveMessage", callback);
+        this.removeListener("ReceiveMessage", callback);
     }
 
     onMessageEdited(callback: (message: any) => void) {
-        this.connection?.on("MessageEdited", callback);
+        this.registerListener("MessageEdited", callback);
     }
 
     offMessageEdited(callback: (message: any) => void) {
-        this.connection?.off("MessageEdited", callback);
+        this.removeListener("MessageEdited", callback);
     }
 
     onMessageDeleted(callback: (payload: { messageId: number; chatId: number }) => void) {
-        this.connection?.on("MessageDeleted", callback);
+        this.registerListener("MessageDeleted", callback);
     }
 
     offMessageDeleted(callback: (payload: { messageId: number; chatId: number }) => void) {
-        this.connection?.off("MessageDeleted", callback);
+        this.removeListener("MessageDeleted", callback);
     }
 
     onReceiveNewChat(callback: (chat: any) => void) {
-        this.connection?.on("ReceiveNewChat", callback);
+        this.registerListener("ReceiveNewChat", callback);
     }
 
     offReceiveNewChat(callback: (chat: any) => void) {
-        this.connection?.off("ReceiveNewChat", callback);
+        this.removeListener("ReceiveNewChat", callback);
     }
 
     async markChatAsRead(chatId: number) {
@@ -117,23 +145,23 @@ class ChatHub {
     }
 
     onMessageStatusUpdated(callback: (payload: { messageId: number; chatId: number; status: string }) => void) {
-        this.connection?.on("MessageStatusUpdated", callback);
+        this.registerListener("MessageStatusUpdated", callback);
     }
 
     offMessageStatusUpdated(callback: (payload: { messageId: number; chatId: number; status: string }) => void) {
-        this.connection?.off("MessageStatusUpdated", callback);
+        this.removeListener("MessageStatusUpdated", callback);
     }
 
     onChatListUpdated(
         callback: (payload: { chatId: number; lastMessage?: string | null; lastMessageAt?: string | null }) => void
     ) {
-        this.connection?.on("ChatListUpdated", callback);
+        this.registerListener("ChatListUpdated", callback);
     }
 
     offChatListUpdated(
         callback: (payload: { chatId: number; lastMessage?: string | null; lastMessageAt?: string | null }) => void
     ) {
-        this.connection?.off("ChatListUpdated", callback);
+        this.removeListener("ChatListUpdated", callback);
     }
 
     onUserPresenceUpdated(
@@ -144,7 +172,7 @@ class ChatHub {
             lastSeenAt?: string | null;
         }) => void
     ) {
-        this.connection?.on("UserPresenceUpdated", callback);
+        this.registerListener("UserPresenceUpdated", callback);
     }
 
     offUserPresenceUpdated(
@@ -155,7 +183,81 @@ class ChatHub {
             lastSeenAt?: string | null;
         }) => void
     ) {
-        this.connection?.off("UserPresenceUpdated", callback);
+        this.removeListener("UserPresenceUpdated", callback);
+    }
+
+    onChatDeleted(callback: (chatId: number) => void) {
+        this.registerListener("ChatDeleted", callback);
+    }
+
+    offChatDeleted(callback: (chatId: number) => void) {
+        this.removeListener("ChatDeleted", callback);
+    }
+
+    // WebRTC methods
+    async callUser(targetUserId: string, offer: any, withVideo: boolean, avatarUrl?: string | null) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("CallUser", targetUserId, offer, withVideo, avatarUrl);
+    }
+
+    async answerCall(targetUserId: string, answer: any) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("AnswerCall", targetUserId, answer);
+    }
+
+    async rejectCall(targetUserId: string) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("RejectCall", targetUserId);
+    }
+
+    async endCall(targetUserId: string) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("EndCall", targetUserId);
+    }
+
+    async sendIceCandidate(targetUserId: string, candidate: any) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("SendIceCandidate", targetUserId, candidate);
+    }
+
+    onIncomingCall(callback: (payload: any) => void) {
+        this.registerListener("IncomingCall", callback);
+    }
+
+    offIncomingCall(callback: (payload: any) => void) {
+        this.removeListener("IncomingCall", callback);
+    }
+
+    onCallAnswered(callback: (payload: any) => void) {
+        this.registerListener("CallAnswered", callback);
+    }
+
+    offCallAnswered(callback: (payload: any) => void) {
+        this.removeListener("CallAnswered", callback);
+    }
+
+    onCallRejected(callback: (payload: any) => void) {
+        this.registerListener("CallRejected", callback);
+    }
+
+    offCallRejected(callback: (payload: any) => void) {
+        this.removeListener("CallRejected", callback);
+    }
+
+    onCallEnded(callback: (payload: any) => void) {
+        this.registerListener("CallEnded", callback);
+    }
+
+    offCallEnded(callback: (payload: any) => void) {
+        this.removeListener("CallEnded", callback);
+    }
+
+    onReceiveIceCandidate(callback: (payload: any) => void) {
+        this.registerListener("ReceiveIceCandidate", callback);
+    }
+
+    offReceiveIceCandidate(callback: (payload: any) => void) {
+        this.removeListener("ReceiveIceCandidate", callback);
     }
 }
 

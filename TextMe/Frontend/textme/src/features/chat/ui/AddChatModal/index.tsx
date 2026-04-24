@@ -5,6 +5,7 @@ import { chatService } from "../../../../shared/api/services/chatService";
 import { authService } from "../../../../shared/api/services/authService";
 import type { PrivateChatDTOResponse } from "../../../../shared/api/types/chats";
 import { getErrorMessage } from "../../../../shared/lib/utils/getErrorMessage";
+import { getUserId } from "../../../../shared/lib/utils/getUserIdUtil";
 
 import "./AddChatModal.css";
 
@@ -31,7 +32,8 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
                 setLoading(true);
                 try {
                     const users = await authService.searchUsers(newContact.trim());
-                    setSuggestions(users);
+                    const actualUserId = getUserId();
+                    setSuggestions(users.filter(u => u.userId !== actualUserId));
                 } catch (err) {
                     console.error("Search failed:", err);
                 } finally {

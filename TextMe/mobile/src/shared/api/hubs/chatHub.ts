@@ -5,6 +5,7 @@ import tokenService from "../services/tokenService";
 class ChatHub {
     private connection: signalR.HubConnection;
     private started = false;
+    private listeners: Map<string, Set<(payload: any) => void>> = new Map();
 
     constructor() {
         this.connection = new signalR.HubConnectionBuilder()
@@ -17,6 +18,12 @@ class ChatHub {
             })
             .withAutomaticReconnect()
             .build();
+
+        this.connection.onreconnected(() => console.log("SignalR Reconnected Mobile"));
+        this.connection.onclose(() => {
+            console.log("SignalR Disconnected Mobile");
+            this.started = false;
+        });
     }
 
     public async start() {
@@ -26,9 +33,15 @@ class ChatHub {
             await this.connection.start();
             this.started = true;
             console.log("SignalR Connected to Mobile!");
+
+            // Re-attach all listeners
+            this.listeners.forEach((callbacks, eventName) => {
+                callbacks.forEach(callback => {
+                    this.connection.on(eventName, callback);
+                });
+            });
         } catch (err) {
             console.error("SignalR Connection Error: ", err);
-            // Retry
             setTimeout(() => this.start(), 5000);
         }
     }
@@ -39,7 +52,28 @@ class ChatHub {
     }
 
     public isConnected() {
-        return this.started && this.connection.state === signalR.HubConnectionState.Connected;
+        return this.connection.state === signalR.HubConnectionState.Connected;
+    }
+
+    private registerListener(eventName: string, callback: (payload: any) => void) {
+        if (!this.listeners.has(eventName)) {
+            this.listeners.set(eventName, new Set());
+        }
+        this.listeners.get(eventName)!.add(callback);
+        
+        if (this.connection) {
+            this.connection.on(eventName, callback);
+        }
+    }
+
+    private removeListener(eventName: string, callback: (payload: any) => void) {
+        const callbacks = this.listeners.get(eventName);
+        if (callbacks) {
+            callbacks.delete(callback);
+        }
+        if (this.connection) {
+            this.connection.off(eventName, callback);
+        }
     }
 
     // Methods
@@ -90,105 +124,113 @@ class ChatHub {
 
     // Handlers
     public onReceiveMessage(handler: (message: any) => void) {
-        this.connection.on("ReceiveMessage", handler);
+        this.registerListener("ReceiveMessage", handler);
     }
 
     public offReceiveMessage(handler: (message: any) => void) {
-        this.connection.off("ReceiveMessage", handler);
+        this.removeListener("ReceiveMessage", handler);
     }
 
     public onMessageEdited(handler: (message: any) => void) {
-        this.connection.on("MessageEdited", handler);
+        this.registerListener("MessageEdited", handler);
     }
 
     public offMessageEdited(handler: (message: any) => void) {
-        this.connection.off("MessageEdited", handler);
+        this.removeListener("MessageEdited", handler);
     }
 
     public onMessageDeleted(handler: (payload: { messageId: number, chatId: number }) => void) {
-        this.connection.on("MessageDeleted", handler);
+        this.registerListener("MessageDeleted", handler);
     }
 
     public offMessageDeleted(handler: (payload: { messageId: number, chatId: number }) => void) {
-        this.connection.off("MessageDeleted", handler);
+        this.removeListener("MessageDeleted", handler);
     }
 
     public onMessageStatusUpdated(handler: (payload: { messageId: number, chatId: number, status: string }) => void) {
-        this.connection.on("MessageStatusUpdated", handler);
+        this.registerListener("MessageStatusUpdated", handler);
     }
 
     public offMessageStatusUpdated(handler: (payload: { messageId: number, chatId: number, status: string }) => void) {
-        this.connection.off("MessageStatusUpdated", handler);
+        this.removeListener("MessageStatusUpdated", handler);
     }
 
     public onUserPresenceUpdated(handler: (payload: { userId: string, presenceHidden: boolean, isOnline: boolean, lastSeenAt?: string }) => void) {
-        this.connection.on("UserPresenceUpdated", handler);
+        this.registerListener("UserPresenceUpdated", handler);
     }
 
     public offUserPresenceUpdated(handler: (payload: { userId: string, presenceHidden: boolean, isOnline: boolean, lastSeenAt?: string }) => void) {
-        this.connection.off("UserPresenceUpdated", handler);
+        this.removeListener("UserPresenceUpdated", handler);
     }
 
     public onChatListUpdated(handler: (payload: { chatId: number, lastMessage?: string, lastMessageAt?: string }) => void) {
-        this.connection.on("ChatListUpdated", handler);
+        this.registerListener("ChatListUpdated", handler);
     }
 
     public offChatListUpdated(handler: (payload: { chatId: number, lastMessage?: string, lastMessageAt?: string }) => void) {
-        this.connection.off("ChatListUpdated", handler);
+        this.removeListener("ChatListUpdated", handler);
     }
 
     public onReceiveNewChat(handler: (chat: any) => void) {
-        this.connection.on("ReceiveNewChat", handler);
+        this.registerListener("ReceiveNewChat", handler);
     }
 
     public offReceiveNewChat(handler: (chat: any) => void) {
-        this.connection.off("ReceiveNewChat", handler);
+        this.removeListener("ReceiveNewChat", handler);
     }
 
     // Call Listeners
     public onIncomingCall(handler: (payload: { callerId: string, offer: any, withVideo: boolean, avatarUrl?: string }) => void) {
-        this.connection.on("IncomingCall", handler);
+        this.registerListener("IncomingCall", handler);
     }
 
     public offIncomingCall(handler: (payload: { callerId: string, offer: any, withVideo: boolean, avatarUrl?: string }) => void) {
-        this.connection.off("IncomingCall", handler);
+        this.removeListener("IncomingCall", handler);
     }
 
     public onCallAnswered(handler: (payload: { answer: any }) => void) {
-        this.connection.on("CallAnswered", handler);
+        this.registerListener("CallAnswered", handler);
     }
 
     public offCallAnswered(handler: (payload: { answer: any }) => void) {
-        this.connection.off("CallAnswered", handler);
+        this.removeListener("CallAnswered", handler);
     }
 
     public onCallRejected(handler: () => void) {
-        this.connection.on("CallRejected", handler);
+        this.registerListener("CallRejected", handler);
     }
 
     public offCallRejected(handler: () => void) {
-        this.connection.off("CallRejected", handler);
+        this.removeListener("CallRejected", handler);
     }
 
     public onCallEnded(handler: () => void) {
-        this.connection.on("CallEnded", handler);
+        this.registerListener("CallEnded", handler);
     }
 
     public offCallEnded(handler: () => void) {
-        this.connection.off("CallEnded", handler);
+        this.removeListener("CallEnded", handler);
     }
 
     public onReceiveIceCandidate(handler: (payload: { candidate: any }) => void) {
-        this.connection.on("ReceiveIceCandidate", handler);
+        this.registerListener("ReceiveIceCandidate", handler);
     }
 
     public offReceiveIceCandidate(handler: (payload: { candidate: any }) => void) {
-        this.connection.off("ReceiveIceCandidate", handler);
+        this.removeListener("ReceiveIceCandidate", handler);
+    }
+
+    public onChatDeleted(handler: (chatId: number) => void) {
+        this.registerListener("ChatDeleted", handler);
+    }
+
+    public offChatDeleted(handler: (chatId: number) => void) {
+        this.removeListener("ChatDeleted", handler);
     }
 
     // Generic Invoke
     public async invoke(methodName: string, ...args: any[]) {
-        if (!this.isConnected()) {
+        if (this.connection.state === signalR.HubConnectionState.Disconnected) {
             await this.start();
         }
         return this.connection.invoke(methodName, ...args);

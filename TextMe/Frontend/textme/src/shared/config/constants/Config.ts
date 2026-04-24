@@ -1,6 +1,6 @@
-export const IS_PRODUCTION = true;
+export const IS_PRODUCTION = false;
 
-export const API_IP = "192.168.0.110";
+export const API_IP = "192.168.0.106";
 export const LOCAL_BASE_URL = `http://${API_IP}:5243`;
 export const RENDER_BASE_URL = "https://coursework-1-1mjp.onrender.com";
 

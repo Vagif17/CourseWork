@@ -16,6 +16,7 @@ import { useNotifications } from "../../shared/lib/hooks/useNotifications";
 import { useWebRTC } from "../../shared/lib/hooks/useWebRTC";
 import CallModal from "../../shared/ui/components/CallModal";
 import { getUserId } from "../../shared/lib/utils/getUserIdUtil";
+import chatHub from "../../shared/api/hubs/chatHub";
 
 function HomePage() {
     const navigate = useNavigate();
@@ -30,6 +31,9 @@ function HomePage() {
     useEffect(() => {
         const init = async () => {
             await initAuth();
+            if (getUserId()) {
+                chatHub.start().catch(err => console.error("ChatHub start failed", err));
+            }
             setAuthInitialized(true);
         };
         init();

@@ -21,8 +21,8 @@ export default function ChatSection({ selectedChatId, setSelectedChatId, webrtc 
         [listChats, selectedChatId]
     );
 
-    const handleSelectChat = (chat: ChatDTO) => {
-        setSelectedChatId(chat.id);
+    const handleSelectChat = (chat: ChatDTO | null) => {
+        setSelectedChatId(chat?.id ?? null);
     };
 
     return (

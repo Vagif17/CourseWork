@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.Features.Chats.Commands;
 using Application.Features.Chats.Queries;
+using Application.Interfaces.Notifications;
 using Application.Interfaces.Repositories;
 using Application.Services.Interfaces;
 using MediatR;
@@ -19,12 +20,14 @@ public class ChatController : ControllerBase
     private readonly IMediator mediator;
     private readonly ICloudinaryService cloudinaryService;
     private readonly IChatRepository chatRepository;
+    private readonly IMessageRealtimeNotifier messageRealtimeNotifier;
 
-    public ChatController(IMediator _mediator, ICloudinaryService _cloudinaryService, IChatRepository _chatRepository)
+    public ChatController(IMediator _mediator, ICloudinaryService _cloudinaryService, IChatRepository _chatRepository, IMessageRealtimeNotifier _messageRealtimeNotifier)
     {
         mediator = _mediator;
         cloudinaryService = _cloudinaryService;
         chatRepository = _chatRepository;
+        messageRealtimeNotifier = _messageRealtimeNotifier;
     }
 
     [HttpPost("createchat")]
@@ -75,7 +78,9 @@ public class ChatController : ControllerBase
         var isParticipant = await chatRepository.IsUserParticipantInChatAsync(id, userId);
         if (!isParticipant) return Forbid();
 
+        var participants = await chatRepository.GetChatParticipantIdsAsync(id);
         await chatRepository.DeleteChatAsync(id);
+        await messageRealtimeNotifier.NotifyChatDeletedAsync(participants, id);
         return NoContent();
     }
 
