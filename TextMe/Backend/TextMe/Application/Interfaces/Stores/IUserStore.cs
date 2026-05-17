@@ -25,14 +25,20 @@ public interface IUserStore
         string? contentType);
     public Task ChangePasswordAsync(string userId, string currentPassword, string newPassword);
 
-    Task<IReadOnlyDictionary<string, (bool ShareOnlineStatus, DateTimeOffset? LastSeenAt)>> GetUserPresenceFieldsByIdsAsync(
+    public Task<IReadOnlyDictionary<string, (bool ShareOnlineStatus, DateTimeOffset? LastSeenAt)>> GetUserPresenceFieldsByIdsAsync(
         IEnumerable<string> userIds,
         CancellationToken cancellationToken = default);
 
-    Task<UserProfileResponseDTO> UpdateShareOnlineStatusAsync(
+    public Task<UserProfileResponseDTO> UpdateShareOnlineStatusAsync(
         string userId,
         bool shareOnlineStatus,
         CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<ParticipantDTO>> SearchUsersAsync(string query);
+    public Task UpdateLocationAsync(
+        string userId,
+        double? latitude,
+        double? longitude,
+        CancellationToken cancellationToken = default);
+
+    public Task<IEnumerable<ParticipantDTO>> SearchUsersAsync(string query);
 }

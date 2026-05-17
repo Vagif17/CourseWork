@@ -64,6 +64,8 @@ public class GetPrivateChatsQueryHandler : IRequestHandler<GetPrivateChatsQuery,
                 {
                     participant.UserName = user.UserName;
                     participant.AvatarUrl = user.AvatarUrl;
+                    participant.Latitude = user.Latitude;
+                    participant.Longitude = user.Longitude;
                 }
 
                 if (participant.UserId == request.userId)

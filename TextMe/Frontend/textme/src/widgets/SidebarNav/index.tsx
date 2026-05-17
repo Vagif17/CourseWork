@@ -1,16 +1,18 @@
 import type { TabId } from "../../shared/api/types/tabs.ts";
 import "./SidebarNav.css";
+import { useTranslation } from "react-i18next";
 
-const items: { id: TabId; label: string; icon: "chats" | "settings" | "profile" | "news" }[] = [
-    { id: "chats", label: "Chats", icon: "chats" },
-    { id: "settings", label: "Settings", icon: "settings" },
-    { id: "profile", label: "Account", icon: "profile" },
-    { id: "news", label: "News", icon: "news" },
+const items: { id: TabId; labelKey: string; icon: "chats" | "settings" | "profile" | "news" | "location" }[] = [
+    { id: "chats", labelKey: "nav.chats", icon: "chats" },
+    { id: "settings", labelKey: "nav.settings", icon: "settings" },
+    { id: "profile", labelKey: "nav.profile", icon: "profile" },
+    { id: "news", labelKey: "nav.news", icon: "news" },
+    { id: "location", labelKey: "nav.location", icon: "location" },
 ];
 
 function NavIcon({ name }: { name: (typeof items)[number]["icon"] }) {
     const stroke = "currentColor";
-    const common = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke, strokeWidth: 1.75, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+    const common = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke, strokeWidth: 1.75, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
     switch (name) {
         case "chats":
             return (
@@ -39,6 +41,13 @@ function NavIcon({ name }: { name: (typeof items)[number]["icon"] }) {
                     <path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z" />
                 </svg>
             );
+        case "location":
+            return (
+                <svg {...common} aria-hidden>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+            );
         default:
             return null;
     }
@@ -47,23 +56,26 @@ function NavIcon({ name }: { name: (typeof items)[number]["icon"] }) {
 type Props = {
     activeTab: TabId;
     onSelect: (tab: TabId) => void;
+    isChatOpen?: boolean;
 };
 
-export default function Index({ activeTab, onSelect }: Props) {
+export default function Index({ activeTab, onSelect, isChatOpen }: Props) {
+    const { t } = useTranslation();
+
     return (
-        <nav className="sidebar-nav" aria-label="Main">
-            {items.map(({ id, label, icon }) => (
+        <nav className={`sidebar-nav ${isChatOpen ? "is-chat-open" : ""}`} aria-label="Main">
+            {items.map((item) => (
                 <button
-                    key={id}
+                    key={item.id}
                     type="button"
-                    className={`sidebar-nav-item ${activeTab === id ? "active" : ""}`}
-                    onClick={() => onSelect(id)}
-                    title={label}
+                    className={`sidebar-nav-item ${activeTab === item.id ? "active" : ""}`}
+                    onClick={() => onSelect(item.id)}
+                    title={t(item.labelKey)}
                 >
                     <span className="sidebar-nav-icon">
-                        <NavIcon name={icon} />
+                        <NavIcon name={item.icon} />
                     </span>
-                    <span className="sidebar-nav-label">{label}</span>
+                    <span className="sidebar-item-label">{t(item.labelKey)}</span>
                 </button>
             ))}
         </nav>

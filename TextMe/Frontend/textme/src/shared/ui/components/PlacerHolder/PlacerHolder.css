@@ -1,4 +1,4 @@
-﻿.placeholder-wrapper {
+.placeholder-wrapper {
     flex: 1;
     display: flex;
     align-items: center;
@@ -38,7 +38,7 @@
 .placeholder-title {
     font-size: 22px;
     margin-bottom: 10px;
-    background: linear-gradient(90deg, #00b6ff, #00d4ff);
+    background: linear-gradient(90deg, var(--accent-primary, #00b6ff), var(--accent-hover, #00d4ff));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -58,7 +58,7 @@
 .placeholder-animation span {
     width: 10px;
     height: 10px;
-    background: #00b6ff;
+    background: var(--accent-primary, #00b6ff);
     border-radius: 50%;
     animation: bounce 0.6s infinite alternate;
 }

@@ -19,12 +19,12 @@
 }
 
 .login-links a.register {
-    color: #00b6ff;
+    color: var(--accent-primary, #00b6ff);
     font-weight: 600;
 }
 
 .login-form button[type="submit"] {
-    background: linear-gradient(135deg, #007aff, #00b6ff);
+    background: linear-gradient(135deg, #007aff, var(--accent-primary, #00b6ff));
     color: white;
     box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
 }

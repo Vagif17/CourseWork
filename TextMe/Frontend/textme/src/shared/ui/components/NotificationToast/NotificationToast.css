@@ -43,7 +43,7 @@
 .noti-sender-name {
     font-weight: 600;
     font-size: 13px;
-    color: #00b6ff;
+    color: var(--accent-primary, #00b6ff);
     flex-shrink: 0;
 }
 
@@ -60,3 +60,4 @@
 /* Glassmorphism effect for the toast container is handled by react-toastify theme, 
    but we can enhance it if we override react-toastify classes globally in Global.css if needed. 
    For now, we customize the internal layout. */
+

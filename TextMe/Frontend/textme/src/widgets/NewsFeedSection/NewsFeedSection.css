@@ -62,12 +62,12 @@
 }
 
 .news-cat-btn:hover {
-    border-color: #00b6ff;
+    border-color: var(--accent-primary, #00b6ff);
 }
 
 .news-cat-btn.active {
     background: linear-gradient(135deg, rgba(0, 182, 255, 0.25), rgba(0, 212, 255, 0.15));
-    border-color: #00b6ff;
+    border-color: var(--accent-primary, #00b6ff);
     box-shadow: 0 0 12px rgba(0, 182, 255, 0.25);
 }
 
@@ -88,7 +88,7 @@
 }
 
 .news-reader-btn.primary {
-    background: linear-gradient(135deg, #00b6ff, #00d4ff);
+    background: linear-gradient(135deg, var(--accent-primary, #00b6ff), var(--accent-hover, #00d4ff));
     color: #fff;
 }
 
@@ -125,7 +125,7 @@ a.news-reader-btn.primary {
 }
 
 .news-share-chat:hover {
-    border-color: #00b6ff;
+    border-color: var(--accent-primary, #00b6ff);
 }
 
 .news-feed-active-meta {
@@ -195,3 +195,4 @@ a.news-reader-btn.primary {
     object-fit: cover;
     display: block;
 }
+

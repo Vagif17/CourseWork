@@ -6,11 +6,13 @@ import ProfileSection from "../../widgets/ProfileSection";
 import SettingsSection from "../../widgets/SettingsSection";
 import NewsFeedSection from "../../widgets/NewsFeedSection";
 import SidebarNav from "../../widgets/SidebarNav";
+import MapSection from "../../widgets/MapSection";
 import { useEffect, useState } from "react";
 import { initAuth } from "../../shared/lib/utils/initAuthUtil.ts";
 import { authService } from "../../shared/api/services/authService.ts";
 import AuthLoader from "../../shared/ui/AuthLoader";
 import { AppSettingsProvider } from "../../shared/lib/context/AppSettingsContext";
+import { UserLocationProvider, useUserLocation } from "../../shared/lib/context/UserLocationContext";
 import type { TabId } from "../../shared/api/types/tabs";
 import { useNotifications } from "../../shared/lib/hooks/useNotifications";
 import { useWebRTC } from "../../shared/lib/hooks/useWebRTC";
@@ -27,6 +29,7 @@ function HomePage() {
     const currentUserId = getUserId();
     const webrtc = useWebRTC(currentUserId);
     useNotifications(selectedChatId, activeTab);
+
 
     useEffect(() => {
         const init = async () => {
@@ -48,30 +51,53 @@ function HomePage() {
 
     return (
         <AppSettingsProvider>
-            <div className="homepage fade-in">
-                <div className="sidebar">
-                    <SidebarNav activeTab={activeTab} onSelect={setActiveTab} />
-
-                    <div className="sidebar-logout" onClick={handleLogout}>
-                        Log out
-                    </div>
-                </div>
-
-                <div className="main-content" key={activeTab}>
-                    {activeTab === "chats" && (
-                        <ChatSection 
-                            selectedChatId={selectedChatId} 
-                            setSelectedChatId={setSelectedChatId} 
-                            webrtc={webrtc}
-                        />
-                    )}
-                    {activeTab === "settings" && <SettingsSection />}
-                    {activeTab === "profile" && <ProfileSection />}
-                    {activeTab === "news" && <NewsFeedSection />}
-                </div>
-                <CallModal webrtc={webrtc} />
-            </div>
+            <UserLocationProvider>
+                <HomePageContent
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    selectedChatId={selectedChatId}
+                    setSelectedChatId={setSelectedChatId}
+                    webrtc={webrtc}
+                    handleLogout={handleLogout}
+                />
+            </UserLocationProvider>
         </AppSettingsProvider>
+    );
+}
+
+function HomePageContent({ activeTab, setActiveTab, selectedChatId, setSelectedChatId, webrtc }: any) {
+    const { position, locationError } = useUserLocation();
+
+    return (
+        <div className={`homepage fade-in ${selectedChatId !== null && activeTab === 'chats' ? 'is-chat-active' : ''}`}>
+            <div className="sidebar">
+                <SidebarNav activeTab={activeTab} onSelect={setActiveTab} isChatOpen={selectedChatId !== null && activeTab === 'chats'} />
+            </div>
+
+            <div className="main-content" key={activeTab}>
+                {activeTab === "chats" && (
+                    <ChatSection
+                        selectedChatId={selectedChatId}
+                        setSelectedChatId={setSelectedChatId}
+                        webrtc={webrtc}
+                    />
+                )}
+                {activeTab === "settings" && <SettingsSection />}
+                {activeTab === "profile" && <ProfileSection />}
+                {activeTab === "news" && <NewsFeedSection />}
+                {activeTab === "location" && (
+                    <MapSection
+                        onSendMessage={(chatId) => {
+                            setSelectedChatId(chatId);
+                            setActiveTab("chats");
+                        }}
+                        position={position}
+                        error={locationError}
+                    />
+                )}
+            </div>
+            <CallModal webrtc={webrtc} />
+        </div>
     );
 }
 

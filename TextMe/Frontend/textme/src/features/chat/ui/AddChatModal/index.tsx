@@ -6,6 +6,7 @@ import { authService } from "../../../../shared/api/services/authService";
 import type { PrivateChatDTOResponse } from "../../../../shared/api/types/chats";
 import { getErrorMessage } from "../../../../shared/lib/utils/getErrorMessage";
 import { getUserId } from "../../../../shared/lib/utils/getUserIdUtil";
+import Spinner from "../../../../shared/ui/components/Spinner";
 
 import "./AddChatModal.css";
 
@@ -25,6 +26,7 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
     const [newContact, setNewContact] = useState("");
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
     const [loading, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (newContact.trim().length > 2) {
@@ -54,6 +56,9 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
             return;
         }
 
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
         try {
             const chat = await chatService.createChat(query);
             onCreated(chat);
@@ -62,6 +67,8 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
             toast.success("Chat successfully created!");
         } catch (err: any) {
             toast.error(getErrorMessage(err));
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -78,6 +85,7 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
                         placeholder="Enter username, phone or email"
                         value={newContact}
                         onChange={(e) => setNewContact(e.target.value)}
+                        disabled={isSubmitting}
                     />
                     {loading && <div className="input-spinner" />}
                 </div>
@@ -87,8 +95,10 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
                         {suggestions.map(u => (
                             <div
                                 key={u.userId}
-                                className="suggestion-item"
-                                onClick={() => handleAdd(u.userName)}
+                                className={`suggestion-item ${isSubmitting ? "disabled" : ""}`}
+                                onClick={() => {
+                                    if (!isSubmitting) handleAdd(u.userName);
+                                }}
                             >
                                 <img src={u.avatarUrl || "/default-avatar.png"} alt="" />
                                 <div className="suggestion-info">
@@ -101,12 +111,12 @@ export default function AddChatModal({ onClose, onCreated }: Props) {
 
                 <div className="modal-buttons">
 
-                    <button className="cancel-btn" onClick={onClose}>
+                    <button className="cancel-btn" onClick={onClose} disabled={isSubmitting}>
                         Cancel
                     </button>
 
-                    <button className="add-btn" onClick={() => handleAdd()}>
-                        Add Chat
+                    <button className="add-btn" onClick={() => handleAdd()} disabled={isSubmitting}>
+                        {isSubmitting ? <Spinner /> : "Add Chat"}
                     </button>
 
                 </div>

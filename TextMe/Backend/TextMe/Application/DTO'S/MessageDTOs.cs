@@ -31,6 +31,15 @@ public class MessageDTO
     public string? ChatAvatarUrl { get; set; }
     public int? ReplyToMessageId { get; set; }
     public ReplyMessageDTO? ReplyToMessage { get; set; }
+    
+    public ICollection<MessageReactionDto> Reactions { get; set; } = new List<MessageReactionDto>();
+}
+
+public class MessageReactionDto
+{
+    public int Id { get; set; }
+    public string UserId { get; set; } = null!;
+    public string Emoji { get; set; } = null!;
 }
 
 public class ReplyMessageDTO

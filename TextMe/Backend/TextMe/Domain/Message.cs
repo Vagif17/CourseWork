@@ -27,4 +27,6 @@ public class Message
     public bool IsSystem { get; set; }
     public int? ReplyToMessageId { get; set; }
     public Message? ReplyToMessage { get; set; }
+
+    public ICollection<MessageReaction> Reactions { get; set; } = new List<MessageReaction>();
 }

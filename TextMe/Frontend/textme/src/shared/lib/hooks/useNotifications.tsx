@@ -22,15 +22,27 @@ export const useNotifications = (activeChatId: number | null, activeTab: string)
             if (!isChatActive || !isWindowFocused) {
                 audioRef.current?.play().catch(err => console.warn("Notification sound play failed", err));
 
-                toast.info(<NotificationToast message={message} />, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "dark",
-                });
+                if (message.mediaType === "geodrop") {
+                    toast.info("📍 You received a new GeoDrop! Check the map.", {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        theme: "dark",
+                    });
+                } else {
+                    toast.info(<NotificationToast message={message} />, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        theme: "dark",
+                    });
+                }
             }
         };
 

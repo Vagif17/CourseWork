@@ -32,4 +32,8 @@ export const profileService = {
         const { data } = await api.put<UserProfileResponse>("/Profile/me/privacy", body);
         return data;
     },
+
+    updateLocation: async (latitude: number | null, longitude: number | null): Promise<void> => {
+        await api.put("/Profile/me/location", { latitude, longitude });
+    },
 };

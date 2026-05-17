@@ -31,14 +31,24 @@ public class MessageRepository : IMessageRepository
     {
         return await context.Messages
             .Include(x => x.ReplyToMessage)
+            .Include(x => x.Reactions)
             .Where(x => x.ChatId == chatId)
             .OrderBy(x => x.CreatedAt)
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Message>> GetGeoDropsForUserAsync(string userId)
+    {
+        return await context.Messages
+            .Where(m => m.MediaType == "geodrop" && !m.IsDeleted && m.Chat.Participants.Any(p => p.UserId == userId))
+            .ToListAsync();
+    }
+
     public async Task<Message?> GetByIdTrackingAsync(int messageId)
     {
-        return await context.Messages.FirstOrDefaultAsync(m => m.Id == messageId);
+        return await context.Messages
+            .Include(m => m.Reactions)
+            .FirstOrDefaultAsync(m => m.Id == messageId);
     }
 
     public async Task UpdateMessageAsync(Message message)

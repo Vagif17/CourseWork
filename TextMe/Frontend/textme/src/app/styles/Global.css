@@ -12,6 +12,8 @@
         --bg-input: #1c1c1e; /* Dark input bg */
         --date-sep-color: rgba(255, 255, 255, 0.6);
         --date-sep-line: rgba(255, 255, 255, 0.1);
+        --accent-primary: #00b6ff;
+        --accent-hover: #00d4ff;
     }
 
     html[data-theme="light"] {
@@ -169,7 +171,7 @@
      /* Idea by : Sahib */
     * {
         scrollbar-width: thin;
-        scrollbar-color: #00b6ff #1e2630;
+        scrollbar-color: var(--accent-primary, #00b6ff) #1e2630;
     }
 
     *::-webkit-scrollbar {
@@ -182,13 +184,13 @@
     }
 
     *::-webkit-scrollbar-thumb {
-        background-color: #00b6ff;
+        background-color: var(--accent-primary, #00b6ff);
         border-radius: 4px;
         border: 2px solid #1e2630;
     }
 
     *::-webkit-scrollbar-thumb:hover {
-        background-color: #00d4ff;
+        background-color: var(--accent-hover, #00d4ff);
     }
 
     /* Modern Loaders */

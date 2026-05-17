@@ -1,1 +1,1 @@
-export type TabId = "chats" | "settings" | "profile" | "news";
+export type TabId = "chats" | "settings" | "profile" | "news" | "location";

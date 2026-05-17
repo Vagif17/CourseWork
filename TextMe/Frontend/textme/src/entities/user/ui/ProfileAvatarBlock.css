@@ -24,6 +24,6 @@
 }
 
 .profile-btn-secondary:hover {
-    border-color: #00b6ff;
-    color: #00d4ff;
+    border-color: var(--accent-primary, #00b6ff);
+    color: var(--accent-hover, #00d4ff);
 }

@@ -55,6 +55,8 @@ public class CreateChatCommandHandler
             var user = await userStore.GetUserByIdAsync(participant.UserId);
             participant.UserName = user.UserName;
             participant.AvatarUrl = user.AvatarUrl;
+            participant.Latitude = user.Latitude;
+            participant.Longitude = user.Longitude;
         }
 
         await messageRealtimeNotifier.NotifyNewChatAsync(new[] { request.creatorId, targetUserId }, chatDto);

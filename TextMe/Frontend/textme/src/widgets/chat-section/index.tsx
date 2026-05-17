@@ -27,7 +27,7 @@ export default function ChatSection({ selectedChatId, setSelectedChatId, webrtc 
 
     return (
         <div className="chat-section">
-            <div className="chat-list-wrapper">
+            <div className={`chat-list-wrapper ${selectedChatId ? 'hidden-on-mobile' : ''}`}>
                 <ChatList
                     currentUserId={currentUserId}
                     selectedChatId={selectedChatId}
@@ -36,12 +36,13 @@ export default function ChatSection({ selectedChatId, setSelectedChatId, webrtc 
                 />
             </div>
 
-            <div className="chat-window-wrapper">
+            <div className={`chat-window-wrapper ${!selectedChatId ? 'hidden-on-mobile' : ''}`}>
                 <ChatWindow
                     currentUserId={currentUserId}
                     selectedChatId={selectedChatId}
                     activeChat={activeChat}
                     onStartCall={webrtc.startCall}
+                    onBack={() => setSelectedChatId(null)}
                 />
             </div>
         </div>

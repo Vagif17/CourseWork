@@ -30,11 +30,16 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
     const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, chat: ChatDTO } | null>(null);
     const processedMessageIds = useRef<Set<number>>(new Set());
+    const currentUserIdRef = useRef(currentUserId);
     const selectedChatIdRef = useRef(selectedChatId);
 
     useEffect(() => {
         selectedChatIdRef.current = selectedChatId;
     }, [selectedChatId]);
+
+    useEffect(() => {
+        currentUserIdRef.current = currentUserId;
+    }, [currentUserId]);
 
     useEffect(() => {
         onChatsChange(chats);
@@ -111,10 +116,16 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
                 const next = [...prev];
                 const cur = next[i]!;
 
-                // Increment unread count if not the active chat
-                const newUnreadCount = (cur.id === selectedChatId) 
+                const activeId = selectedChatIdRef.current;
+                const myId = currentUserIdRef.current;
+
+                // STRICT CHECK: If active chat OR sent by me -> unread is 0
+                const isSentByMe = message.senderId === myId;
+                const isActiveChat = cur.id === activeId;
+
+                const newUnreadCount = (isActiveChat || isSentByMe) 
                     ? 0 
-                    : (cur.unreadCount || 0) + (message.senderId !== currentUserId ? 1 : 0);
+                    : (cur.unreadCount || 0) + 1;
 
                 next[i] = {
                     ...cur,
@@ -156,7 +167,7 @@ export default function ChatList({ currentUserId, onSelectChat, selectedChatId, 
             chatHub.offChatDeleted(onChatDeleted);
             window.removeEventListener("click", handleClick);
         };
-    }, [selectedChatId, currentUserId]);
+    }, []); // Run ONCE on mount
 
     // Reset unread count when a chat is selected
     useEffect(() => {

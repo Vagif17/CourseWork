@@ -11,6 +11,7 @@ public interface IMessageRealtimeNotifier
     public Task NotifyNewMessageAsync(IEnumerable<string> userIds, int chatId, MessageDTO message);
     public Task NotifyMessageEditedAsync(IEnumerable<string> userIds, int chatId, MessageDTO message);
     public Task NotifyMessageDeletedAsync(IEnumerable<string> userIds, int chatId, int messageId);
+    public Task NotifyMessageReactionsUpdatedAsync(IEnumerable<string> userIds, int chatId, int messageId, IEnumerable<MessageReactionDto> reactions);
     public Task NotifyNewChatAsync(IEnumerable<string> userIds, ChatDTO chat);
     public Task NotifyChatDeletedAsync(IEnumerable<string> userIds, int chatId);
     

@@ -1,4 +1,4 @@
-﻿import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const MAX_FILE_SIZE_MB = 50;
 
@@ -9,10 +9,7 @@ export function validateFiles(files: File[]): { file: File; url: string }[] {
                 toast.error(`File ${file.name} is too large (max ${MAX_FILE_SIZE_MB} MB))`);
                 return false;
             }
-            if (!file.type.startsWith("image") && !file.type.startsWith("video")) {
-                toast.error(`The file ${file.name} has an unsupported format`);
-                return false;
-            }
+            return true;
             return true;
         })
         .map(file => ({

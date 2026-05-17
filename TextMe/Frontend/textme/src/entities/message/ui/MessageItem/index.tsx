@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { tryParseNewsChatMessage } from "../../../../shared/lib/utils/newsChatPayload";
 import NewsChatCard from "./NewsChatCard";
 import AudioPlayer from "./AudioPlayer";
+import LocationMessage from "./LocationMessage";
+import LiveCanvas from "../../../../features/chat/ui/LiveCanvas";
+import { useUserLocation } from "../../../../shared/lib/context/UserLocationContext";
+import { getDistance } from "../../../../shared/lib/utils/geoUtils";
+import { api } from "../../../../shared/api/services/API";
 import "./MessageItem.css";
 
 type Props = {
@@ -13,6 +18,7 @@ type Props = {
     onReply?: (message: any) => void;
     onEdit?: (message: any) => void;
     onDelete?: (messageId: number) => void;
+    onReact?: (messageId: number, emoji: string) => void;
 };
 
 export default function MessageItem({
@@ -23,9 +29,25 @@ export default function MessageItem({
                                         currentUserId,
                                         onReply,
                                         onEdit,
-                                        onDelete
+                                        onDelete,
+                                        onReact
                                     }: Props) {
     const [showActions, setShowActions] = useState(false);
+    const [showReactionPicker, setShowReactionPicker] = useState(false);
+    const pickerTimeoutRef = useRef<number | null>(null);
+    const { position } = useUserLocation();
+
+
+    const handleMouseEnterPicker = () => {
+        if (pickerTimeoutRef.current) clearTimeout(pickerTimeoutRef.current);
+        setShowReactionPicker(true);
+    };
+
+    const handleMouseLeavePicker = () => {
+        pickerTimeoutRef.current = setTimeout(() => {
+            setShowReactionPicker(false);
+        }, 300);
+    };
 
     const formatTime = (dateString: string) => {
         if (!dateString) return "";
@@ -37,6 +59,15 @@ export default function MessageItem({
 
     const newsArticle = tryParseNewsChatMessage(message.text);
     const showSenderInfo = isGroup && !isMyMessage;
+
+    const reactionGroups = (message.reactions || []).reduce((acc: any, curr: any) => {
+        if (!acc[curr.emoji]) acc[curr.emoji] = { count: 0, userIds: [] };
+        acc[curr.emoji].count++;
+        acc[curr.emoji].userIds.push(curr.userId);
+        return acc;
+    }, {});
+
+    const commonEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡"];
 
     if (message.isSystem) {
         return (
@@ -86,9 +117,27 @@ export default function MessageItem({
                         <NewsChatCard article={newsArticle} isMine={isMyMessage} />
                     ) : (
                         message.text && (
-                            <div className="message-text">
-                                {message.text}
-                                {message.isEdited && <span className="message-edited-flag"> (edited)</span>}
+                            <div className={`message-text ${message.mediaType === 'geodrop' ? 'geodrop-text' : ''}`}>
+                                {message.mediaType === 'geodrop' ? (
+                                    (() => {
+                                        if (isMyMessage) return message.text;
+                                        if (!position || !message.mediaUrl) {
+                                            return <span className="geodrop-locked"><span className="geodrop-icon">🔒</span> Get closer to unlock</span>;
+                                        }
+                                        const [latStr, lonStr] = message.mediaUrl.split(',');
+                                        const dist = getDistance(position[0], position[1], parseFloat(latStr), parseFloat(lonStr));
+                                        if (dist > 50) {
+                                            return <span className="geodrop-locked"><span className="geodrop-icon">🔒</span> Get closer to unlock ({Math.round(dist)}m away)</span>;
+                                        }
+                                        return (
+                                            <>
+                                                <span className="geodrop-icon unlock-anim">🔓</span> {message.text}
+                                            </>
+                                        );
+                                    })()
+                                ) : (
+                                    message.text
+                                )}
                             </div>
                         )
                     )}
@@ -107,6 +156,40 @@ export default function MessageItem({
 
                     {!message.isDeleted && message.mediaUrl && message.mediaType?.startsWith("audio") && (
                         <AudioPlayer src={message.mediaUrl} />
+                    )}
+
+                    {!message.isDeleted && message.mediaUrl && 
+                     !message.mediaType?.startsWith("image") && 
+                     !message.mediaType?.startsWith("video") && 
+                     !message.mediaType?.startsWith("audio") && 
+                     message.mediaType !== "location" && 
+                     message.mediaType !== "geodrop" && 
+                     message.mediaType !== "canvas" && (
+                        <a href={message.mediaUrl} target="_blank" rel="noreferrer" className="message-file-attachment">
+                            <div className="file-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                            </div>
+                            <div className="file-details">
+                                <span className="file-name" title={message.mediaUrl.split('/').pop() || "Document"}>
+                                    {message.mediaUrl.split('/').pop() || "Document"}
+                                </span>
+                                <span className="file-action">Download</span>
+                            </div>
+                        </a>
+                    )}
+
+                    {!message.isDeleted && message.mediaUrl && message.mediaType === "location" && (
+                        <LocationMessage 
+                            latitude={parseFloat(message.mediaUrl.split(',')[0])} 
+                            longitude={parseFloat(message.mediaUrl.split(',')[1])} 
+                        />
+                    )}
+
+                    {!message.isDeleted && message.mediaType === "canvas" && (
+                        <LiveCanvas chatId={message.chatId} messageId={message.id} />
                     )}
 
                     <div className="message-meta">
@@ -132,8 +215,40 @@ export default function MessageItem({
                         )}
                     </div>
 
+                    {Object.keys(reactionGroups).length > 0 && !message.isDeleted && (
+                        <div className="message-reactions-row">
+                            {Object.entries(reactionGroups).map(([emoji, data]: [string, any]) => {
+                                const hasReacted = data.userIds.includes(currentUserId);
+                                return (
+                                    <button 
+                                        key={emoji} 
+                                        className={`reaction-pill ${hasReacted ? 'active' : ''}`}
+                                        onClick={() => onReact?.(message.id, emoji)}
+                                    >
+                                        <span className="reaction-emoji">{emoji}</span>
+                                        <span className="reaction-count">{data.count}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+
                     {showActions && !message.isDeleted && (
                         <div className="message-actions">
+                            <div className="reaction-quick-picker" onMouseEnter={handleMouseEnterPicker} onMouseLeave={handleMouseLeavePicker}>
+                                <button className="action-btn-sm" title="React">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                                </button>
+                                {showReactionPicker && (
+                                    <div className="reaction-tooltip">
+                                        {commonEmojis.map(emoji => (
+                                            <button key={emoji} className="quick-emoji-btn" onClick={() => { onReact?.(message.id, emoji); setShowReactionPicker(false); }}>
+                                                {emoji}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                             <button className="action-btn-sm" onClick={() => onReply?.(message)} title="Reply">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
                             </button>

@@ -33,7 +33,7 @@
 .settings-card h2 {
     font-size: 15px;
     margin: 0 0 14px;
-    color: #00b6ff;
+    color: var(--accent-primary, #00b6ff);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -74,7 +74,7 @@
 }
 
 .settings-toggle.on {
-    background: linear-gradient(135deg, #00b6ff, #00d4ff);
+    background: linear-gradient(135deg, var(--accent-primary, #00b6ff), var(--accent-hover, #00d4ff));
 }
 
 .settings-toggle-knob {
@@ -110,7 +110,23 @@
 }
 
 .settings-chip.active {
-    border-color: #00b6ff;
+    border-color: var(--accent-primary, #00b6ff);
     background: rgba(0, 182, 255, 0.15);
-    color: #00d4ff;
+    color: var(--accent-hover, #00d4ff);
 }
+
+.settings-select {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-chat, rgba(255, 255, 255, 0.2));
+    background: var(--surface-raised, #1a202c);
+    color: var(--text-primary, #fff);
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+
+.settings-select:focus {
+    border-color: var(--accent-primary, #00b6ff);
+}
+

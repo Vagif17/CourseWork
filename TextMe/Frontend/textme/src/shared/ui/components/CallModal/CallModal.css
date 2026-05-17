@@ -45,7 +45,7 @@
 .call-avatar-placeholder {
     width: 100px;
     height: 100px;
-    background: linear-gradient(135deg, #00b6ff 0%, #008cc9 100%);
+    background: linear-gradient(135deg, var(--accent-primary, #00b6ff) 0%, #008cc9 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -100,7 +100,7 @@
 }
 
 .answer-btn { background: #34c759; }
-.answer-audio-btn { background: #00b6ff; }
+.answer-audio-btn { background: var(--accent-primary, #00b6ff); }
 .reject-btn { background: #ff3b30; }
 
 .call-connected-view {
@@ -231,7 +231,7 @@
 }
 
 .connected-avatar-wrapper.is-talking .connected-avatar {
-    border-color: #00b6ff;
+    border-color: var(--accent-primary, #00b6ff);
     transform: scale(1.05);
     transition: all 0.2s;
 }
@@ -254,3 +254,4 @@
     margin: 0;
     letter-spacing: 0.5px;
 }
+

@@ -23,8 +23,21 @@ public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand,
     public async Task<bool> Handle(DeleteMessageCommand request, CancellationToken cancellationToken)
     {
         var msg = await messageRepository.GetByIdTrackingAsync(request.MessageId);
-        if (msg == null || msg.SenderId != request.SenderId)
+        if (msg == null)
             throw new UnauthorizedAccessException("Cannot delete this message.");
+
+        if (msg.SenderId != request.SenderId)
+        {
+            if (msg.MediaType == "geodrop")
+            {
+                var isParticipant = await chatRepository.IsUserParticipantInChatAsync(msg.ChatId, request.SenderId);
+                if (!isParticipant) throw new UnauthorizedAccessException("Cannot delete this message.");
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Cannot delete this message.");
+            }
+        }
 
         msg.IsDeleted = true;
         msg.Text = "This message was deleted.";

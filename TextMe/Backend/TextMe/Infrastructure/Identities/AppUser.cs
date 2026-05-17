@@ -19,4 +19,7 @@ public class AppUser : IdentityUser
 
     public bool ShareOnlineStatus { get; set; } = true;
 
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+
 }

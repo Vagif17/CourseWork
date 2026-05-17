@@ -134,6 +134,36 @@ namespace Infrastructure.Migrations
                     b.ToTable("Messages");
                 });
 
+            modelBuilder.Entity("Domain.MessageReaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Emoji")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("MessageReactions");
+                });
+
             modelBuilder.Entity("Domain.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -212,11 +242,17 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("LastSeenAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -430,6 +466,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("ReplyToMessage");
                 });
 
+            modelBuilder.Entity("Domain.MessageReaction", b =>
+                {
+                    b.HasOne("Domain.Message", "Message")
+                        .WithMany("Reactions")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -486,6 +533,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("Domain.Message", b =>
+                {
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("Infrastructure.AppUser", b =>

@@ -29,6 +29,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ReplyToMessage, opt => opt.MapFrom(src => src.ReplyToMessage));
 
         CreateMap<Message, ReplyMessageDTO>();
+        CreateMap<MessageReaction, MessageReactionDto>();
 
         #endregion
     }

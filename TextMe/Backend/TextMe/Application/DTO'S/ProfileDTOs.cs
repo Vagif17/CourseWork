@@ -14,6 +14,9 @@ public class UserProfileResponseDTO
     public bool ShareOnlineStatus { get; set; } = true;
 
     public DateTimeOffset? LastSeenAt { get; set; }
+    
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 public class UpdateProfileRequestDTO
@@ -32,6 +35,12 @@ public class ChangePasswordRequestDTO
 public class UpdatePrivacyRequestDTO
 {
     public bool ShareOnlineStatus { get; set; }
+}
+
+public class UpdateLocationRequestDTO
+{
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 public class ProfileUpdateResultDTO

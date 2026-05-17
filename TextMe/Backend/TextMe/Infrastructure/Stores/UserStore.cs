@@ -113,7 +113,9 @@ public class UserStore : IUserStore
             UserId = user.Id,
             UserName = user.UserName,
             Email = user.Email,
-            AvatarUrl = user.AvatarUrl
+            AvatarUrl = user.AvatarUrl,
+            Latitude = user.Latitude,
+            Longitude = user.Longitude
         };
     }
 
@@ -125,7 +127,9 @@ public class UserStore : IUserStore
             {
                 Id = u.Id,
                 UserName = u.UserName!,
-                AvatarUrl = u.AvatarUrl
+                AvatarUrl = u.AvatarUrl,
+                Latitude = u.Latitude,
+                Longitude = u.Longitude
             })
             .ToListAsync();
     }
@@ -225,6 +229,21 @@ public class UserStore : IUserStore
         return MapToProfileDto(user);
     }
 
+    public async Task UpdateLocationAsync(
+        string userId,
+        double? latitude,
+        double? longitude,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.FindByIdAsync(userId) ?? throw new KeyNotFoundException("User not found");
+        user.Latitude = latitude;
+        user.Longitude = longitude;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        var update = await userManager.UpdateAsync(user);
+        if (!update.Succeeded)
+            throw new InvalidOperationException(string.Join(", ", update.Errors.Select(e => e.Description)));
+    }
+
     private static UserProfileResponseDTO MapToProfileDto(AppUser user) => new()
     {
         Id = user.Id,
@@ -236,7 +255,9 @@ public class UserStore : IUserStore
         AvatarUrl = user.AvatarUrl,
         CreatedAt = user.CreatedAt,
         ShareOnlineStatus = user.ShareOnlineStatus,
-        LastSeenAt = user.LastSeenAt
+        LastSeenAt = user.LastSeenAt,
+        Latitude = user.Latitude,
+        Longitude = user.Longitude
     };
 
     public async Task<IEnumerable<ParticipantDTO>> SearchUsersAsync(string query)
@@ -256,7 +277,9 @@ public class UserStore : IUserStore
                 UserId = u.Id,
                 UserName = u.UserName,
                 Email = u.Email,
-                AvatarUrl = u.AvatarUrl
+                AvatarUrl = u.AvatarUrl,
+                Latitude = u.Latitude,
+                Longitude = u.Longitude
             })
             .ToListAsync();
     }

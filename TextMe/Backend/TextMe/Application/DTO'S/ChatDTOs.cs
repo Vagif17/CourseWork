@@ -14,6 +14,9 @@ public class ParticipantDTO
 
     public DateTimeOffset? LastSeenAt { get; set; }
     public bool IsAdmin { get; set; }
+
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 public class ChatDTO

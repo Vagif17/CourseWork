@@ -1,4 +1,3 @@
-
 .cancel-btn{
     padding:8px 14px;
     border:none;
@@ -16,13 +15,13 @@
     padding:8px 14px;
     border:none;
     border-radius:8px;
-    background:#00b6ff;
+    background:var(--accent-primary, #00b6ff);
     color:white;
     cursor:pointer;
 }
 
 .add-btn:hover{
-    background:#00d4ff;
+    background:var(--accent-hover, #00d4ff);
 }
 
 .chat-section {
@@ -44,4 +43,19 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
+}
+
+@media (max-width: 768px) {
+    .chat-list-wrapper {
+        flex: 1 !important;
+        width: 100vw;
+        border-right: none;
+    }
+    .chat-window-wrapper {
+        flex: 1 !important;
+        width: 100vw;
+    }
+    .hidden-on-mobile {
+        display: none !important;
+    }
 }

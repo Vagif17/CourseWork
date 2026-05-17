@@ -140,4 +140,19 @@ public class ChatHub : Hub
 
         await mediator.Send(new MarkChatAsReadCommand(chatId, userId));
     }
+
+    public async Task AddReaction(int messageId, string emoji)
+    {
+        var userId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(userId)) throw new HubException("Unauthorized");
+
+        await mediator.Send(new AddReactionCommand(messageId, userId, emoji));
+    }
+
+    public async Task DrawOnCanvas(int chatId, int messageId, object drawData)
+    {
+        var senderId = Context.UserIdentifier;
+        if (senderId == null) return;
+        await Clients.Group($"chat-{chatId}").SendAsync("ReceiveDrawData", messageId, drawData);
+    }
 }

@@ -3,16 +3,18 @@ import chatHub from "../../api/hubs/chatHub";
 import { messageService } from "../../api/services/messageService";
 import { toast } from "react-toastify";
 import { validateFiles } from "../utils/fileValidatorUtil";
-import { voiceRecorderService } from "../../api/services/voiceRecorderService";
+import { mediaRecorderService } from "../../api/services/mediaRecorderService";
 
 export function useChatWindow(selectedChatId: number | null, currentUserId: string | null) {
     const [messages, setMessages] = useState<any[]>([]);
     const [text, setText] = useState("");
     const [recording, setRecording] = useState(false);
+    const [recordingType, setRecordingType] = useState<'audio' | 'video'>('audio');
+    const [recordingLocked, setRecordingLocked] = useState(false);
     const [recordTime, setRecordTime] = useState(0);
+    const [previewStream, setPreviewStream] = useState<MediaStream | null>(null);
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string }[]>([]);
     
-    // Message management state
     const [replyingMessage, setReplyingMessage] = useState<any | null>(null);
     const [editingMessage, setEditingMessage] = useState<any | null>(null);
     
@@ -33,6 +35,9 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
         if (!selectedChatId) return;
 
         const messageCallback = async (msg: any) => {
+            if (msg.mediaType === "geodrop") {
+                return;
+            }
             if (msg.chatId !== selectedChatIdRef.current) return;
             setMessages(prev => [...prev, msg]);
             const uid = currentUserId?.toLowerCase();
@@ -41,7 +46,6 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
                 try {
                     await chatHub.ackMessageDelivered(msg.id);
                 } catch {
-                    /* ignore */
                 }
             }
         };
@@ -61,6 +65,11 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
             setMessages(prev => prev.map(m => m.id === payload.messageId ? { ...m, isDeleted: true, text: "This message was deleted.", mediaUrl: null, mediaType: null } : m));
         };
 
+        const reactionsCallback = (payload: { messageId: number; chatId: number; reactions: any[] }) => {
+            if (payload.chatId !== selectedChatIdRef.current) return;
+            setMessages(prev => prev.map(m => m.id === payload.messageId ? { ...m, reactions: payload.reactions } : m));
+        };
+
         const init = async () => {
             try {
                 if (!chatHub.isConnected()) await chatHub.start();
@@ -70,13 +79,13 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
                 chatHub.onMessageStatusUpdated(statusCallback);
                 chatHub.onMessageEdited(editedCallback);
                 chatHub.onMessageDeleted(deletedCallback);
+                chatHub.onMessageReactionsUpdated(reactionsCallback);
 
                 const oldMessages = await messageService.getMessages(selectedChatId);
-                setMessages(oldMessages);
+                setMessages(oldMessages.filter((m: any) => m.mediaType !== "geodrop"));
                 try {
                     await chatHub.markChatAsRead(selectedChatId);
                 } catch {
-                    /* ignore */
                 }
             } catch (err) {
                 console.error("ChatHub init error:", err);
@@ -92,6 +101,7 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
             chatHub.offMessageStatusUpdated(statusCallback);
             chatHub.offMessageEdited(editedCallback);
             chatHub.offMessageDeleted(deletedCallback);
+            chatHub.offMessageReactionsUpdated(reactionsCallback);
         };
     }, [selectedChatId, currentUserId, mergeStatus]);
 
@@ -122,7 +132,6 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
                 for (let i = 0; i < urls.length; i++) {
                     await chatHub.sendMessage(selectedChatId, "", urls[i], previewImages[i].file.type);
                 }
-                // Очищаем физический input
                 if (fileRef?.current) {
                     fileRef.current.value = "";
                 }
@@ -138,6 +147,24 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
         }
     };
 
+    const sendGeoDrop = async (text: string, lat: number, lng: number) => {
+        if (!selectedChatId) return;
+        try {
+            await chatHub.sendMessage(selectedChatId, text, `${lat},${lng}`, "geodrop");
+        } catch (err: any) {
+            toast.error("Failed to send GeoDrop: " + err.message);
+        }
+    };
+
+    const sendCanvasMessage = async () => {
+        if (!selectedChatId) return;
+        try {
+            await chatHub.sendMessage(selectedChatId, "", "", "canvas");
+        } catch (err: any) {
+            toast.error("Failed to send Canvas: " + err.message);
+        }
+    };
+
     const deleteMessage = async (messageId: number) => {
         try {
             await chatHub.deleteMessage(messageId);
@@ -146,32 +173,64 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
         }
     };
 
-    const startRecording = async () => {
+    const reactToMessage = async (messageId: number, emoji: string) => {
+        try {
+            await chatHub.addReaction(messageId, emoji);
+        } catch (err: any) {
+            toast.error("Failed to add reaction: " + err.message);
+        }
+    };
+
+    const startRecording = async (type: 'audio' | 'video' = 'audio') => {
         if (recording) return;
         try {
-            await voiceRecorderService.start();
+            const stream = await mediaRecorderService.start(type);
+            setRecordingType(type);
             setRecording(true);
+            setRecordingLocked(false);
             setRecordTime(0);
+            setPreviewStream(stream);
             recordIntervalRef.current = window.setInterval(() => setRecordTime(prev => prev + 1), 1000);
         } catch {
-            toast.error("Microphone permission denied");
+            toast.error("Media permission denied");
         }
+    };
+
+    const lockRecording = () => {
+        setRecordingLocked(true);
+    };
+
+    const cancelRecording = () => {
+        if (!recording) return;
+        mediaRecorderService.cancel();
+        finishRecordingCleanup();
     };
 
     const stopRecording = async () => {
         if (!recording) return;
-        setRecording(false);
-        if (recordIntervalRef.current) clearInterval(recordIntervalRef.current);
-        recordIntervalRef.current = null;
+        const typeOfRecording = recordingType;
+        finishRecordingCleanup();
 
         try {
-            const result = await voiceRecorderService.stop();
-            if (!result || result.file.size === 0) throw new Error("Recorded audio is empty");
+            const result = await mediaRecorderService.stop();
+            if (!result || result.file.size === 0) return;
             const urls = await messageService.uploadMedia([result.file]);
-            if (selectedChatId) await chatHub.sendMessage(selectedChatId, "", urls[0], result.type);
+            if (selectedChatId) {
+                // Determine media type for the backend
+                const finalType = typeOfRecording === 'video' ? 'video/webm' : result.type;
+                await chatHub.sendMessage(selectedChatId, "", urls[0], finalType);
+            }
         } catch (err: any) {
-            toast.error("Voice Message Error: " + (err.message || err));
+            toast.error("Recording Error: " + (err.message || err));
         }
+    };
+
+    const finishRecordingCleanup = () => {
+        setRecording(false);
+        setRecordingLocked(false);
+        setPreviewStream(null);
+        if (recordIntervalRef.current) clearInterval(recordIntervalRef.current);
+        recordIntervalRef.current = null;
     };
 
     return {
@@ -179,17 +238,25 @@ export function useChatWindow(selectedChatId: number | null, currentUserId: stri
         text,
         setText,
         recording,
+        recordingType,
+        recordingLocked,
         recordTime,
+        previewStream,
         previewImages,
         handleFileChange,
         removePreviewImage,
         sendMessage,
         startRecording,
         stopRecording,
+        lockRecording,
+        cancelRecording,
         replyingMessage,
         setReplyingMessage,
         editingMessage,
         setEditingMessage,
         deleteMessage,
+        reactToMessage,
+        sendGeoDrop,
+        sendCanvasMessage,
     };
 }

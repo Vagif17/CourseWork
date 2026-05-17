@@ -11,6 +11,7 @@ using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Infrastructure.Storages;
 using Infrastructure.Stores;
+using Application.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.Configure<JwtConfig>(configuration.GetSection(JwtConfig.SectionName));
         services.Configure<CloudConfig>(configuration.GetSection(CloudConfig.SectionName));
         services.Configure<MailConfig>(configuration.GetSection("MailSettings"));
+        services.Configure<OpenAISettings>(configuration.GetSection("OpenAI"));
 
         var connectionString = configuration.GetConnectionString("TextMeDbContext");
         services.AddDbContext<TextMeDbContext>(options => options.UseSqlServer(connectionString));
@@ -40,6 +42,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserStore, UserStore>();
         services.AddScoped<ICloudinaryStorage, CloudinaryStorage>();
         services.AddSingleton<IEncryptionService, EncryptionService>();
+        services.AddScoped<IAIService, AIService>();
 
         services.AddHttpClient(nameof(RssNewsFeedService));
         services.AddScoped<INewsFeedService, RssNewsFeedService>();

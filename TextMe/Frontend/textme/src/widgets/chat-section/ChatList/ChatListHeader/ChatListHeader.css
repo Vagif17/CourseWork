@@ -29,7 +29,7 @@
     height:36px;
     border-radius:12px;
     border:none;
-    background:#00b6ff;
+    background:var(--accent-primary, #00b6ff);
     color:white;
     font-size:18px;
     display:flex;
@@ -40,15 +40,15 @@
 }
 
 .add-group-btn {
-    background: #00b6ff;
+    background: var(--accent-primary, #00b6ff);
 }
 
 .add-chat-btn:hover {
-    background:#00d4ff;
+    background:var(--accent-hover, #00d4ff);
     transform: scale(1.05);
 }
 
 .add-group-btn:hover {
-    background: #00d4ff;
+    background: var(--accent-hover, #00d4ff);
     transform: scale(1.05);
 }

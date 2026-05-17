@@ -7,7 +7,7 @@
     grid-template-columns: 600px 1fr;
     grid-template-rows: auto 1fr;
     gap: 10px;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: var(--page-bg);
     color: var(--text-primary);
@@ -119,6 +119,9 @@ footer p {
 
 @media (max-width: 1024px) {
     .grid-layout {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
         grid-template-columns: 1fr;
         grid-template-areas:
             "header"

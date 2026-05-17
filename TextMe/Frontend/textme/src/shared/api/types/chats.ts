@@ -7,6 +7,8 @@ export type ParticipantDTO = {
     lastSeenAt?: string | null;
     isAdmin?: boolean;
     email?: string;
+    latitude?: number;
+    longitude?: number;
 };
 
 export type ChatDTO = {

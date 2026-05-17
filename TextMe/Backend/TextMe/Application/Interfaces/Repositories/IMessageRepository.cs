@@ -11,4 +11,5 @@ public interface IMessageRepository
     public Task<IReadOnlyList<(int MessageId, string SenderId)>> MarkIncomingAsDeliveredAsync(int chatId, string recipientUserId);
     public Task<IReadOnlyList<(int MessageId, string SenderId)>> MarkIncomingAsReadAsync(int chatId, string readerUserId);
     public Task<Dictionary<int, int>> GetUnreadCountsAsync(string userId, IEnumerable<int> chatIds);
+    public Task<IEnumerable<Message>> GetGeoDropsForUserAsync(string userId);
 }

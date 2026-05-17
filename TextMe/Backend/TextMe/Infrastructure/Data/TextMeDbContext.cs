@@ -20,6 +20,7 @@ public class TextMeDbContext : IdentityDbContext<AppUser>
 
     public DbSet<Chat> Chats => Set<Chat>();
     public DbSet<Message> Messages => Set<Message>();
+    public DbSet<MessageReaction> MessageReactions => Set<MessageReaction>();
     public DbSet<ChatParticipant> ChatParticipants => Set<ChatParticipant>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
@@ -71,6 +72,16 @@ public class TextMeDbContext : IdentityDbContext<AppUser>
                    .WithMany()
                    .HasForeignKey(m => m.ReplyToMessageId)
                    .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<MessageReaction>(reaction =>
+        {
+            reaction.HasKey(r => r.Id);
+            reaction.Property(r => r.Emoji).IsRequired().HasMaxLength(10);
+            reaction.HasOne(r => r.Message)
+                .WithMany(m => m.Reactions)
+                .HasForeignKey(r => r.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<ChatParticipant>(chatParticipant =>

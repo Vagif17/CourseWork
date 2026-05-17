@@ -38,11 +38,19 @@ export default function ChatItem({ chat, currentUserId, selectedChatId, onSelect
                     <span className="participant-presence">{presenceText}</span>
                     {chat.lastMessage && <span className="participant-preview">{chat.lastMessage}</span>}
                 </div>
-                {(chat.unreadCount ?? 0) > 0 && (
-                    <div className="unread-badge">
-                        {chat.unreadCount! > 9 ? "9+" : chat.unreadCount}
-                    </div>
-                )}
+                
+                <div className="chat-item-meta">
+                    {chat.lastMessageAt && (
+                        <span className="last-message-time">
+                            {new Date(chat.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    )}
+                    {(chat.unreadCount ?? 0) > 0 && (
+                        <div className="unread-badge">
+                            {chat.unreadCount! > 99 ? "99+" : chat.unreadCount}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

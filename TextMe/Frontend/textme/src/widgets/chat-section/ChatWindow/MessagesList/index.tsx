@@ -11,10 +11,11 @@ type Props = {
     onReply: (message: any) => void;
     onEdit: (message: any) => void;
     onDelete: (messageId: number) => void;
+    onReact: (messageId: number, emoji: string) => void;
 };
 
 const MessagesList = forwardRef<HTMLDivElement, Props>(
-    ({ messages, currentUserId, isGroup, setSelectedImage, onReply, onEdit, onDelete }, ref) => {
+    ({ messages, currentUserId, isGroup, setSelectedImage, onReply, onEdit, onDelete, onReact }, ref) => {
         const { messageDensity } = useAppSettings();
 
         const isNewDay = (curr: any, prev: any) => {
@@ -73,6 +74,7 @@ const MessagesList = forwardRef<HTMLDivElement, Props>(
                                 onReply={onReply}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
+                                onReact={onReact}
                             />
                         </Fragment>
                     );

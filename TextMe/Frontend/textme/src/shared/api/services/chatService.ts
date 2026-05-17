@@ -39,6 +39,10 @@ export const chatService = {
 
     leaveGroup: async (chatId: number): Promise<void> => {
         await api.post(`/Chat/${chatId}/leave`);
-    }
+    },
 
+    getGeoDrops: async (): Promise<any[]> => {
+        const response = await api.get<any[]>("/Chat/geodrops");
+        return response.data;
+    }
 };

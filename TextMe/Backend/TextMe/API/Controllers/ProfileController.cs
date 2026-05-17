@@ -90,4 +90,17 @@ public class ProfileController : ControllerBase
         var profile = await profileService.UpdatePrivacyAsync(userId, request, cancellationToken);
         return Ok(profile);
     }
+
+    [HttpPut("me/location")]
+    public async Task<IActionResult> UpdateLocation(
+        [FromBody] UpdateLocationRequestDTO request,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        await profileService.UpdateLocationAsync(userId, request, cancellationToken);
+        return NoContent();
+    }
 }

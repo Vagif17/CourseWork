@@ -60,6 +60,14 @@ public class HubMessageRealtimeNotifier : IMessageRealtimeNotifier
             : hubContext.Clients.Users(ids).SendAsync("MessageDeleted", new { MessageId = messageId, ChatId = chatId });
     }
 
+    public Task NotifyMessageReactionsUpdatedAsync(IEnumerable<string> userIds, int chatId, int messageId, IEnumerable<MessageReactionDto> reactions)
+    {
+        var ids = userIds.Distinct().ToArray();
+        return ids.Length == 0
+            ? Task.CompletedTask
+            : hubContext.Clients.Users(ids).SendAsync("MessageReactionsUpdated", new { ChatId = chatId, MessageId = messageId, Reactions = reactions });
+    }
+
     public Task NotifyNewChatAsync(IEnumerable<string> userIds, ChatDTO chat)
     {
         var ids = userIds.Distinct().ToArray();

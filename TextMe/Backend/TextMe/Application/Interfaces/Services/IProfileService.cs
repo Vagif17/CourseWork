@@ -15,4 +15,6 @@ public interface IProfileService
     public Task ChangePasswordAsync(string userId, ChangePasswordRequestDTO request, CancellationToken cancellationToken = default);
 
     public Task<UserProfileResponseDTO> UpdatePrivacyAsync(string userId, UpdatePrivacyRequestDTO request, CancellationToken cancellationToken = default);
+
+    public Task UpdateLocationAsync(string userId, UpdateLocationRequestDTO request, CancellationToken cancellationToken = default);
 }

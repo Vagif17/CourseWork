@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { profileService } from "../../shared/api/services/profileService";
 import { tokenService } from "../../shared/api/services/tokenService";
+import { authService } from "../../shared/api/services/authService";
 import { getUserId } from "../../shared/lib/utils/getUserIdUtil";
 import { getErrorMessage } from "../../shared/lib/utils/getErrorMessage";
 import type { UserProfileResponse } from "../../shared/api/types/profile";
@@ -9,8 +10,10 @@ import { ProfileAvatarBlock } from "../../entities/user";
 import { ProfileFieldsForm, PasswordChangeForm } from "../../features/profile";
 import ProfileExtras from "./ProfileExtras";
 import "./ProfileSection.css";
+import { useNavigate } from "react-router";
 
 export default function ProfileSection() {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [pwdBusy, setPwdBusy] = useState(false);
@@ -176,6 +179,23 @@ export default function ProfileSection() {
                         <ProfileExtras userId={userId} memberSince={profile.createdAt} />
                     </section>
                 )}
+
+                <section className="profile-card profile-danger-zone">
+                    <h2>Danger Zone</h2>
+                    <p className="profile-subtitle" style={{ marginBottom: '16px', opacity: 0.8 }}>
+                        Logging out will end your current session.
+                    </p>
+                    <button 
+                        type="button" 
+                        className="profile-btn-danger w-full"
+                        onClick={async () => {
+                            await authService.logout();
+                            navigate("/auth");
+                        }}
+                    >
+                        Log out
+                    </button>
+                </section>
             </div>
         </div>
     );

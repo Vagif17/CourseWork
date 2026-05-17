@@ -4,48 +4,56 @@ import { tokenService } from "../services/tokenService"
 
 class ChatHub {
     private connection: signalR.HubConnection | null = null;
-    private listeners: Map<string, Set<(payload: any) => void>> = new Map();
+    private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
+
+    private startPromise: Promise<void> | null = null;
 
     async start() {
-        if (this.connection) {
-            if (this.connection.state === signalR.HubConnectionState.Connected)
-                return;
-            if (this.connection.state === signalR.HubConnectionState.Connecting || 
-                this.connection.state === signalR.HubConnectionState.Reconnecting)
-                return;
-
-            await this.connection.start();
+        if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
             return;
         }
 
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(HUB_URL, {
-                accessTokenFactory: async () => {
-                    return (await tokenService.getValidToken()) || "";
-                },
-            })
-            .withAutomaticReconnect()
-            .build();
+        if (this.startPromise) {
+            return this.startPromise;
+        }
 
-        this.connection.onreconnected(() => console.log("SignalR Reconnected"));
-        this.connection.onclose(() => console.log("SignalR Disconnected"));
+        if (!this.connection) {
+            this.connection = new signalR.HubConnectionBuilder()
+                .withUrl(HUB_URL, {
+                    accessTokenFactory: async () => {
+                        return (await tokenService.getValidToken()) || "";
+                    },
+                })
+                .withAutomaticReconnect()
+                .build();
 
-        // Re-attach all listeners if connection was recreated
-        this.listeners.forEach((callbacks, eventName) => {
-            callbacks.forEach(callback => {
-                this.connection?.on(eventName, callback);
+            this.connection.onreconnected(() => console.log("SignalR Reconnected"));
+            this.connection.onclose(() => console.log("SignalR Disconnected"));
+
+            // Re-attach all listeners if connection was recreated
+            this.listeners.forEach((callbacks, eventName) => {
+                callbacks.forEach(callback => {
+                    this.connection?.on(eventName, callback);
+                });
             });
+        }
+
+        this.startPromise = this.connection.start().then(() => {
+            console.log("SignalR Connected");
+            this.startPromise = null;
+        }).catch(err => {
+            this.startPromise = null;
+            throw err;
         });
 
-        await this.connection.start();
-        console.log("SignalR Connected");
+        return this.startPromise;
     }
 
     isConnected(): boolean {
         return this.connection?.state === signalR.HubConnectionState.Connected;
     }
 
-    private registerListener(eventName: string, callback: (payload: any) => void) {
+    private registerListener(eventName: string, callback: (...args: any[]) => void) {
         if (!this.listeners.has(eventName)) {
             this.listeners.set(eventName, new Set());
         }
@@ -56,7 +64,7 @@ class ChatHub {
         }
     }
 
-    private removeListener(eventName: string, callback: (payload: any) => void) {
+    private removeListener(eventName: string, callback: (...args: any[]) => void) {
         const callbacks = this.listeners.get(eventName);
         if (callbacks) {
             callbacks.delete(callback);
@@ -102,6 +110,16 @@ class ChatHub {
         await this.connection?.invoke("DeleteMessage", messageId);
     }
 
+    async addReaction(messageId: number, emoji: string) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("AddReaction", messageId, emoji);
+    }
+
+    async drawOnCanvas(chatId: number, messageId: number, drawData: any) {
+        if (!this.isConnected()) await this.start();
+        await this.connection?.invoke("DrawOnCanvas", chatId, messageId, drawData);
+    }
+
     onReceiveMessage(callback: (message: any) => void) {
         this.registerListener("ReceiveMessage", callback);
     }
@@ -124,6 +142,22 @@ class ChatHub {
 
     offMessageDeleted(callback: (payload: { messageId: number; chatId: number }) => void) {
         this.removeListener("MessageDeleted", callback);
+    }
+
+    onMessageReactionsUpdated(callback: (payload: { messageId: number; chatId: number; reactions: any[] }) => void) {
+        this.registerListener("MessageReactionsUpdated", callback);
+    }
+
+    offMessageReactionsUpdated(callback: (payload: { messageId: number; chatId: number; reactions: any[] }) => void) {
+        this.removeListener("MessageReactionsUpdated", callback);
+    }
+
+    onReceiveDrawData(callback: (messageId: number, drawData: any) => void) {
+        this.registerListener("ReceiveDrawData", callback);
+    }
+
+    offReceiveDrawData(callback: (messageId: number, drawData: any) => void) {
+        this.removeListener("ReceiveDrawData", callback);
     }
 
     onReceiveNewChat(callback: (chat: any) => void) {

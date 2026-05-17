@@ -1,4 +1,4 @@
-﻿using CloudinaryDotNet;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 using Application.Config;
@@ -75,7 +75,15 @@ public class CloudinaryStorage : ICloudinaryStorage
             }
             else
             {
-                throw new Exception("Unsupported file type");
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(fileName, fileStream),
+                    PublicId = $"files/{Guid.NewGuid()}"
+                };
+                var result = await _cloudinary.UploadAsync(uploadParams);
+                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                    throw new Exception(result.Error?.Message);
+                return result.SecureUrl.ToString();
             }
         }
         catch (Exception ex)

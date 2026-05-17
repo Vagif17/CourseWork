@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.Features.Chats.Commands;
 using Application.Features.Chats.Queries;
+using Application.Features.Messages.Queries;
 using Application.Interfaces.Notifications;
 using Application.Interfaces.Repositories;
 using Application.Services.Interfaces;
@@ -95,6 +96,16 @@ public class ChatController : ControllerBase
 
         var success = await mediator.Send(new LeaveGroupCommand(id, userId));
         return success ? Ok() : BadRequest("Failed to leave group");
+    }
+
+    [HttpGet("geodrops")]
+    public async Task<ActionResult<IEnumerable<MessageDTO>>> GetGeoDrops()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var geoDrops = await mediator.Send(new GetUserGeoDropsQuery(userId));
+        return Ok(geoDrops);
     }
 }
 

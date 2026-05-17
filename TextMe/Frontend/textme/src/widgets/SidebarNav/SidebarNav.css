@@ -22,29 +22,27 @@
     min-height: 64px;
     border: none;
     border-radius: 12px;
-    background: var(--sidebar-bg, #0c1014);
-    color: var(--text-primary, #fff);
+    background: transparent;
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-    box-shadow: 0 0 6px rgba(0, 182, 255, 0.12);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s, color 0.2s;
     font-family: inherit;
 }
 
 .sidebar-nav-item:hover {
-    background: #00b6ff;
-    color: #fff;
+    background: var(--surface-raised-glass);
+    color: var(--text-primary);
     transform: scale(1.02);
-    box-shadow: 0 0 12px rgba(0, 182, 255, 0.45);
 }
 
 .sidebar-nav-item.active {
-    background: #00b6ff;
+    background: var(--accent-primary, #00b6ff);
     color: #fff;
-    box-shadow: 0 0 14px rgba(0, 182, 255, 0.55);
+    box-shadow: 0 4px 12px rgba(0, 182, 255, 0.35);
 }
 
 .sidebar-nav-item.active:hover {
-    background: #00d4ff;
+    background: var(--accent-hover, #00d4ff);
 }
 
 .sidebar-nav-icon {
@@ -62,4 +60,41 @@
     line-height: 1.1;
     text-align: center;
     max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .sidebar-nav {
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 0;
+        gap: 0;
+        height: 100%;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    .sidebar-nav.is-chat-open {
+        display: none;
+    }
+    .sidebar-nav-item {
+        aspect-ratio: auto;
+        border-radius: 0;
+        height: 100%;
+        min-height: unset;
+        box-shadow: none;
+        background: transparent;
+        padding: 4px;
+    }
+    .sidebar-nav-item:hover {
+        transform: none;
+        box-shadow: none;
+        background: transparent;
+        color: var(--text-primary, #fff);
+    }
+    .sidebar-nav-item.active {
+        box-shadow: inset 0 3px 0 var(--accent-primary, #00b6ff);
+        background: rgba(0, 182, 255, 0.1);
+    }
+    .sidebar-nav-label {
+        font-size: 8px;
+    }
 }

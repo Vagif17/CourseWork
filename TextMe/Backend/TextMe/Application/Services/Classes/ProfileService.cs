@@ -83,4 +83,7 @@ public class ProfileService : IProfileService
         await messageRealtimeNotifier.NotifyUserPresenceAsync(partners, dto);
         return profile;
     }
+
+    public Task UpdateLocationAsync(string userId, UpdateLocationRequestDTO request, CancellationToken cancellationToken = default)
+        => userStore.UpdateLocationAsync(userId, request.Latitude, request.Longitude, cancellationToken);
 }

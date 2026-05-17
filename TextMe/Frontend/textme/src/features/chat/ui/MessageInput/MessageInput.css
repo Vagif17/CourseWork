@@ -1,34 +1,53 @@
-.input-wrapper { padding: 15px; }
+.input-wrapper { 
+    padding: 10px 15px; 
+    position: relative;
+}
 
 .input-container {
     display: flex;
     align-items: center;
     gap: 8px;
     background: var(--surface-raised, #11161d);
-    border-radius: 30px;
+    border-radius: 24px;
     padding: 6px 10px;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
 }
 
 .input-container.recording-active {
-    background: rgba(255, 60, 60, 0.1);
-    box-shadow: inset 0 0 10px rgba(255, 60, 60, 0.2);
+    background: var(--surface-raised, #11161d);
 }
 
-.attach-btn {
+.attach-btn, .emoji-btn {
     width: 36px;
     height: 36px;
     border-radius: 50%;
     border: none;
-    background: var(--surface-muted, #1e2630);
-    color: var(--text-primary, #fff);
+    background: transparent;
+    color: var(--text-secondary, #aaa);
     cursor: pointer;
-    font-size: 18px;
-    transition: background 0.2s;
+    font-size: 20px;
+    transition: all 0.2s;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.attach-btn:hover { background: #2a3440; }
+.attach-btn:hover, .emoji-btn:hover { 
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary, #fff);
+}
+
+.emoji-btn svg {
+    opacity: 0.8;
+}
+
+.emoji-btn:hover svg {
+    opacity: 1;
+    transform: scale(1.1);
+}
 
 .message-input {
     flex: 1;
@@ -36,16 +55,19 @@
     outline: none;
     background: transparent;
     color: var(--text-primary, #fff);
-    font-size: 14px;
-    padding: 8px;
+    font-size: 15px;
+    padding: 10px 4px;
+    min-width: 0;
 }
 
+/* Recording UI */
 .recording-status {
     flex: 1;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 0 12px;
+    padding: 0 8px;
+    min-width: 0;
 }
 
 .recording-indicator {
@@ -56,70 +78,157 @@
     animation: flash 1s infinite alternate;
 }
 
-@keyframes flash {
-    0% { opacity: 1; box-shadow: 0 0 6px #ff3b30; }
-    100% { opacity: 0.3; box-shadow: 0 0 0px #ff3b30; }
-}
-
 .recording-timer {
-    color: #ff3b30;
-    font-family: monospace;
-    font-size: 16px;
-    font-weight: 600;
+    color: var(--text-primary, #fff);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
 }
 
 .recording-hint {
-    color: var(--text-secondary, #aaa);
-    font-size: 12px;
-    margin-left: auto;
+    color: var(--text-secondary, #888);
+    font-size: 13px;
+    white-space: nowrap;
     user-select: none;
-    animation: slideInFade 0.3s ease-out;
+    transition: color 0.2s, transform 0.1s linear;
 }
 
-@keyframes slideInFade {
-    from { opacity: 0; transform: translateX(10px); }
-    to { opacity: 1; transform: translateX(0); }
+.recording-hint.cancelling {
+    color: #ff3b30;
 }
 
+.recording-lock-hint {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary, #888);
+    transition: opacity 0.3s, transform 0.1s linear;
+    pointer-events: none;
+}
+
+.lock-arrow {
+    font-size: 12px;
+    animation: bounceUp 1s infinite;
+}
+
+@keyframes bounceUp {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.recording-locked-actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.record-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.record-action-btn:active { transform: scale(0.9); }
+
+.record-action-btn.delete {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+}
+
+.record-action-btn.send {
+    background: var(--accent-primary, #00b6ff);
+    color: white;
+}
+
+/* Video Preview */
+.video-note-preview-wrapper {
+    position: absolute;
+    bottom: 80px;
+    right: 15px;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.video-note-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #000;
+    border: 4px solid var(--accent-primary, #00b6ff);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: scale(0);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.video-note-circle video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror effect */
+}
+
+@keyframes popIn {
+    to { transform: scale(1); }
+}
+
+/* Buttons */
 .action-btn {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 16px;
+    color: var(--text-secondary, #aaa);
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    flex-shrink: 0;
+    transition: all 0.2s;
+    background: transparent;
+    position: relative;
+    z-index: 20;
 }
 
 .send-btn-active {
-    background: #00b6ff;
-    transform: scale(1.05);
+    background: var(--accent-primary, #00b6ff) !important;
+    color: white !important;
 }
-
-.send-btn-active:hover { background: #00d4ff; transform: scale(1.1); }
-
-.record-btn {
-    background: transparent;
-    color: var(--text-secondary, #aaa);
-}
-
-.record-btn:hover { color: #00b6ff; background: rgba(0, 182, 255, 0.1); }
 
 .record-btn.recording {
-    background: #ff3b30;
-    color: white;
-    transform: scale(1.2);
-    box-shadow: 0 0 15px rgba(255, 59, 48, 0.5);
-    animation: pulseRecording 1s infinite;
+    background: #ff3b30 !important;
+    color: white !important;
+    transform: scale(1.4);
 }
 
-@keyframes pulseRecording {
-    0% { transform: scale(1.2); box-shadow: 0 0 15px rgba(255, 59, 48, 0.5); }
-    50% { transform: scale(1.3); box-shadow: 0 0 25px rgba(255, 59, 48, 0.8); }
-    100% { transform: scale(1.2); box-shadow: 0 0 15px rgba(255, 59, 48, 0.5); }
+.emoji-picker-container {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    padding-bottom: 10px;
+    z-index: 50;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .video-note-circle {
+        width: 150px;
+        height: 150px;
+    }
+    .input-wrapper {
+        padding: 8px 10px;
+    }
+    .recording-hint {
+        font-size: 11px;
+    }
 }

@@ -10,7 +10,7 @@
 }
 
 .register-form button {
-    background: linear-gradient(135deg, #007aff, #00b6ff);
+    background: linear-gradient(135deg, #007aff, var(--accent-primary, #00b6ff));
     color: white;
     border-radius: 12px;
     padding: 12px;
@@ -36,7 +36,7 @@
 
 .register-links a {
     font-size: 14px;
-    color: #00b6ff;
+    color: var(--accent-primary, #00b6ff);
     text-decoration: none;
     cursor: pointer;
     transition: 0.2s;
@@ -76,8 +76,8 @@
 }
 
 .avatar-label:hover {
-    border-color: #00b6ff;
-    color: #00b6ff;
+    border-color: var(--accent-primary, #00b6ff);
+    color: var(--accent-primary, #00b6ff);
     transform: scale(1.05);
 }
 
@@ -99,4 +99,16 @@
 
 .full-width, .input-error-username {
     grid-column: span 2;
+}
+
+@media (max-width: 600px) {
+    .register-form {
+        padding: 20px;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .full-width, .input-error-username {
+        grid-column: span 1;
+    }
 }
