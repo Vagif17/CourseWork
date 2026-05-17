@@ -41,6 +41,13 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
+            # Устанавливаем Docker, если его нет на сервере
+            if ! command -v docker &> /dev/null; then
+                curl -fsSL https://get.docker.com -o get-docker.sh
+                sudo sh get-docker.sh
+                sudo usermod -aG docker ubuntu
+            fi
+
             mkdir -p ~/textme
             cd ~/textme
             
@@ -62,5 +69,6 @@ jobs:
                   - api
             EOF
             
-            docker compose pull
-            docker compose up -d
+            # Скачиваем новые образы и запускаем с правами sudo
+            sudo docker compose pull
+            sudo docker compose up -d
