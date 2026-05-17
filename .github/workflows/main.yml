@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - CourseWork
 
 jobs:
   build-and-push:
