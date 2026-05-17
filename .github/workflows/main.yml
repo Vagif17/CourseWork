@@ -14,6 +14,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Inject appsettings.json
+        run: |
+          cat << 'EOF' > TextMe/Backend/TextMe/API/appsettings.json
+          ${{ secrets.APPSETTINGS_JSON }}
+          EOF
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
