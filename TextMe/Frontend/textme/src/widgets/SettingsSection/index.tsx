@@ -11,7 +11,7 @@ import "./SettingsSection.css";
 export default function SettingsSection() {
     const { theme, setTheme, typingSoundEnabled, setTypingSoundEnabled, shareLocationOnMap, setShareLocationOnMap, moodBasedUI, setMoodBasedUI } =
         useAppSettings();
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     const [shareOnlineStatus, setShareOnlineStatus] = useState(true);
     const [privacyLoaded, setPrivacyLoaded] = useState(false);

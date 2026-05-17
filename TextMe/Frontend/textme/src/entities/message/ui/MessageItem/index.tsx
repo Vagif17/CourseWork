@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { tryParseNewsChatMessage } from "../../../../shared/lib/utils/newsChatPayload";
 import NewsChatCard from "./NewsChatCard";
 import AudioPlayer from "./AudioPlayer";
@@ -6,7 +6,7 @@ import LocationMessage from "./LocationMessage";
 import LiveCanvas from "../../../../features/chat/ui/LiveCanvas";
 import { useUserLocation } from "../../../../shared/lib/context/UserLocationContext";
 import { getDistance } from "../../../../shared/lib/utils/geoUtils";
-import { api } from "../../../../shared/api/services/API";
+
 import "./MessageItem.css";
 
 type Props = {

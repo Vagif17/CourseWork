@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { api } from "../../../shared/api/services/API";
+
 import AudioPlayer from "../../../entities/message/ui/MessageItem/AudioPlayer";
 import "./ChatInfoSidebar.css";
 
@@ -8,7 +8,7 @@ type Props = {
     isOpen: boolean;
     onClose: () => void;
     messages: any[];
-    messages: any[];
+
     onSelectImage: (url: string) => void;
 };
 
