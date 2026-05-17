@@ -16,6 +16,16 @@ RUN echo 'server { \
         index index.html index.htm; \
         try_files $uri $uri/ /index.html; \
     } \
+    location /api/ { \
+        proxy_pass http://api:80/api/; \
+        proxy_set_header Host $host; \
+    } \
+    location /hubs/ { \
+        proxy_pass http://api:80/hubs/; \
+        proxy_set_header Upgrade $http_upgrade; \
+        proxy_set_header Connection "Upgrade"; \
+        proxy_set_header Host $host; \
+    } \
 }' > /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
