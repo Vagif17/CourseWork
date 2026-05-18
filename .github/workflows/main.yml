@@ -17,10 +17,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
       - name: Create appsettings.json
+        env:
+          APPSETTINGS: ${{ secrets.APPSETTINGS_JSON }}
         run: |
-          echo "${{ secrets.APPSETTINGS_JSON }}" > ./TextMe/Backend/TextMe/API/appsettings.json
+          echo "$APPSETTINGS" > ./TextMe/Backend/TextMe/API/appsettings.json
 
       - name: Build and Push Backend API Image
         run: |
