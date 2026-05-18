@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - CourseWork
 
 jobs:
   build-and-push:
@@ -48,6 +48,7 @@ jobs:
             services:
               api:
                 image: ${{ secrets.DOCKER_USERNAME }}/textme-api:latest
+                restart: always
                 ports:
                   - "5000:80"
                 environment:
@@ -55,6 +56,7 @@ jobs:
                   - ASPNETCORE_URLS=http://+:80
               frontend:
                 image: ${{ secrets.DOCKER_USERNAME }}/textme-frontend:latest
+                restart: always
                 ports:
                   - "3000:80"
                 depends_on:

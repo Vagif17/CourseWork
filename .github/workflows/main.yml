@@ -3,8 +3,6 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
-      - master
       - CourseWork
 
 jobs:
@@ -13,12 +11,6 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-
-      - name: Inject appsettings.json
-        run: |
-          cat << 'EOF' > TextMe/Backend/TextMe/API/appsettings.json
-          ${{ secrets.APPSETTINGS_JSON }}
-          EOF
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -47,7 +39,6 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            # Устанавливаем Docker, если его нет на сервере
             if ! command -v docker &> /dev/null; then
                 curl -fsSL https://get.docker.com -o get-docker.sh
                 sudo sh get-docker.sh
@@ -62,6 +53,7 @@ jobs:
             services:
               api:
                 image: ${{ secrets.DOCKER_USERNAME }}/textme-api:latest
+                restart: always
                 ports:
                   - "5000:80"
                 environment:
@@ -69,12 +61,12 @@ jobs:
                   - ASPNETCORE_URLS=http://+:80
               frontend:
                 image: ${{ secrets.DOCKER_USERNAME }}/textme-frontend:latest
+                restart: always
                 ports:
                   - "3000:80"
                 depends_on:
                   - api
             EOF
             
-            # Скачиваем новые образы и запускаем с правами sudo
             sudo docker compose pull
             sudo docker compose up -d
